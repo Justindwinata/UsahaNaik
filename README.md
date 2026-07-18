@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0004 adds simple local financial tracking so UMKM owners can record income and expenses and see dashboard metrics update from saved Room data.
+UN-0005 adds a deterministic business diagnosis engine so UMKM owners can see rule-based health scores, insight cards, risk signals, and priority actions from saved profile and financial data.
 
 Implemented UN-0001 screens:
 
@@ -73,6 +73,17 @@ Implemented UN-0004 foundation:
 - Empty dashboard financial state falls back to the saved business profile baseline and prompts the user to start recording entries.
 - Unit tests cover calculation helpers, persistence/repository behavior, ViewModel validation/save/delete, and dashboard metric mapping.
 
+Implemented UN-0005 foundation:
+
+- Business diagnosis domain models for health score, score breakdown, insights, risk signals, priority actions, severities, categories, difficulty, and estimated time.
+- Deterministic `BusinessDiagnosisEngine` that reviews saved profile data and financial summaries.
+- Rule-based business health score with financial clarity, profitability, goal progress, expense control, execution readiness, and category fit components.
+- Insight rules for no financial entries, positive profit, negative profit, high expense ratio, target progress, poor financial records, low sales, inconsistent content, and stock issues.
+- Category-aware priority actions for Food & Beverage, Warung / Toko Kelontong, Skincare & Beauty, Online Shop / Reseller, Laundry, and fallback business cases.
+- `DashboardInsightsViewModel` that loads saved profile and financial summary, then exposes diagnosis state to Compose.
+- Dashboard UI for rule-based score breakdown, insight summary cards, business insight cards, risk/attention cards, and 3-5 priority action cards.
+- Unit tests cover scoring rules, insights, risks, category actions, state integration, and dashboard mapping behavior.
+
 ## Tech Stack
 
 - Kotlin
@@ -113,8 +124,8 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Financial entries are simple local records, not a full accounting ledger.
 - No real AI API integration yet.
 - Content ideas are local preview samples only.
-- No full business diagnosis engine yet.
-- No weekly plan generation from real diagnosis yet.
+- Diagnosis is deterministic and heuristic.
+- Weekly plan is not fully generated from diagnosis yet.
 - No authentication, cloud sync, payment, or notification system.
 - No guaranteed profit increase.
 - Not professional accounting software.
@@ -122,7 +133,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0005, dashboard insights and clearer deterministic business signals from saved profile and financial activity.
+Next recommended milestone: UN-0006, deterministic weekly planning engine generated from saved profile, diagnosis signals, challenges, and goals.
 
 ## Documentation
 

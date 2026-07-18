@@ -48,6 +48,16 @@ Completed scope:
 
 Add deterministic insight cards from saved profile data, selected challenges, category hints, and financial activity.
 
+Completed scope:
+
+- Add business diagnosis domain models.
+- Add deterministic health score and score breakdown.
+- Generate financial, goal progress, challenge, content, stock, and risk insights.
+- Generate 3-5 category-aware priority actions.
+- Connect dashboard insight state through a ViewModel.
+- Render score, insight summary, insight cards, priority actions, and risk/attention cards.
+- Keep diagnosis transparent, heuristic, and non-guaranteed.
+
 ## UN-0006 - Weekly Planning Engine
 
 Generate structured weekly plans from business category, challenges, and goals using deterministic local logic.

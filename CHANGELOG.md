@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.5.0 - UN-0005
+
+- Added business diagnosis domain models for health score, score breakdown, insights, risk signals, priority actions, severities, categories, difficulty, and estimated time.
+- Added deterministic `BusinessDiagnosisEngine` for rule-based diagnosis from saved profile data and financial summaries.
+- Added score components for financial clarity, profitability, goal progress, expense control, execution readiness, and category fit.
+- Added insight and risk rules for no records, positive profit, negative profit, high expenses, target progress, poor financial records, low sales, inconsistent content, and stock issues.
+- Added category-aware `PriorityActionGenerator` with practical UMKM actions and 3-5 action output.
+- Added `DashboardInsightsViewModel` to load saved profile and financial summary, generate diagnosis, and expose dashboard insight state.
+- Added dashboard UI for rule-based health score, score breakdown, insight summary, insight cards, priority action cards, and risk/attention cards.
+- Added tests for diagnosis rules, priority action generation, ViewModel state, and model behavior.
+
+### Known Limitations
+
+- Diagnosis is deterministic and heuristic.
+- Not professional financial advice.
+- No guaranteed profit increase.
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- Content ideas are still local/sample-based.
+- Weekly plan is not fully generated from diagnosis yet.
+- No notification system.
+
 ## 0.4.0 - UN-0004
 
 - Added financial entry domain models for income and expense tracking.

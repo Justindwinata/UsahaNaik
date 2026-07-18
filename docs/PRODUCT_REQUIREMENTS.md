@@ -36,10 +36,12 @@ The app is not professional financial advice and does not guarantee profit incre
 7. User can close/reopen the app and resume the saved local profile.
 8. User records simple income and expense entries locally.
 9. User reviews dashboard financial metrics generated from saved entries.
-10. User reviews health score, finance summary, tasks, milestones, and ideas.
-11. User follows weekly plan tasks.
-12. User reviews AI-assisted content idea previews.
-13. User can delete local profile data from Settings/Profile.
+10. User reviews rule-based business diagnosis insights and risk signals.
+11. User follows 3-5 priority actions generated from category, challenges, goals, and financial records.
+12. User reviews health score, finance summary, tasks, milestones, and ideas.
+13. User follows weekly plan tasks.
+14. User reviews AI-assisted content idea previews.
+15. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -87,6 +89,30 @@ The app calculates dashboard metrics from saved entries where available:
 
 This is intentionally simple financial tracking for owner visibility. It is not professional accounting software, tax reporting, or professional financial advice.
 
+## Business Diagnosis Engine
+
+UN-0005 adds deterministic rule-based diagnosis. Insights are generated from saved business profile data, selected challenges, business category, goals, available time, stock issue, cost driver, and local financial summary.
+
+The business health score is heuristic and transparent. It uses these components:
+
+- Financial clarity.
+- Profitability.
+- Goal progress.
+- Expense control.
+- Execution readiness.
+- Category fit.
+
+Diagnosis outputs include:
+
+- Business health score and status label.
+- Score breakdown.
+- Business insight cards.
+- Risk/attention signals.
+- Dashboard insight summary counts.
+- Category-aware priority actions with difficulty, estimated time, reason, and expected outcome wording.
+
+Recommendations are planning suggestions, not guaranteed outcomes. UsahaNaik is not a replacement for professional financial advice.
+
 ## Dashboard Concept
 
 The dashboard should show:
@@ -117,6 +143,8 @@ For UN-0003, content ideas remain local deterministic samples. Room persistence 
 
 For UN-0004, content ideas remain local deterministic samples. Room persistence now also stores simple financial entries, but no real AI API is used.
 
+For UN-0005, content ideas remain local deterministic samples. The diagnosis engine is rule-based and does not call an AI API.
+
 ## Limitations
 
 - No authentication.
@@ -125,8 +153,8 @@ For UN-0004, content ideas remain local deterministic samples. Room persistence 
 - Local persistence only.
 - No notification system yet.
 - No real AI integration yet.
-- No full business diagnosis engine yet.
-- No weekly plan generation from real diagnosis yet.
+- Diagnosis is deterministic and heuristic.
+- Weekly plan is not fully generated from diagnosis yet.
 - No professional financial advice.
 - Not professional accounting software.
 - No guaranteed profit increase.

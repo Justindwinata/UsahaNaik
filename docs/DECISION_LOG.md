@@ -103,3 +103,25 @@ The app labels profit as estimated and calculates it transparently as income min
 ### Finance UI Inside Dashboard
 
 UN-0004 places the financial tracking form and recent activity inside the dashboard instead of adding a new bottom tab. This keeps navigation compact while the app still has only a small set of core flows.
+
+## UN-0005 Decisions
+
+### Rule-Based Diagnosis Before AI
+
+UN-0005 adds deterministic diagnosis instead of AI-generated diagnosis. This keeps behavior transparent, testable, offline-friendly, and free from API keys or paid dependencies.
+
+### Heuristic Health Score
+
+The business health score is a heuristic 0-100 score built from financial clarity, profitability, goal progress, expense control, execution readiness, and category fit. It is useful for planning signals, not a scientific or professional financial rating.
+
+### Insight Severity Labels
+
+Insight cards use severity labels such as positive, info, warning, and critical. The UI also uses color, but the label is always visible so severity is not communicated by color alone.
+
+### Category-Aware Actions Stay Practical
+
+Priority actions are grounded in available app data and category metadata. The generator avoids recommendations that require unavailable data, such as tax calculations, inventory counts, or customer databases.
+
+### Diagnosis Is Not Persisted Yet
+
+Diagnosis is calculated in memory from Room-backed profile and financial records. Persisting diagnosis history is deferred until progress tracking and weekly plan generation are more mature.
