@@ -177,7 +177,9 @@ fun UsahaNaikApp() {
                         financialEntryViewModel = financialEntryViewModel,
                         dashboardInsightsViewModel = dashboardInsightsViewModel,
                         weeklyPlanViewModel = weeklyPlanViewModel,
-                        onOpenWeeklyPlan = { navController.navigate(AppRoute.WeeklyPlan.route) }
+                        contentPlannerViewModel = contentPlannerViewModel,
+                        onOpenWeeklyPlan = { navController.navigate(AppRoute.WeeklyPlan.route) },
+                        onOpenContentPlanner = { navController.navigate(AppRoute.ContentIdeas.route) }
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {

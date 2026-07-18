@@ -44,6 +44,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryRepository
 import com.justindwinata.usahanaik.data.repository.SampleGrowthRepository
+import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummary
+import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummaryMapper
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetrics
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetricsMapper
 import com.justindwinata.usahanaik.domain.model.AvailableTime
@@ -803,12 +805,15 @@ fun DashboardScreen(
     financialEntryViewModel: FinancialEntryViewModel,
     dashboardInsightsViewModel: DashboardInsightsViewModel,
     weeklyPlanViewModel: WeeklyPlanViewModel,
-    onOpenWeeklyPlan: () -> Unit
+    contentPlannerViewModel: ContentPlannerViewModel,
+    onOpenWeeklyPlan: () -> Unit,
+    onOpenContentPlanner: () -> Unit
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
     val insightsState by dashboardInsightsViewModel.uiState.collectAsState()
     val weeklyPlanState by weeklyPlanViewModel.uiState.collectAsState()
+    val contentPlannerState by contentPlannerViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
@@ -818,6 +823,9 @@ fun DashboardScreen(
     }
     val weeklySummary = remember(weeklyPlanState.activePlan) {
         WeeklyPlanDashboardSummaryMapper.from(weeklyPlanState.activePlan)
+    }
+    val contentSummary = remember(contentPlannerState.savedIdeas) {
+        ContentPlannerDashboardSummaryMapper.from(contentPlannerState.savedIdeas)
     }
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
@@ -854,6 +862,11 @@ fun DashboardScreen(
         WeeklyPlanDashboardSection(
             summary = weeklySummary,
             onOpenWeeklyPlan = onOpenWeeklyPlan
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        ContentPlannerDashboardSection(
+            summary = contentSummary,
+            onOpenContentPlanner = onOpenContentPlanner
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
@@ -1247,6 +1260,65 @@ private fun WeeklyPlanDashboardSection(
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         Button(onClick = onOpenWeeklyPlan, modifier = Modifier.fillMaxWidth()) {
+            Text(summary.ctaLabel)
+        }
+    }
+}
+
+@Composable
+private fun ContentPlannerDashboardSection(
+    summary: ContentPlannerDashboardSummary,
+    onOpenContentPlanner: () -> Unit
+) {
+    SectionHeader(title = "Content Planner", actionLabel = if (summary.hasIdeas) "Saved" else "Empty")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (summary.hasIdeas) LavenderSoft else YellowSoft
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Saved",
+                value = summary.savedCount.toString(),
+                helper = "Ideas",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+            MetricCard(
+                title = "Planned",
+                value = summary.plannedCount.toString(),
+                helper = "Ready",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Done",
+                value = summary.doneCount.toString(),
+                helper = "Posted",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+            MetricCard(
+                title = "Favorites",
+                value = summary.favoriteCount.toString(),
+                helper = "Pinned",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = "Next idea", style = MaterialTheme.typography.labelLarge, color = InkMuted)
+        Text(text = summary.nextIdeaTitle, style = MaterialTheme.typography.titleMedium)
+        Text(text = summary.nextIdeaPlatform, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenContentPlanner, modifier = Modifier.fillMaxWidth()) {
             Text(summary.ctaLabel)
         }
     }
@@ -2185,6 +2257,8 @@ fun SettingsScreen(viewModel: BusinessSetupViewModel) {
             color = InkMuted
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        AiProviderSettingsSection()
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         if (uiState.savedProfile == null) {
             UsahaNaikCard(containerColor = YellowSoft) {
                 Text(text = "No saved profile", style = MaterialTheme.typography.titleLarge)
@@ -2263,6 +2337,26 @@ fun SettingsScreen(viewModel: BusinessSetupViewModel) {
                 color = CoralPrimary
             )
         }
+    }
+}
+
+@Composable
+private fun AiProviderSettingsSection() {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        PillBadge(text = "Local only", containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "AI content provider", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Content generation currently uses a deterministic local provider. Optional AI provider configuration is planned, and no API key is hardcoded in this build.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = "If API key settings are added later, keys must be user-provided, masked in UI, stored only on this device, and never logged.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
     }
 }
 
