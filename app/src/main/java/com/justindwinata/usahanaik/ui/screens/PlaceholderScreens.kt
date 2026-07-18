@@ -56,10 +56,17 @@ import com.justindwinata.usahanaik.domain.model.BusinessRiskSignal
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
+import com.justindwinata.usahanaik.domain.model.ContentGenerationSource
+import com.justindwinata.usahanaik.domain.model.ContentGoal
 import com.justindwinata.usahanaik.domain.model.ContentIdea
+import com.justindwinata.usahanaik.domain.model.ContentIdeaFilter
+import com.justindwinata.usahanaik.domain.model.ContentIdeaStatus
+import com.justindwinata.usahanaik.domain.model.ContentIdeaType
+import com.justindwinata.usahanaik.domain.model.ContentPlatform
 import com.justindwinata.usahanaik.domain.model.CostDriver
 import com.justindwinata.usahanaik.domain.model.Milestone
 import com.justindwinata.usahanaik.domain.model.MonthlyFocus
+import com.justindwinata.usahanaik.domain.model.PromotionCampaign
 import com.justindwinata.usahanaik.domain.model.SellingChannel
 import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.model.FinancialEntry
@@ -80,6 +87,8 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
+import com.justindwinata.usahanaik.ui.content.ContentPlannerUiState
+import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsUiState
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
@@ -1829,22 +1838,338 @@ private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
 }
 
 @Composable
-fun ContentIdeasScreen() {
-    val ideas = remember { SampleGrowthRepository().getContentIdeaPreview() }
+fun ContentIdeasScreen(viewModel: ContentPlannerViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
 
     ScreenContainer {
-        SectionHeader(title = "Content Ideas", actionLabel = "Local sample")
+        SectionHeader(title = "Content Planner", actionLabel = uiState.generationSource.label)
         Text(
-            text = "AI-assisted ideas preview. UN-0001 memakai provider lokal deterministik, belum memanggil API AI real.",
+            text = "Generate content planning suggestions from your saved business profile, selected goal, and platform. Review and adjust every idea before posting.",
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        if (!uiState.hasProfile) {
+            ContentPlannerEmptyState(message = uiState.emptyStateMessage ?: "Complete business setup first.")
+        } else {
+            ContentGenerationControls(
+                uiState = uiState,
+                onPlatformChange = viewModel::updatePlatform,
+                onGoalChange = viewModel::updateGoal,
+                onTypeChange = viewModel::updateType,
+                onIdeaCountChange = viewModel::updateIdeaCount,
+                onGenerate = viewModel::generateIdeas
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            GeneratedIdeasSection(
+                ideas = uiState.generatedIdeas,
+                isGenerating = uiState.isGenerating,
+                onSave = viewModel::saveIdea
+            )
+            if (uiState.promotionCampaigns.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(AppSpacing.lg))
+                PromotionPlannerSection(campaigns = uiState.promotionCampaigns)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            SavedIdeasSection(
+                uiState = uiState,
+                onFilterChange = viewModel::updateFilter,
+                onFavorite = viewModel::toggleFavorite,
+                onMarkDraft = viewModel::markDraft,
+                onMarkPlanned = viewModel::markPlanned,
+                onMarkDone = viewModel::markDone,
+                onDelete = viewModel::deleteIdea
+            )
+        }
+        uiState.successMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            }
+        }
+        uiState.errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentPlannerEmptyState(message: String) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        Text(text = message, style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "Generate your first content ideas after saving a business profile. Local deterministic ideas remain available without paid AI access.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun ContentGenerationControls(
+    uiState: ContentPlannerUiState,
+    onPlatformChange: (ContentPlatform) -> Unit,
+    onGoalChange: (ContentGoal) -> Unit,
+    onTypeChange: (ContentIdeaType?) -> Unit,
+    onIdeaCountChange: (Int) -> Unit,
+    onGenerate: () -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            PillBadge(text = "Local deterministic", containerColor = CreamBackground, contentColor = CoralPrimary)
+            if (uiState.usedFallback) {
+                PillBadge(text = "Fallback used", containerColor = CreamBackground, contentColor = GreenPositive)
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Generation controls", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "Choose a platform and content goal. Remote AI is optional; local generation works offline.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = "Platform", style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        ChipFlow {
+            ContentPlatform.entries.forEach { platform ->
+                FilterChip(
+                    selected = uiState.form.platform == platform,
+                    onClick = { onPlatformChange(platform) },
+                    label = { Text(platform.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Content goal", style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        ChipFlow {
+            ContentGoal.entries.forEach { goal ->
+                FilterChip(
+                    selected = uiState.form.goal == goal,
+                    onClick = { onGoalChange(goal) },
+                    label = { Text(goal.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Content type", style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        ChipFlow {
+            FilterChip(
+                selected = uiState.form.type == null,
+                onClick = { onTypeChange(null) },
+                label = { Text("Any") }
+            )
+            ContentIdeaType.entries.forEach { type ->
+                FilterChip(
+                    selected = uiState.form.type == type,
+                    onClick = { onTypeChange(type) },
+                    label = { Text(type.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Idea count", style = MaterialTheme.typography.labelLarge)
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            listOf(5, 6, 8, 10).forEach { count ->
+                FilterChip(
+                    selected = uiState.form.ideaCount == count,
+                    onClick = { onIdeaCountChange(count) },
+                    label = { Text(count.toString()) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(
+            onClick = onGenerate,
+            enabled = !uiState.isGenerating,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (uiState.isGenerating) "Generating Ideas..." else "Generate Content Ideas")
+        }
+    }
+}
+
+@Composable
+private fun GeneratedIdeasSection(
+    ideas: List<ContentIdea>,
+    isGenerating: Boolean,
+    onSave: (ContentIdea) -> Unit
+) {
+    SectionHeader(title = "Generated Ideas", actionLabel = if (ideas.isEmpty()) "Draft" else "${ideas.size} ideas")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (ideas.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+            Text(
+                text = if (isGenerating) "Generating content ideas..." else "Generate your first content ideas based on your business profile.",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Ideas include hook, caption draft, CTA, visual suggestion, and safety notes.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
         ideas.forEach { idea ->
-            ContentIdeaPreviewCard(idea = idea)
+            ContentIdeaPlannerCard(
+                idea = idea,
+                showPersistenceActions = false,
+                onSave = { onSave(idea) },
+                onFavorite = {},
+                onMarkDraft = {},
+                onMarkPlanned = {},
+                onMarkDone = {},
+                onDelete = {}
+            )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
     }
+}
+
+@Composable
+private fun SavedIdeasSection(
+    uiState: ContentPlannerUiState,
+    onFilterChange: (ContentIdeaFilter) -> Unit,
+    onFavorite: (Long) -> Unit,
+    onMarkDraft: (Long) -> Unit,
+    onMarkPlanned: (Long) -> Unit,
+    onMarkDone: (Long) -> Unit,
+    onDelete: (Long) -> Unit
+) {
+    SectionHeader(title = "Saved Ideas", actionLabel = uiState.filter.label)
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    ChipFlow {
+        ContentIdeaFilter.entries.forEach { filter ->
+            FilterChip(
+                selected = uiState.filter == filter,
+                onClick = { onFilterChange(filter) },
+                label = { Text(filter.label) }
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (uiState.savedIdeas.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(text = "No saved ideas yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Save generated ideas to plan, favorite, complete, or delete them locally.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
+        uiState.savedIdeas.forEach { idea ->
+            ContentIdeaPlannerCard(
+                idea = idea,
+                showPersistenceActions = true,
+                onSave = {},
+                onFavorite = { onFavorite(idea.id) },
+                onMarkDraft = { onMarkDraft(idea.id) },
+                onMarkPlanned = { onMarkPlanned(idea.id) },
+                onMarkDone = { onMarkDone(idea.id) },
+                onDelete = { onDelete(idea.id) }
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun ContentIdeaPlannerCard(
+    idea: ContentIdea,
+    showPersistenceActions: Boolean,
+    onSave: () -> Unit,
+    onFavorite: () -> Unit,
+    onMarkDraft: () -> Unit,
+    onMarkPlanned: () -> Unit,
+    onMarkDone: () -> Unit,
+    onDelete: () -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = contentIdeaContainerColor(idea.source)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)) {
+            PillBadge(text = idea.source.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+            PillBadge(text = idea.status.label, containerColor = CreamBackground, contentColor = GreenPositive)
+            if (idea.isFavorite) {
+                PillBadge(text = "Favorite", containerColor = CreamBackground, contentColor = CoralPrimary)
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = idea.title, style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "${idea.platform.label} - ${idea.goal.label} - ${idea.type.label}",
+            style = MaterialTheme.typography.labelMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ContentIdeaDetail(label = "Hook", value = idea.hook)
+        ContentIdeaDetail(label = "Angle", value = idea.angle)
+        ContentIdeaDetail(label = "Caption draft", value = idea.captionDraft)
+        ContentIdeaDetail(label = "CTA", value = idea.cta)
+        ContentIdeaDetail(label = "Visual", value = idea.visualSuggestion)
+        ContentIdeaDetail(label = "Posting note", value = idea.recommendedPostingNote)
+        ContentIdeaDetail(label = "Safety note", value = idea.safetyNote)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        if (showPersistenceActions) {
+            ChipFlow {
+                FilterChip(selected = idea.isFavorite, onClick = onFavorite, label = { Text(if (idea.isFavorite) "Unfavorite" else "Favorite") })
+                FilterChip(selected = idea.status == ContentIdeaStatus.Draft, onClick = onMarkDraft, label = { Text("Draft") })
+                FilterChip(selected = idea.status == ContentIdeaStatus.Planned, onClick = onMarkPlanned, label = { Text("Planned") })
+                FilterChip(selected = idea.status == ContentIdeaStatus.Done, onClick = onMarkDone, label = { Text("Done") })
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            OutlinedButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
+                Text("Delete Idea")
+            }
+        } else {
+            Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
+                Text("Save Idea")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentIdeaDetail(label: String, value: String) {
+    Text(text = label, style = MaterialTheme.typography.labelMedium, color = CoralPrimary)
+    Text(text = value, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+    Spacer(modifier = Modifier.height(AppSpacing.xs))
+}
+
+@Composable
+private fun PromotionPlannerSection(campaigns: List<PromotionCampaign>) {
+    SectionHeader(title = "Promotion Planner", actionLabel = "${campaigns.size} campaigns")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    campaigns.forEach { campaign ->
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+            PillBadge(text = "Promotion draft", containerColor = CreamBackground, contentColor = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = campaign.title, style = MaterialTheme.typography.titleLarge)
+            Text(text = campaign.objective, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            campaign.recommendedContentSequence.forEachIndexed { index, step ->
+                Text(text = "${index + 1}. $step", style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = "Expected outcome: ${campaign.expectedOutcome}",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted
+            )
+            Text(text = campaign.safetyNote, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+private fun contentIdeaContainerColor(source: ContentGenerationSource) = when (source) {
+    ContentGenerationSource.Local -> GreenSoft
+    ContentGenerationSource.Ai -> LavenderSoft
+    ContentGenerationSource.Fallback -> YellowSoft
 }
 
 @Composable

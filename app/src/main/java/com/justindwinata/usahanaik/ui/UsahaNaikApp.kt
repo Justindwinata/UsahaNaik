@@ -21,10 +21,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.justindwinata.usahanaik.data.ai.LocalContentIdeaProvider
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.LocalContentIdeaRepository
 import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
 import com.justindwinata.usahanaik.data.repository.LocalWeeklyPlanRepository
+import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
+import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModelFactory
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModelFactory
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
@@ -65,6 +69,12 @@ fun UsahaNaikApp() {
         val weeklyPlanRepository = remember(database) {
             LocalWeeklyPlanRepository(database.weeklyPlanDao())
         }
+        val contentIdeaRepository = remember(database) {
+            LocalContentIdeaRepository(database.contentIdeaDao())
+        }
+        val contentIdeaProvider = remember {
+            LocalContentIdeaProvider()
+        }
         val navController = rememberNavController()
         val setupViewModel: BusinessSetupViewModel = viewModel(
             factory = BusinessSetupViewModelFactory(businessProfileRepository)
@@ -83,6 +93,13 @@ fun UsahaNaikApp() {
                 businessProfileRepository = businessProfileRepository,
                 financialEntryRepository = financialEntryRepository,
                 weeklyPlanRepository = weeklyPlanRepository
+            )
+        )
+        val contentPlannerViewModel: ContentPlannerViewModel = viewModel(
+            factory = ContentPlannerViewModelFactory(
+                businessProfileRepository = businessProfileRepository,
+                contentIdeaRepository = contentIdeaRepository,
+                contentIdeaProvider = contentIdeaProvider
             )
         )
         val setupState by setupViewModel.uiState.collectAsState()
@@ -167,7 +184,7 @@ fun UsahaNaikApp() {
                     WeeklyPlanScreen(viewModel = weeklyPlanViewModel)
                 }
                 composable(AppRoute.ContentIdeas.route) {
-                    ContentIdeasScreen()
+                    ContentIdeasScreen(viewModel = contentPlannerViewModel)
                 }
                 composable(AppRoute.Settings.route) {
                     SettingsScreen(viewModel = setupViewModel)
