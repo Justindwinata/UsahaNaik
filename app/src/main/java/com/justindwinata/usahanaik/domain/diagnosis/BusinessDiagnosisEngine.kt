@@ -16,7 +16,9 @@ import com.justindwinata.usahanaik.domain.model.InsightCategory
 import com.justindwinata.usahanaik.domain.model.InsightSeverity
 import com.justindwinata.usahanaik.domain.model.StockIssue
 
-class BusinessDiagnosisEngine {
+class BusinessDiagnosisEngine(
+    private val priorityActionGenerator: PriorityActionGenerator = PriorityActionGenerator()
+) {
     fun diagnose(
         profile: BusinessProfile?,
         financialSummary: FinancialTrackingSummary
@@ -53,6 +55,7 @@ class BusinessDiagnosisEngine {
         val score = breakdown.sumOf { it.score }.coerceIn(0, 100)
         val insights = buildInsights(draft, financialSummary)
         val riskSignals = buildRiskSignals(draft, financialSummary)
+        val priorityActions = priorityActionGenerator.generate(draft, financialSummary)
         return BusinessDiagnosis(
             healthScore = DiagnosisHealthScore(
                 score = score,
@@ -62,11 +65,11 @@ class BusinessDiagnosisEngine {
             breakdown = breakdown,
             insights = insights,
             riskSignals = riskSignals,
-            priorityActions = emptyList(),
+            priorityActions = priorityActions,
             summary = DashboardInsightSummary(
                 financeInsightCount = insights.count { it.category in financeCategories },
                 warningCount = insights.count { it.severity == InsightSeverity.Warning || it.severity == InsightSeverity.Critical } + riskSignals.size,
-                priorityActionCount = 0,
+                priorityActionCount = priorityActions.size,
                 goalProgressStatus = goalProgressStatus(financialSummary),
                 emptyStateMessage = if (!financialSummary.hasEntries) {
                     "Complete your business setup and record income/expenses to generate better insights."
