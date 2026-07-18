@@ -3,11 +3,9 @@ package com.justindwinata.usahanaik
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
+import com.justindwinata.usahanaik.ui.UsahaNaikApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,11 +18,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun UsahaNaikAppEntry() {
-    UsahaNaikTheme {
-        Surface {
-            Text(text = "UsahaNaik")
-        }
-    }
+    UsahaNaikApp()
 }
 
 @Preview

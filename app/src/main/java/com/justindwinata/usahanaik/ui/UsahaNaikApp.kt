@@ -1,0 +1,113 @@
+package com.justindwinata.usahanaik.ui
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.justindwinata.usahanaik.ui.navigation.AppRoute
+import com.justindwinata.usahanaik.ui.navigation.bottomTabs
+import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
+import com.justindwinata.usahanaik.ui.screens.BusinessSetupScreen
+import com.justindwinata.usahanaik.ui.screens.CategorySelectionScreen
+import com.justindwinata.usahanaik.ui.screens.ContentIdeasScreen
+import com.justindwinata.usahanaik.ui.screens.DashboardScreen
+import com.justindwinata.usahanaik.ui.screens.SettingsScreen
+import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
+import com.justindwinata.usahanaik.ui.screens.WelcomeScreen
+import com.justindwinata.usahanaik.ui.theme.CoralPrimary
+import com.justindwinata.usahanaik.ui.theme.CreamBackground
+import com.justindwinata.usahanaik.ui.theme.InkMuted
+import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
+import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
+
+@Composable
+fun UsahaNaikApp() {
+    UsahaNaikTheme {
+        val navController = rememberNavController()
+        val backStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = backStackEntry?.destination?.route
+        val showBottomBar = currentRoute != null && currentRoute !in onboardingRoutes
+
+        Scaffold(
+            containerColor = CreamBackground,
+            bottomBar = {
+                if (showBottomBar) {
+                    NavigationBar(containerColor = SurfaceWarm) {
+                        bottomTabs.forEach { tab ->
+                            val selected = backStackEntry?.destination?.hierarchy
+                                ?.any { it.route == tab.route.route } == true
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = {
+                                    navController.navigate(tab.route.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                                label = { Text(tab.label) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = SurfaceWarm,
+                                    selectedTextColor = CoralPrimary,
+                                    indicatorColor = CoralPrimary,
+                                    unselectedIconColor = InkMuted,
+                                    unselectedTextColor = InkMuted
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = AppRoute.Welcome.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(AppRoute.Welcome.route) {
+                    WelcomeScreen(
+                        onStartClick = { navController.navigate(AppRoute.CategorySelection.route) },
+                        onPreviewDashboardClick = { navController.navigate(AppRoute.Dashboard.route) }
+                    )
+                }
+                composable(AppRoute.CategorySelection.route) {
+                    CategorySelectionScreen(
+                        onContinueClick = { navController.navigate(AppRoute.BusinessSetup.route) }
+                    )
+                }
+                composable(AppRoute.BusinessSetup.route) {
+                    BusinessSetupScreen(
+                        onContinueClick = { navController.navigate(AppRoute.Dashboard.route) }
+                    )
+                }
+                composable(AppRoute.Dashboard.route) {
+                    DashboardScreen()
+                }
+                composable(AppRoute.WeeklyPlan.route) {
+                    WeeklyPlanScreen()
+                }
+                composable(AppRoute.ContentIdeas.route) {
+                    ContentIdeasScreen()
+                }
+                composable(AppRoute.Settings.route) {
+                    SettingsScreen()
+                }
+            }
+        }
+    }
+}
