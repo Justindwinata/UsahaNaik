@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.2.0 - UN-0002
+
+- Added `BusinessSetupDraft` domain model and setup enums for channel, stage, cost driver, stock issue, challenges, focus, and available time.
+- Added deterministic setup validation with friendly field errors.
+- Added Indonesian-style numeric parsing and derived calculations for profit margin, revenue target gap, and profit target gap.
+- Added `BusinessSetupViewModel` and immutable `BusinessSetupUiState`.
+- Added category-driven setup hints and recommended monthly focus metadata.
+- Replaced setup placeholder with an interactive multi-section Compose form.
+- Added challenge multi-select chips, selector chips, section completion indicators, and reset draft action.
+- Added setup review section with financial summary and target gaps.
+- Updated dashboard preview to use valid in-memory draft data when available.
+- Added unit tests for validation, ViewModel state behavior, category hints, and dashboard draft mapping.
+
+### Known Limitations
+
+- No Room persistence yet.
+- Setup draft is not permanently saved yet.
+- No real AI API integration yet.
+- Content ideas are still local/sample-based.
+- No full business diagnosis engine yet.
+- No weekly plan generation from real diagnosis yet.
+- No notification system.
+- No authentication.
+- No cloud sync.
+- No guaranteed profit increase.
+- Not professional financial advice.
+
 ## 0.1.0 - UN-0001
 
 - Initialized Android project foundation for UsahaNaik.

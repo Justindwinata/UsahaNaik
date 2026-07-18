@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0001 establishes the Android project foundation, Compose UI shell, navigation direction, local sample data, and product documentation.
+UN-0002 adds the first real interactive business setup workflow on top of the UN-0001 Android foundation.
 
 Implemented UN-0001 screens:
 
@@ -34,6 +34,19 @@ Implemented UN-0001 foundation:
 - Dashboard sample data for health score, financial cards, trend chart, expense breakdown, milestones, tasks, product performance, recommendations, and content ideas.
 - AI-ready `ContentIdeaProvider` interface with local deterministic provider.
 - Unit tests for category metadata and local content idea generation.
+
+Implemented UN-0002 foundation:
+
+- Category selection feeds the setup draft state.
+- Interactive multi-section business setup form.
+- Business identity, financial baseline, product/service data, challenges, and monthly goals.
+- Friendly inline validation for required fields and non-negative numeric inputs.
+- Indonesian-style numeric parsing for values such as `Rp 18.000.000`, `18,5 juta`, and `250 rb`.
+- Category-driven setup hints and recommended monthly focus.
+- In-memory `BusinessSetupViewModel` draft state.
+- Setup review summary with profit margin, revenue gap, and profit gap.
+- Dashboard preview can use valid draft values.
+- Unit tests for validation, state reducers, hints, and dashboard draft mapping.
 
 ## Tech Stack
 
@@ -71,14 +84,19 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 ## Limitations
 
 - No full business form persistence yet.
+- Setup draft is not permanently saved yet.
 - No Room database yet.
 - No real AI API integration yet.
 - Content ideas are local preview samples only.
+- No full business diagnosis engine yet.
+- No weekly plan generation from real diagnosis yet.
 - No authentication, cloud sync, payment, or notification system.
+- No guaranteed profit increase.
+- Not professional financial advice.
 
 ## Roadmap
 
-Next recommended milestone: UN-0002, interactive business setup with validation and state handling. Room persistence should remain deferred until the form contract is stable.
+Next recommended milestone: UN-0003, Room persistence for business setup drafts, goals, and local dashboard data.
 
 ## Documentation
 

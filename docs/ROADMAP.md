@@ -8,16 +8,26 @@ Create Android foundation, documentation, Compose shell, navigation, sample dash
 
 Add real form input, validation, temporary state handling, and category-specific setup guidance.
 
-Recommended next scope:
+Completed scope:
 
 - Persist screen state in a ViewModel.
 - Validate required business setup fields.
 - Let selected category influence setup hints.
 - Keep persistence in memory for this milestone unless the form model is stable enough for Room.
+- Add setup review.
+- Personalize dashboard preview from valid draft state.
 
 ## UN-0003 - Room Persistence
 
 Persist business profile, financial baseline, goals, tasks, milestones, and content idea history locally.
+
+Recommended next scope:
+
+- Add Room entities for business setup draft and goals.
+- Persist setup draft locally.
+- Restore setup state after app process recreation.
+- Keep migrations simple and covered by tests.
+- Avoid cloud sync until local-first behavior is stable.
 
 ## UN-0004 - Financial Tracking
 

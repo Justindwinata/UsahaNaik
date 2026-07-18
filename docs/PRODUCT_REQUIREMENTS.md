@@ -29,17 +29,34 @@ The app is not professional financial advice and does not guarantee profit incre
 
 1. User opens the app and sees the value of structured UMKM planning.
 2. User selects a business category.
-3. User previews or fills business setup data.
-4. User reviews a dashboard with health score, finance summary, tasks, milestones, and ideas.
-5. User follows weekly plan tasks.
-6. User reviews AI-assisted content idea previews.
-7. User updates profile/settings in future milestones.
+3. User fills interactive business setup data.
+4. User reviews the setup summary with derived margin and target gaps.
+5. User opens a dashboard preview personalized from the draft state.
+6. User reviews health score, finance summary, tasks, milestones, and ideas.
+7. User follows weekly plan tasks.
+8. User reviews AI-assisted content idea previews.
+9. User updates profile/settings in future milestones.
 
 ## Business Categories
 
 Initial categories include Food & Beverage, Warung / Toko Kelontong, Skincare & Beauty, Fashion / Thrift, Laundry, Online Shop / Reseller, Coffee / Beverage Shop, Service Business, Digital Service, and Other Business.
 
-Each category carries display metadata, business focus area, and a sample recommended goal.
+Each category carries display metadata, business focus area, setup hints, recommended monthly focus, and a sample recommended goal.
+
+## Business Setup Workflow
+
+UN-0002 implements an in-memory multi-section form:
+
+- Business identity.
+- Financial baseline.
+- Product/service data.
+- Business challenges.
+- Monthly goals.
+- Review summary.
+
+Validation covers required business name, category, required financial values, product/service count, at least one challenge, target revenue, target profit, main focus, and available weekly time. Numeric fields reject negative values and accept common Indonesian-style currency input where practical.
+
+Category-driven hints appear in the setup form so the selected business type influences guidance without hardcoding one category in the UI.
 
 ## Dashboard Concept
 
@@ -65,13 +82,18 @@ The app will eventually support AI-assisted generation for captions, campaign id
 
 For UN-0001, AI content ideas are local deterministic samples. No real API calls, paid dependency, external model, or API key is included.
 
+For UN-0002, content ideas remain local deterministic samples. The setup draft can personalize the dashboard preview, but the app still does not call a real AI API.
+
 ## Limitations
 
 - No authentication.
 - No cloud database.
 - No payment system.
 - No Room persistence yet.
+- Setup draft is not permanently saved yet.
 - No notification system yet.
 - No real AI integration yet.
+- No full business diagnosis engine yet.
+- No weekly plan generation from real diagnosis yet.
 - No professional financial advice.
 - No guaranteed profit increase.
