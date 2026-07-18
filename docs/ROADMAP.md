@@ -8,6 +8,13 @@ Create Android foundation, documentation, Compose shell, navigation, sample dash
 
 Add real form input, validation, temporary state handling, and category-specific setup guidance.
 
+Recommended next scope:
+
+- Persist screen state in a ViewModel.
+- Validate required business setup fields.
+- Let selected category influence setup hints.
+- Keep persistence in memory for this milestone unless the form model is stable enough for Room.
+
 ## UN-0003 - Room Persistence
 
 Persist business profile, financial baseline, goals, tasks, milestones, and content idea history locally.

@@ -16,6 +16,25 @@ The long-term product vision includes business setup, category-specific planning
 
 UN-0001 establishes the Android project foundation, Compose UI shell, navigation direction, local sample data, and product documentation.
 
+Implemented UN-0001 screens:
+
+- Welcome / app entry.
+- Business category selection.
+- Business setup form preview.
+- Growth dashboard preview.
+- Weekly plan preview.
+- Content ideas preview.
+- Profile / settings placeholder.
+
+Implemented UN-0001 foundation:
+
+- Compose design system inspired by `UI_Reference.jpg`.
+- Navigation Compose routes and post-onboarding bottom navigation.
+- Business category metadata for 10 UMKM categories.
+- Dashboard sample data for health score, financial cards, trend chart, expense breakdown, milestones, tasks, product performance, recommendations, and content ideas.
+- AI-ready `ContentIdeaProvider` interface with local deterministic provider.
+- Unit tests for category metadata and local content idea generation.
+
 ## Tech Stack
 
 - Kotlin
@@ -32,6 +51,13 @@ UN-0001 establishes the Android project foundation, Compose UI shell, navigation
 
 Open this repository in Android Studio and let Gradle sync the project. Android SDK 35 is used for compilation, with minimum SDK 26.
 
+If running from terminal, make sure the Android SDK path is available. On this machine the validation command used:
+
+```bash
+ANDROID_HOME=/Users/justindwinata/Library/Android/sdk ./gradlew test
+ANDROID_HOME=/Users/justindwinata/Library/Android/sdk ./gradlew assembleDebug
+```
+
 ## Build And Test
 
 ```bash
@@ -40,6 +66,8 @@ Open this repository in Android Studio and let Gradle sync the project. Android 
 ./gradlew assembleDebug
 ```
 
+If Gradle cannot find the SDK, either open the project in Android Studio or set `ANDROID_HOME` to your local Android SDK path.
+
 ## Limitations
 
 - No full business form persistence yet.
@@ -47,6 +75,10 @@ Open this repository in Android Studio and let Gradle sync the project. Android 
 - No real AI API integration yet.
 - Content ideas are local preview samples only.
 - No authentication, cloud sync, payment, or notification system.
+
+## Roadmap
+
+Next recommended milestone: UN-0002, interactive business setup with validation and state handling. Room persistence should remain deferred until the form contract is stable.
 
 ## Documentation
 

@@ -29,3 +29,11 @@ The product language avoids guaranteed profit, guaranteed success, professional 
 ### Room Later
 
 Room database integration is deferred until the product forms and data model stabilize in later contracts.
+
+### Compose-Drawn Chart First
+
+UN-0001 uses a lightweight Compose `Canvas` trend chart instead of adding a charting library. This keeps dependency weight low and is enough for a portfolio preview.
+
+### Deterministic Local AI Preview
+
+The content ideas screen uses a deterministic provider. This keeps tests stable, prevents accidental paid API use, and creates a clean replacement boundary for later AI integration.

@@ -20,18 +20,25 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 The domain layer contains plain Kotlin models for:
 
 - Business categories.
+- Business dashboard preview.
+- Financial summary, expense breakdown, and trend points.
+- Milestones, tasks, product performance, and recommendations.
+- Weekly plans.
+- AI-assisted content ideas.
 - Business profile/sample summary.
-- Financial metrics.
-- Milestones.
-- Weekly tasks.
-- Content ideas.
 - AI-ready content generation contracts.
 
 Domain models are intentionally independent from Android UI classes.
 
 ## Data Layer
 
-UN-0001 uses local sample repositories. Room is planned later for persistent business setup data, weekly plans, financial entries, content ideas, and progress history.
+UN-0001 uses local sample repositories:
+
+- `SampleBusinessCategoryRepository`
+- `SampleGrowthRepository`
+- `LocalContentIdeaProvider`
+
+Room is planned later for persistent business setup data, weekly plans, financial entries, content ideas, and progress history.
 
 Planned data direction:
 
@@ -42,6 +49,12 @@ Planned data direction:
 ## AI Integration Planned
 
 UN-0001 defines an AI-ready boundary through a content idea provider interface. The current implementation is deterministic and local.
+
+Current contract:
+
+- `ContentIdeaProvider` defines the AI boundary.
+- `LocalContentIdeaProvider` returns deterministic sample ideas.
+- No API key, paid AI dependency, or external request is used in UN-0001.
 
 Future AI integration should:
 
