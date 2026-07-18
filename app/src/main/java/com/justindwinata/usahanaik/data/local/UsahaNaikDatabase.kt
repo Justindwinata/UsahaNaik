@@ -8,13 +8,20 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [BusinessProfileEntity::class, FinancialEntryEntity::class],
-    version = 2,
+    entities = [
+        BusinessProfileEntity::class,
+        FinancialEntryEntity::class,
+        WeeklyGrowthPlanEntity::class,
+        WeeklyTaskEntity::class,
+        WeeklyMilestoneEntity::class
+    ],
+    version = 3,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun businessProfileDao(): BusinessProfileDao
     abstract fun financialEntryDao(): FinancialEntryDao
+    abstract fun weeklyPlanDao(): WeeklyPlanDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -39,6 +46,68 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS weekly_growth_plans (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        title TEXT NOT NULL,
+                        generatedDate TEXT NOT NULL,
+                        businessName TEXT NOT NULL,
+                        businessCategoryId TEXT,
+                        businessCategoryName TEXT NOT NULL,
+                        focusTitle TEXT NOT NULL,
+                        focusCategory TEXT NOT NULL,
+                        focusReason TEXT NOT NULL,
+                        target TEXT NOT NULL,
+                        priorityReason TEXT NOT NULL,
+                        challengeTitle TEXT NOT NULL,
+                        challengeDescription TEXT NOT NULL,
+                        challengeChecklistItems TEXT NOT NULL,
+                        challengeCompletionTarget TEXT NOT NULL,
+                        challengeMotivationalCopy TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        limitationsNote TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS weekly_tasks (
+                        id TEXT PRIMARY KEY NOT NULL,
+                        planId INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        estimatedTime TEXT NOT NULL,
+                        difficulty TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        reason TEXT NOT NULL,
+                        expectedOutcome TEXT NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS weekly_milestones (
+                        id TEXT PRIMARY KEY NOT NULL,
+                        planId INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        relatedTaskIds TEXT NOT NULL,
+                        progressPercentage INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -49,7 +118,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                     UsahaNaikDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                     .also { instance = it }
             }
