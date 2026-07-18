@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0003 adds Room persistence for one active local business profile. Real AI integration, cloud sync, and production diagnosis flows remain planned for later contracts.
+UN-0004 adds local financial entry persistence and dashboard metrics from saved income and expense records. Real AI integration, cloud sync, and production diagnosis flows remain planned for later contracts.
 
 ## UI Layer
 
@@ -15,6 +15,8 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - Dashboard, weekly plan, content ideas, interactive setup, and settings screens.
 - Compose-drawn lightweight visual components for progress and trend charts.
 - `BusinessSetupViewModel` exposes immutable setup UI state to Compose.
+- `FinancialEntryViewModel` exposes immutable financial form, recent activity, validation, and summary state to Compose.
+- Dashboard cards can use persisted financial summaries when entries exist.
 - Settings/Profile can show and delete the saved local business profile.
 
 ## Domain Layer
@@ -26,6 +28,9 @@ The domain layer contains plain Kotlin models for:
 - Business profile domain model with created/updated timestamps.
 - Business setup validation result and field identifiers.
 - Setup calculations for profit margin, revenue target gap, and profit target gap.
+- Financial entries, entry types, income categories, expense categories, and financial tracking summaries.
+- Financial calculations for total income, total expenses, estimated profit, profit margin, target progress, largest expense category, recent entries, and chart-ready trend points.
+- Dashboard financial metric mapping with saved-entry data and business-profile baseline fallback.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
 - Milestones, tasks, product performance, and recommendations.
@@ -45,18 +50,23 @@ The data layer uses local sample and Room-backed repositories:
 - `LocalContentIdeaProvider`
 - `BusinessProfileRepository`
 - `LocalBusinessProfileRepository`
+- `FinancialEntryRepository`
+- `LocalFinancialEntryRepository`
 - `UsahaNaikDatabase`
 - `BusinessProfileDao`
 - `BusinessProfileEntity`
+- `FinancialEntryDao`
+- `FinancialEntryEntity`
 
-Room stores one active business profile in `usahanaik.db`, table `business_profiles`. Multi-business support is deferred.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`, and simple local financial records in `financial_entries`. Multi-business support is deferred.
 
-UN-0003 saves completed setup data locally and reloads it on app startup. The dashboard maps saved profile data into preview cards.
+UN-0003 saves completed setup data locally and reloads it on app startup. UN-0004 saves income and expense entries locally and maps monthly entry summaries into dashboard cards and trend visuals.
 
 Planned data direction:
 
 - Repository interfaces expose app data.
 - Local Room implementations persist completed setup profile data.
+- Financial entries are persisted as simple local records, not as a full accounting ledger.
 - Sample repositories remain useful for previews and tests.
 
 ## AI Integration Planned
@@ -69,7 +79,7 @@ Current contract:
 - `LocalContentIdeaProvider` returns deterministic sample ideas.
 - No API key, paid AI dependency, or external request is used in UN-0001.
 
-UN-0003 does not change the AI boundary. Content ideas remain local/sample-based.
+UN-0004 does not change the AI boundary. Content ideas remain local/sample-based.
 
 Future AI integration should:
 
@@ -88,5 +98,6 @@ Current local-first behavior:
 - Completed setup can be saved locally.
 - Saved profile can be restored on app startup.
 - Dashboard can use saved business data.
+- Dashboard can use saved financial entries for monthly revenue, expenses, estimated profit, margin, target progress, recent entries, and trend visuals.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.

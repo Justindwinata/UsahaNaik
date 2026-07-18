@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.0 - UN-0004
+
+- Added financial entry domain models for income and expense tracking.
+- Added simple UMKM-friendly income and expense categories.
+- Added deterministic financial calculations for total income, total expenses, estimated profit, profit margin, target progress, largest expense category, recent entries, and trend points.
+- Added Room `financial_entries` persistence with DAO, migration, repository, and entity/domain mappers.
+- Added `FinancialEntryViewModel` with form state, validation, save action, delete confirmation state, and summary refresh.
+- Added dashboard financial tracking UI for recording local income and expense entries.
+- Added recent financial activity cards with delete confirmation.
+- Updated dashboard revenue, expense, profit, margin, target progress, largest expense category, and trend chart to use persisted financial entries when available.
+- Kept saved business profile baseline as the dashboard fallback when no financial entries exist.
+- Added tests for financial calculations, mapping, repository behavior, ViewModel behavior, and dashboard metric mapping.
+
+### Known Limitations
+
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- Content ideas are still local/sample-based.
+- No full business diagnosis engine yet.
+- No weekly plan generation from real diagnosis yet.
+- No notification system.
+- Not professional accounting software.
+- No guaranteed profit increase.
+- Not professional financial advice.
+
 ## 0.3.0 - UN-0003
 
 - Added Room runtime, Room KTX, Room compiler, Room testing, and KSP configuration.

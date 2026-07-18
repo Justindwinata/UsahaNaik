@@ -35,16 +35,18 @@ Completed scope:
 
 Add revenue, expense, profit, margin, and basic transaction tracking with local reports.
 
-Recommended next scope:
+Completed scope:
 
 - Add local financial entry models and Room tables.
 - Track revenue and expense entries.
 - Connect dashboard financial cards to persisted entries.
+- Add recent financial activity and delete confirmation.
+- Add target progress, largest expense category, and chart-ready summary data.
 - Keep calculations transparent and avoid professional financial advice claims.
 
 ## UN-0005 - Dashboard Insights
 
-Connect dashboard cards and trend visuals to persisted user data.
+Add deterministic insight cards from saved profile data, selected challenges, category hints, and financial activity.
 
 ## UN-0006 - Weekly Planning Engine
 

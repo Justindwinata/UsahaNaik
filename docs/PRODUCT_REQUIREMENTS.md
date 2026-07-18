@@ -34,10 +34,12 @@ The app is not professional financial advice and does not guarantee profit incre
 5. User saves the completed setup locally.
 6. User opens a dashboard preview personalized from saved profile data.
 7. User can close/reopen the app and resume the saved local profile.
-8. User reviews health score, finance summary, tasks, milestones, and ideas.
-9. User follows weekly plan tasks.
-10. User reviews AI-assisted content idea previews.
-11. User can delete local profile data from Settings/Profile.
+8. User records simple income and expense entries locally.
+9. User reviews dashboard financial metrics generated from saved entries.
+10. User reviews health score, finance summary, tasks, milestones, and ideas.
+11. User follows weekly plan tasks.
+12. User reviews AI-assisted content idea previews.
+13. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -68,6 +70,23 @@ The profile is saved on-device only. UsahaNaik does not sync this data to cloud,
 
 Users can delete the saved local profile from Settings/Profile. Deleting local profile removes the saved setup from this device.
 
+## Financial Tracking
+
+UN-0004 adds simple local financial records for income and expenses. Saved entry data includes type, title, amount, category, date, optional note, and metadata timestamps.
+
+The app calculates dashboard metrics from saved entries where available:
+
+- Total monthly income.
+- Total monthly expenses.
+- Estimated profit using `total income - total expenses`.
+- Profit margin using `estimated profit / total income * 100`, or `0%` when income is zero.
+- Target revenue and profit progress from saved business goals.
+- Largest expense category.
+- Recent financial activity.
+- Revenue versus expense trend points.
+
+This is intentionally simple financial tracking for owner visibility. It is not professional accounting software, tax reporting, or professional financial advice.
+
 ## Dashboard Concept
 
 The dashboard should show:
@@ -96,6 +115,8 @@ For UN-0002, content ideas remain local deterministic samples. The setup draft c
 
 For UN-0003, content ideas remain local deterministic samples. Room persistence only applies to the business setup/profile data.
 
+For UN-0004, content ideas remain local deterministic samples. Room persistence now also stores simple financial entries, but no real AI API is used.
+
 ## Limitations
 
 - No authentication.
@@ -107,4 +128,5 @@ For UN-0003, content ideas remain local deterministic samples. Room persistence 
 - No full business diagnosis engine yet.
 - No weekly plan generation from real diagnosis yet.
 - No professional financial advice.
+- Not professional accounting software.
 - No guaranteed profit increase.

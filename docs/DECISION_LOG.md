@@ -81,3 +81,25 @@ Settings/Profile explicitly says the business profile is saved locally and not s
 ### Delete Instead Of Account Reset
 
 UN-0003 adds local profile deletion only. It does not add account management because there is no authentication or cloud account in this version.
+
+## UN-0004 Decisions
+
+### Simple Financial Records First
+
+UN-0004 stores income and expense entries as simple local records. It does not introduce double-entry accounting, tax reporting, invoices, or payment features because the product goal is understandable UMKM dashboard visibility.
+
+### Additive Room Migration
+
+The database moves to version 2 with an additive `financial_entries` table. Existing `business_profiles` data remains intact, and destructive migration is avoided for this milestone.
+
+### Dashboard Uses Entries With Baseline Fallback
+
+Dashboard financial cards prefer persisted monthly financial entries when available. When no entries exist, the dashboard keeps using the saved setup baseline and prompts the user to start recording income and expenses.
+
+### Estimated Profit Language
+
+The app labels profit as estimated and calculates it transparently as income minus expenses. Product copy avoids tax, accounting, professional financial advice, or guaranteed profit claims.
+
+### Finance UI Inside Dashboard
+
+UN-0004 places the financial tracking form and recent activity inside the dashboard instead of adding a new bottom tab. This keeps navigation compact while the app still has only a small set of core flows.
