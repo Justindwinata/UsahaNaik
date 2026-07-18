@@ -1,6 +1,9 @@
 package com.justindwinata.usahanaik.ui.setup
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.justindwinata.usahanaik.data.repository.BusinessProfileRepository
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
@@ -12,8 +15,11 @@ import com.justindwinata.usahanaik.domain.model.StockIssue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class BusinessSetupViewModel : ViewModel() {
+class BusinessSetupViewModel(
+    private val businessProfileRepository: BusinessProfileRepository? = null
+) : ViewModel() {
     private val _uiState = MutableStateFlow(BusinessSetupUiState())
     val uiState: StateFlow<BusinessSetupUiState> = _uiState.asStateFlow()
 
@@ -84,6 +90,43 @@ class BusinessSetupViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(isReviewVisible = false)
     }
 
+    fun saveCompletedProfile(onSaved: () -> Unit = {}) {
+        val reviewAllowed = requestReview()
+        if (!reviewAllowed) return
+
+        val repository = businessProfileRepository
+        if (repository == null) {
+            _uiState.value = _uiState.value.copy(
+                saveErrorMessage = "Local profile storage is not available yet."
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isSavingProfile = true,
+                saveSuccessMessage = null,
+                saveErrorMessage = null
+            )
+            runCatching {
+                repository.saveBusinessProfile(_uiState.value.draft)
+            }.onSuccess { profile ->
+                _uiState.value = _uiState.value.copy(
+                    isSavingProfile = false,
+                    savedProfile = profile,
+                    saveSuccessMessage = "Business profile saved locally on this device.",
+                    saveErrorMessage = null
+                )
+                onSaved()
+            }.onFailure { error ->
+                _uiState.value = _uiState.value.copy(
+                    isSavingProfile = false,
+                    saveErrorMessage = error.message ?: "Failed to save business profile."
+                )
+            }
+        }
+    }
+
     fun resetDraft() {
         _uiState.value = BusinessSetupUiState()
     }
@@ -94,7 +137,20 @@ class BusinessSetupViewModel : ViewModel() {
         _uiState.value = BusinessSetupUiState.fromDraft(
             draft = nextDraft,
             hasAttemptedReview = current.hasAttemptedReview,
-            isReviewVisible = false
+            isReviewVisible = false,
+            savedProfile = current.savedProfile
         )
+    }
+}
+
+class BusinessSetupViewModelFactory(
+    private val businessProfileRepository: BusinessProfileRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(BusinessSetupViewModel::class.java)) {
+            return BusinessSetupViewModel(businessProfileRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

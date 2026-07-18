@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -18,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
+import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
 import com.justindwinata.usahanaik.ui.navigation.bottomTabs
 import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
@@ -29,6 +33,7 @@ import com.justindwinata.usahanaik.ui.screens.SettingsScreen
 import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
 import com.justindwinata.usahanaik.ui.screens.WelcomeScreen
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
+import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModelFactory
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CreamBackground
 import com.justindwinata.usahanaik.ui.theme.InkMuted
@@ -38,8 +43,16 @@ import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
 @Composable
 fun UsahaNaikApp() {
     UsahaNaikTheme {
+        val context = LocalContext.current
+        val businessProfileRepository = remember {
+            LocalBusinessProfileRepository(
+                UsahaNaikDatabase.getDatabase(context).businessProfileDao()
+            )
+        }
         val navController = rememberNavController()
-        val setupViewModel: BusinessSetupViewModel = viewModel()
+        val setupViewModel: BusinessSetupViewModel = viewModel(
+            factory = BusinessSetupViewModelFactory(businessProfileRepository)
+        )
         val setupState by setupViewModel.uiState.collectAsState()
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route

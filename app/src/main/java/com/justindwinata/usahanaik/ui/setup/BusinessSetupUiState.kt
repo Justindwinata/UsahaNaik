@@ -1,6 +1,7 @@
 package com.justindwinata.usahanaik.ui.setup
 
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
+import com.justindwinata.usahanaik.domain.model.BusinessProfile
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupValidationResult
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupValidator
@@ -9,7 +10,11 @@ data class BusinessSetupUiState(
     val draft: BusinessSetupDraft = BusinessSetupDraft(),
     val validationResult: BusinessSetupValidationResult = BusinessSetupValidator.validate(draft),
     val hasAttemptedReview: Boolean = false,
-    val isReviewVisible: Boolean = false
+    val isReviewVisible: Boolean = false,
+    val isSavingProfile: Boolean = false,
+    val savedProfile: BusinessProfile? = null,
+    val saveSuccessMessage: String? = null,
+    val saveErrorMessage: String? = null
 ) {
     val isValid: Boolean = validationResult.isValid
 
@@ -68,12 +73,14 @@ data class BusinessSetupUiState(
         fun fromDraft(
             draft: BusinessSetupDraft,
             hasAttemptedReview: Boolean = false,
-            isReviewVisible: Boolean = false
+            isReviewVisible: Boolean = false,
+            savedProfile: BusinessProfile? = null
         ): BusinessSetupUiState = BusinessSetupUiState(
             draft = draft,
             validationResult = BusinessSetupValidator.validate(draft),
             hasAttemptedReview = hasAttemptedReview,
-            isReviewVisible = isReviewVisible
+            isReviewVisible = isReviewVisible,
+            savedProfile = savedProfile
         )
     }
 }

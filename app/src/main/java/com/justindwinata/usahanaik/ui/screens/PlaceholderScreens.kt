@@ -312,9 +312,10 @@ fun BusinessSetupScreen(
         if (uiState.isReviewVisible) {
             Spacer(modifier = Modifier.height(AppSpacing.lg))
             SetupReviewSection(
+                uiState = uiState,
                 draft = uiState.draft,
                 categoryName = selectedCategory.displayName,
-                onCreateDashboard = onContinueClick
+                onSaveProfile = { viewModel.saveCompletedProfile(onContinueClick) }
             )
         }
     }
@@ -666,9 +667,10 @@ private fun FieldError(error: String?) {
 
 @Composable
 private fun SetupReviewSection(
+    uiState: BusinessSetupUiState,
     draft: BusinessSetupDraft,
     categoryName: String,
-    onCreateDashboard: () -> Unit
+    onSaveProfile: () -> Unit
 ) {
     val profitMargin = BusinessSetupCalculator.profitMarginPercent(draft)?.let { "$it%" } ?: "-"
     val revenueGap = BusinessSetupCalculator.formatRupiah(BusinessSetupCalculator.revenueTargetGap(draft))
@@ -698,9 +700,21 @@ private fun SetupReviewSection(
         ReviewRow("Weekly time", draft.availableTime?.label ?: "-")
         ReviewRow("Challenges", draft.challenges.joinToString { it.label })
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        uiState.saveSuccessMessage?.let { message ->
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+        uiState.saveErrorMessage?.let { message ->
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
         PrimaryActionButton(
-            text = "Create Growth Dashboard",
-            onClick = onCreateDashboard,
+            text = if (uiState.isSavingProfile) "Saving Profile..." else "Save Business Profile",
+            onClick = {
+                if (!uiState.isSavingProfile) {
+                    onSaveProfile()
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
     }
