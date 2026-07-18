@@ -44,6 +44,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryRepository
 import com.justindwinata.usahanaik.data.repository.SampleGrowthRepository
+import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetrics
+import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetricsMapper
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
@@ -779,6 +781,13 @@ fun DashboardScreen(
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
+    val financialMetrics = remember(financialState.summary, dashboard) {
+        FinancialDashboardMetricsMapper.from(
+            summary = financialState.summary,
+            fallbackSummary = dashboard.financialSummary,
+            fallbackTrend = dashboard.trend
+        )
+    }
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
         financialEntryViewModel.refresh(
@@ -804,7 +813,7 @@ fun DashboardScreen(
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             MetricCard(
                 title = "Revenue",
-                value = dashboard.financialSummary.monthlyRevenue,
+                value = financialMetrics.monthlyRevenue,
                 helper = "Bulan ini",
                 modifier = Modifier.weight(1f),
                 containerColor = GreenSoft,
@@ -812,7 +821,7 @@ fun DashboardScreen(
             )
             MetricCard(
                 title = "Expenses",
-                value = dashboard.financialSummary.monthlyExpenses,
+                value = financialMetrics.monthlyExpenses,
                 helper = "Bulan ini",
                 modifier = Modifier.weight(1f),
                 containerColor = BlueSoft,
@@ -823,7 +832,7 @@ fun DashboardScreen(
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             MetricCard(
                 title = "Profit",
-                value = dashboard.financialSummary.estimatedProfit,
+                value = financialMetrics.estimatedProfit,
                 helper = "Estimasi",
                 modifier = Modifier.weight(1f),
                 containerColor = CoralSoft,
@@ -831,7 +840,7 @@ fun DashboardScreen(
             )
             MetricCard(
                 title = "Margin",
-                value = dashboard.financialSummary.profitMargin,
+                value = financialMetrics.profitMargin,
                 helper = "Target sehat",
                 modifier = Modifier.weight(1f),
                 containerColor = YellowSoft,
@@ -843,14 +852,22 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth()) {
             TrendLineChart(
-                revenuePoints = dashboard.trend.revenuePoints,
-                expensePoints = dashboard.trend.expensePoints
+                revenuePoints = financialMetrics.revenueTrendPoints,
+                expensePoints = financialMetrics.expenseTrendPoints
             )
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
                 PillBadge("Revenue", containerColor = GreenSoft, contentColor = GreenPositive)
                 PillBadge("Expense", containerColor = CoralSoft, contentColor = CoralPrimary)
             }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = financialMetrics.reportSummary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        FinancialDashboardMetricsSection(metrics = financialMetrics)
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         SectionHeader(title = "Expense Breakdown")
         Spacer(modifier = Modifier.height(AppSpacing.sm))
@@ -928,6 +945,68 @@ fun DashboardScreen(
             ContentIdeaPreviewCard(idea = idea)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
+    }
+}
+
+@Composable
+private fun FinancialDashboardMetricsSection(metrics: FinancialDashboardMetrics) {
+    SectionHeader(title = "Financial Metrics")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (metrics.hasEntries) BlueSoft else YellowSoft
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            TargetProgressBlock(
+                title = "Revenue Target",
+                progress = metrics.targetRevenueProgress,
+                modifier = Modifier.weight(1f)
+            )
+            TargetProgressBlock(
+                title = "Profit Target",
+                progress = metrics.targetProfitProgress,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        ReviewRow(
+            label = "Largest expense",
+            value = if (metrics.hasEntries) metrics.largestExpenseCategory else "-"
+        )
+        Text(
+            text = if (metrics.hasEntries) {
+                "Dashboard cards use financial entries saved in Room for this month."
+            } else {
+                "Start recording income and expenses to make your dashboard more accurate."
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun TargetProgressBlock(
+    title: String,
+    progress: Float,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(text = title, style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        LinearProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "${(progress.coerceIn(0f, 1f) * 100).toInt()}%",
+            style = MaterialTheme.typography.titleMedium,
+            color = CoralPrimary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
