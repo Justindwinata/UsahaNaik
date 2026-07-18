@@ -158,7 +158,9 @@ fun UsahaNaikApp() {
                     DashboardScreen(
                         setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid },
                         financialEntryViewModel = financialEntryViewModel,
-                        dashboardInsightsViewModel = dashboardInsightsViewModel
+                        dashboardInsightsViewModel = dashboardInsightsViewModel,
+                        weeklyPlanViewModel = weeklyPlanViewModel,
+                        onOpenWeeklyPlan = { navController.navigate(AppRoute.WeeklyPlan.route) }
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {

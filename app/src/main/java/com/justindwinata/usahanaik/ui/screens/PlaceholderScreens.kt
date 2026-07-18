@@ -71,6 +71,8 @@ import com.justindwinata.usahanaik.domain.model.WeeklyTaskStatus
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
+import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummary
+import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummaryMapper
 import com.justindwinata.usahanaik.ui.components.MetricCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
 import com.justindwinata.usahanaik.ui.components.PrimaryActionButton
@@ -790,17 +792,23 @@ private fun ReviewRow(label: String, value: String) {
 fun DashboardScreen(
     setupDraft: BusinessSetupDraft? = null,
     financialEntryViewModel: FinancialEntryViewModel,
-    dashboardInsightsViewModel: DashboardInsightsViewModel
+    dashboardInsightsViewModel: DashboardInsightsViewModel,
+    weeklyPlanViewModel: WeeklyPlanViewModel,
+    onOpenWeeklyPlan: () -> Unit
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
     val insightsState by dashboardInsightsViewModel.uiState.collectAsState()
+    val weeklyPlanState by weeklyPlanViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
             fallbackSummary = dashboard.financialSummary,
             fallbackTrend = dashboard.trend
         )
+    }
+    val weeklySummary = remember(weeklyPlanState.activePlan) {
+        WeeklyPlanDashboardSummaryMapper.from(weeklyPlanState.activePlan)
     }
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
@@ -833,6 +841,11 @@ fun DashboardScreen(
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         DashboardInsightPanel(uiState = insightsState)
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        WeeklyPlanDashboardSection(
+            summary = weeklySummary,
+            onOpenWeeklyPlan = onOpenWeeklyPlan
+        )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             MetricCard(
@@ -1188,6 +1201,46 @@ private fun insightContainerColor(severity: InsightSeverity) = when (severity) {
     InsightSeverity.Info -> BlueSoft
     InsightSeverity.Warning -> YellowSoft
     InsightSeverity.Critical -> RoseSoft
+}
+
+@Composable
+private fun WeeklyPlanDashboardSection(
+    summary: WeeklyPlanDashboardSummary,
+    onOpenWeeklyPlan: () -> Unit
+) {
+    SectionHeader(title = "Weekly Growth Plan", actionLabel = if (summary.hasPlan) "Active" else "Empty")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (summary.hasPlan) GreenSoft else YellowSoft
+    ) {
+        Text(text = summary.focusTitle, style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "Next task: ${summary.nextTaskTitle}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = summary.taskProgressLabel, style = MaterialTheme.typography.labelLarge)
+        LinearProgressIndicator(
+            progress = { summary.taskProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = summary.milestoneProgressLabel, style = MaterialTheme.typography.labelLarge)
+        LinearProgressIndicator(
+            progress = { summary.milestoneProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = CoralPrimary,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenWeeklyPlan, modifier = Modifier.fillMaxWidth()) {
+            Text(summary.ctaLabel)
+        }
+    }
 }
 
 @Composable
