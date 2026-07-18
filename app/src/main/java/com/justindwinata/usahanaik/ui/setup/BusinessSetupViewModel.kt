@@ -155,6 +155,36 @@ class BusinessSetupViewModel(
         _uiState.value = BusinessSetupUiState()
     }
 
+    fun deleteSavedProfile() {
+        val repository = businessProfileRepository
+        if (repository == null) {
+            _uiState.value = _uiState.value.copy(
+                deleteErrorMessage = "Local profile storage is not available yet."
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isDeletingProfile = true,
+                deleteSuccessMessage = null,
+                deleteErrorMessage = null
+            )
+            runCatching {
+                repository.deleteBusinessProfile()
+            }.onSuccess {
+                _uiState.value = BusinessSetupUiState(
+                    deleteSuccessMessage = "Local business profile deleted from this device."
+                )
+            }.onFailure { error ->
+                _uiState.value = _uiState.value.copy(
+                    isDeletingProfile = false,
+                    deleteErrorMessage = error.message ?: "Failed to delete local business profile."
+                )
+            }
+        }
+    }
+
     private fun updateDraft(reducer: BusinessSetupDraft.() -> BusinessSetupDraft) {
         val current = _uiState.value
         val nextDraft = current.draft.reducer()

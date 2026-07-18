@@ -13,9 +13,12 @@ data class BusinessSetupUiState(
     val isReviewVisible: Boolean = false,
     val isLoadingSavedProfile: Boolean = false,
     val isSavingProfile: Boolean = false,
+    val isDeletingProfile: Boolean = false,
     val savedProfile: BusinessProfile? = null,
     val saveSuccessMessage: String? = null,
-    val saveErrorMessage: String? = null
+    val saveErrorMessage: String? = null,
+    val deleteSuccessMessage: String? = null,
+    val deleteErrorMessage: String? = null
 ) {
     val isValid: Boolean = validationResult.isValid
 

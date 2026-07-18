@@ -966,16 +966,94 @@ fun ContentIdeasScreen() {
 }
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(viewModel: BusinessSetupViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
     ScreenContainer {
         SectionHeader(title = "Profile")
+        Text(
+            text = "Your business profile is saved locally on this device. UsahaNaik does not sync this data to cloud in this version.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard {
-            Text(text = "Pengaturan Bisnis", style = MaterialTheme.typography.titleLarge)
+        if (uiState.savedProfile == null) {
+            UsahaNaikCard(containerColor = YellowSoft) {
+                Text(text = "No saved profile", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = "Complete setup and save your business profile to show it here.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+            }
+        } else {
+            val profile = checkNotNull(uiState.savedProfile)
+            UsahaNaikCard(containerColor = GreenSoft) {
+                PillBadge(text = "Saved locally", containerColor = CreamBackground, contentColor = GreenPositive)
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(text = profile.draft.businessName, style = MaterialTheme.typography.titleLarge)
+                ReviewRow("Category ID", profile.draft.categoryId.orEmpty())
+                ReviewRow("Monthly revenue", profile.draft.monthlyRevenue)
+                ReviewRow("Monthly expenses", profile.draft.monthlyExpenses)
+                ReviewRow("Target revenue", profile.draft.targetMonthlyRevenue)
+                ReviewRow("Main focus", profile.draft.mainFocus?.label ?: "-")
+                ReviewRow("Updated at", profile.updatedAt.toString())
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(containerColor = RoseSoft) {
+                Text(text = "Delete local profile", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "Deleting local profile removes the saved setup from this device.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                if (showDeleteConfirmation) {
+                    Text(
+                        text = "Confirm delete? This only removes local data on this device.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = CoralPrimary
+                    )
+                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+                    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                        Button(
+                            onClick = {
+                                viewModel.deleteSavedProfile()
+                                showDeleteConfirmation = false
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(if (uiState.isDeletingProfile) "Deleting..." else "Delete")
+                        }
+                        OutlinedButton(
+                            onClick = { showDeleteConfirmation = false },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = { showDeleteConfirmation = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Delete Local Profile")
+                    }
+                }
+            }
+        }
+        uiState.deleteSuccessMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(containerColor = GreenSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        uiState.deleteErrorMessage?.let { message ->
             Text(
-                text = "Placeholder untuk profil, preferensi, dan pengaturan lokal.",
+                text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
+                color = CoralPrimary
             )
         }
     }

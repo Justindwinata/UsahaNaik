@@ -146,6 +146,26 @@ class BusinessSetupViewModelTest {
         assertTrue(viewModel.uiState.value.isValid)
     }
 
+    @Test
+    fun deleteSavedProfileClearsSavedProfileState() = runTest {
+        val repository = FakeBusinessProfileRepository()
+        repository.saveBusinessProfile(validDraft())
+        val viewModel = BusinessSetupViewModel(repository)
+        viewModel.loadSavedProfile()
+        advanceUntilIdle()
+
+        viewModel.deleteSavedProfile()
+        advanceUntilIdle()
+
+        assertFalse(repository.hasBusinessProfile())
+        assertEquals(null, viewModel.uiState.value.savedProfile)
+        assertTrue(viewModel.uiState.value.draft.isEmpty)
+        assertEquals(
+            "Local business profile deleted from this device.",
+            viewModel.uiState.value.deleteSuccessMessage
+        )
+    }
+
     private fun fillValidDraft(viewModel: BusinessSetupViewModel) {
         viewModel.updateBusinessName("Toko Naik")
         viewModel.selectCategory("food_beverage")

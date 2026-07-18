@@ -135,7 +135,7 @@ fun UsahaNaikApp() {
                     ContentIdeasScreen()
                 }
                 composable(AppRoute.Settings.route) {
-                    SettingsScreen()
+                    SettingsScreen(viewModel = setupViewModel)
                 }
             }
         }
