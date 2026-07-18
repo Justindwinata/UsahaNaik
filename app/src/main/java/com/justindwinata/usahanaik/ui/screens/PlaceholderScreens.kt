@@ -1,6 +1,8 @@
 package com.justindwinata.usahanaik.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +20,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryRepository
 import com.justindwinata.usahanaik.ui.components.MetricCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
 import com.justindwinata.usahanaik.ui.components.PrimaryActionButton
@@ -30,6 +37,7 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
+import com.justindwinata.usahanaik.ui.theme.BorderSubtle
 import com.justindwinata.usahanaik.ui.theme.BlueSoft
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
@@ -100,31 +108,59 @@ fun WelcomeScreen(
 
 @Composable
 fun CategorySelectionScreen(onContinueClick: () -> Unit) {
+    val categories = remember { SampleBusinessCategoryRepository().getCategories() }
+    var selectedCategoryId by remember { mutableStateOf(categories.first().id) }
+    val selectedCategory = categories.first { it.id == selectedCategoryId }
+
     ScreenContainer {
         SectionHeader(title = "Pilih Kategori Bisnis")
+        Text(
+            text = "Pilih kategori yang paling dekat dengan usahamu. Metadata ini nanti dipakai untuk goal, dashboard, dan rekomendasi mingguan.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        repeat(4) { index ->
+        categories.forEachIndexed { index, category ->
+            val isSelected = category.id == selectedCategoryId
             UsahaNaikCard(
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = listOf(BlueSoft, GreenSoft, LavenderSoft, YellowSoft)[index]
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(22.dp))
+                    .border(
+                        width = if (isSelected) 2.dp else 1.dp,
+                        color = if (isSelected) CoralPrimary else BorderSubtle,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
+                    )
+                    .clickable { selectedCategoryId = category.id },
+                containerColor = listOf(BlueSoft, GreenSoft, LavenderSoft, YellowSoft)[index % 4]
             ) {
                 Text(
-                    text = listOf(
-                        "Food & Beverage",
-                        "Warung / Toko Kelontong",
-                        "Skincare & Beauty",
-                        "Online Shop / Reseller"
-                    )[index],
+                    text = category.displayName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Metadata kategori dan rekomendasi goal akan dilengkapi pada foundation domain.",
+                    text = category.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = InkMuted
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
+                PillBadge(
+                    text = if (isSelected) "Dipilih" else "Fokus: ${category.focusArea}",
+                    containerColor = if (isSelected) CoralSoft else CreamBackground,
+                    contentColor = if (isSelected) CoralPrimary else InkMuted
                 )
             }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
+        UsahaNaikCard(containerColor = CoralSoft) {
+            Text(text = "Sample goal", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = selectedCategory.sampleRecommendedGoal,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         PrimaryActionButton(
             text = "Lanjut ke Setup",
             onClick = onContinueClick,
@@ -137,30 +173,82 @@ fun CategorySelectionScreen(onContinueClick: () -> Unit) {
 fun BusinessSetupScreen(onContinueClick: () -> Unit) {
     ScreenContainer {
         SectionHeader(title = "Setup Bisnis")
+        Text(
+            text = "Preview form ini menunjukkan struktur data yang akan dipersist dengan Room pada kontrak berikutnya.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        listOf(
-            "Identitas Bisnis",
-            "Baseline Finansial",
-            "Data Produk / Jasa",
-            "Tantangan Bisnis",
-            "Target Bulanan"
-        ).forEach { section ->
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth()) {
-                Text(text = section, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "Placeholder form untuk kontrak berikutnya.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
-                )
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-        }
+        SetupPreviewSection(
+            title = "Business Identity",
+            fields = listOf("Business name", "Business category", "Selling platform"),
+            containerColor = BlueSoft
+        )
+        SetupPreviewSection(
+            title = "Financial Baseline",
+            fields = listOf("Starting capital", "Monthly revenue", "Monthly expenses", "Estimated profit"),
+            containerColor = GreenSoft
+        )
+        SetupPreviewSection(
+            title = "Product / Service Data",
+            fields = listOf("Number of products", "Best-selling product", "Highest-margin product"),
+            containerColor = LavenderSoft
+        )
+        SetupPreviewSection(
+            title = "Business Challenges",
+            fields = listOf(
+                "Low sales",
+                "Low profit margin",
+                "Inconsistent content",
+                "Poor financial records",
+                "Repeat order problem",
+                "Stock problem"
+            ),
+            containerColor = RoseSoft
+        )
+        SetupPreviewSection(
+            title = "Monthly Goal",
+            fields = listOf("Target revenue", "Target profit", "Main focus"),
+            containerColor = YellowSoft
+        )
         PrimaryActionButton(
             text = "Buka Dashboard",
             onClick = onContinueClick,
             modifier = Modifier.fillMaxWidth()
         )
     }
+}
+
+@Composable
+private fun SetupPreviewSection(
+    title: String,
+    fields: List<String>,
+    containerColor: androidx.compose.ui.graphics.Color
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = containerColor) {
+        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        fields.forEach { field ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = field,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                PillBadge(
+                    text = "Preview",
+                    containerColor = CreamBackground,
+                    contentColor = InkMuted
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
 }
 
 @Composable
