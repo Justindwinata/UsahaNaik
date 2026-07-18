@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +40,7 @@ fun UsahaNaikApp() {
     UsahaNaikTheme {
         val navController = rememberNavController()
         val setupViewModel: BusinessSetupViewModel = viewModel()
+        val setupState by setupViewModel.uiState.collectAsState()
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
         val showBottomBar = currentRoute != null && currentRoute !in onboardingRoutes
@@ -103,7 +105,9 @@ fun UsahaNaikApp() {
                     )
                 }
                 composable(AppRoute.Dashboard.route) {
-                    DashboardScreen()
+                    DashboardScreen(
+                        setupDraft = setupState.draft.takeIf { setupState.isValid }
+                    )
                 }
                 composable(AppRoute.WeeklyPlan.route) {
                     WeeklyPlanScreen()

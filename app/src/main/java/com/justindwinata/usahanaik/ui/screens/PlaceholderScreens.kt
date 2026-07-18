@@ -45,6 +45,7 @@ import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryReposit
 import com.justindwinata.usahanaik.data.repository.SampleGrowthRepository
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
+import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
 import com.justindwinata.usahanaik.domain.model.ContentIdea
@@ -54,6 +55,7 @@ import com.justindwinata.usahanaik.domain.model.MonthlyFocus
 import com.justindwinata.usahanaik.domain.model.SellingChannel
 import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
+import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
 import com.justindwinata.usahanaik.ui.components.MetricCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
@@ -287,11 +289,7 @@ fun BusinessSetupScreen(
             onAvailableTimeChange = viewModel::updateAvailableTime
         )
         Button(
-            onClick = {
-                if (viewModel.requestReview()) {
-                    onContinueClick()
-                }
-            },
+            onClick = { viewModel.requestReview() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = if (uiState.isValid) "Review Setup" else "Check Setup")
@@ -310,6 +308,14 @@ fun BusinessSetupScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Reset Draft")
+        }
+        if (uiState.isReviewVisible) {
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            SetupReviewSection(
+                draft = uiState.draft,
+                categoryName = selectedCategory.displayName,
+                onCreateDashboard = onContinueClick
+            )
         }
     }
 }
@@ -659,8 +665,72 @@ private fun FieldError(error: String?) {
 }
 
 @Composable
-fun DashboardScreen() {
-    val dashboard = remember { SampleGrowthRepository().getDashboardPreview() }
+private fun SetupReviewSection(
+    draft: BusinessSetupDraft,
+    categoryName: String,
+    onCreateDashboard: () -> Unit
+) {
+    val profitMargin = BusinessSetupCalculator.profitMarginPercent(draft)?.let { "$it%" } ?: "-"
+    val revenueGap = BusinessSetupCalculator.formatRupiah(BusinessSetupCalculator.revenueTargetGap(draft))
+    val profitGap = BusinessSetupCalculator.formatRupiah(BusinessSetupCalculator.profitTargetGap(draft))
+
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        PillBadge(text = "Review ready", containerColor = CreamBackground, contentColor = GreenPositive)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Setup Review", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "Dashboard akan dibuat dari draft ini. Angka adalah preview perencanaan, bukan nasihat finansial profesional.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        ReviewRow("Business", draft.businessName)
+        ReviewRow("Category", categoryName)
+        ReviewRow("Monthly revenue", draft.monthlyRevenue)
+        ReviewRow("Monthly expenses", draft.monthlyExpenses)
+        ReviewRow("Estimated profit", draft.estimatedMonthlyProfit)
+        ReviewRow("Target revenue", draft.targetMonthlyRevenue)
+        ReviewRow("Target profit", draft.targetMonthlyProfit)
+        ReviewRow("Profit margin", profitMargin)
+        ReviewRow("Revenue gap", revenueGap)
+        ReviewRow("Profit gap", profitGap)
+        ReviewRow("Main focus", draft.mainFocus?.label ?: "-")
+        ReviewRow("Weekly time", draft.availableTime?.label ?: "-")
+        ReviewRow("Challenges", draft.challenges.joinToString { it.label })
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        PrimaryActionButton(
+            text = "Create Growth Dashboard",
+            onClick = onCreateDashboard,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun ReviewRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted,
+            modifier = Modifier.weight(0.42f)
+        )
+        Text(
+            text = value.ifBlank { "-" },
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(0.58f)
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.xs))
+}
+
+@Composable
+fun DashboardScreen(setupDraft: BusinessSetupDraft? = null) {
+    val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
 
     ScreenContainer {
         DashboardHeader(
