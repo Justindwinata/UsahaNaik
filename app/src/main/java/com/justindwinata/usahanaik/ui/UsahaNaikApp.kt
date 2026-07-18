@@ -24,6 +24,8 @@ import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
 import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
+import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
+import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModelFactory
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModelFactory
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
@@ -63,6 +65,12 @@ fun UsahaNaikApp() {
         )
         val financialEntryViewModel: FinancialEntryViewModel = viewModel(
             factory = FinancialEntryViewModelFactory(financialEntryRepository)
+        )
+        val dashboardInsightsViewModel: DashboardInsightsViewModel = viewModel(
+            factory = DashboardInsightsViewModelFactory(
+                businessProfileRepository = businessProfileRepository,
+                financialEntryRepository = financialEntryRepository
+            )
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -136,7 +144,8 @@ fun UsahaNaikApp() {
                 composable(AppRoute.Dashboard.route) {
                     DashboardScreen(
                         setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid },
-                        financialEntryViewModel = financialEntryViewModel
+                        financialEntryViewModel = financialEntryViewModel,
+                        dashboardInsightsViewModel = dashboardInsightsViewModel
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {

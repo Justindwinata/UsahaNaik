@@ -70,6 +70,7 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
+import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
@@ -777,7 +778,8 @@ private fun ReviewRow(label: String, value: String) {
 @Composable
 fun DashboardScreen(
     setupDraft: BusinessSetupDraft? = null,
-    financialEntryViewModel: FinancialEntryViewModel
+    financialEntryViewModel: FinancialEntryViewModel,
+    dashboardInsightsViewModel: DashboardInsightsViewModel
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
@@ -794,6 +796,7 @@ fun DashboardScreen(
             targetMonthlyRevenue = setupDraft?.targetMonthlyRevenue,
             targetMonthlyProfit = setupDraft?.targetMonthlyProfit
         )
+        dashboardInsightsViewModel.refresh()
     }
 
     ScreenContainer {
