@@ -5,5 +5,7 @@ data class BusinessCategory(
     val displayName: String,
     val description: String,
     val focusArea: String,
-    val sampleRecommendedGoal: String
+    val sampleRecommendedGoal: String,
+    val setupHints: List<String> = emptyList(),
+    val recommendedMonthlyFocus: MonthlyFocus = MonthlyFocus.OrganizeFinance
 )

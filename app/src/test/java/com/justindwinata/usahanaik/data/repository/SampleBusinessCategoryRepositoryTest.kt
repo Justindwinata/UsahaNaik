@@ -26,6 +26,7 @@ class SampleBusinessCategoryRepositoryTest {
         assertTrue(categories.all { it.description.isNotBlank() })
         assertTrue(categories.all { it.focusArea.isNotBlank() })
         assertTrue(categories.all { it.sampleRecommendedGoal.isNotBlank() })
+        assertTrue(categories.all { it.setupHints.size >= 4 })
     }
 
     @Test
