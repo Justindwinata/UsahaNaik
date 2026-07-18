@@ -13,15 +13,17 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         FinancialEntryEntity::class,
         WeeklyGrowthPlanEntity::class,
         WeeklyTaskEntity::class,
-        WeeklyMilestoneEntity::class
+        WeeklyMilestoneEntity::class,
+        ContentIdeaEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun businessProfileDao(): BusinessProfileDao
     abstract fun financialEntryDao(): FinancialEntryDao
     abstract fun weeklyPlanDao(): WeeklyPlanDao
+    abstract fun contentIdeaDao(): ContentIdeaDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -108,6 +110,36 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_ideas (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        businessProfileId INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        platform TEXT NOT NULL,
+                        contentType TEXT NOT NULL,
+                        goal TEXT NOT NULL,
+                        angle TEXT NOT NULL,
+                        captionDraft TEXT NOT NULL,
+                        cta TEXT NOT NULL,
+                        hook TEXT NOT NULL,
+                        visualSuggestion TEXT NOT NULL,
+                        postingNote TEXT NOT NULL,
+                        relatedChallenge TEXT,
+                        source TEXT NOT NULL,
+                        safetyNote TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        isFavorite INTEGER NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -118,7 +150,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                     UsahaNaikDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { instance = it }
             }
