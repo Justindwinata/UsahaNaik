@@ -48,7 +48,10 @@ import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetrics
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetricsMapper
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
+import com.justindwinata.usahanaik.domain.model.BusinessDiagnosis
+import com.justindwinata.usahanaik.domain.model.BusinessInsight
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
+import com.justindwinata.usahanaik.domain.model.BusinessRiskSignal
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
@@ -60,6 +63,7 @@ import com.justindwinata.usahanaik.domain.model.SellingChannel
 import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.model.FinancialEntry
 import com.justindwinata.usahanaik.domain.model.FinancialEntryType
+import com.justindwinata.usahanaik.domain.model.InsightSeverity
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
@@ -70,6 +74,7 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
+import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsUiState
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
@@ -783,6 +788,7 @@ fun DashboardScreen(
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
+    val insightsState by dashboardInsightsViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
@@ -796,6 +802,13 @@ fun DashboardScreen(
             targetMonthlyRevenue = setupDraft?.targetMonthlyRevenue,
             targetMonthlyProfit = setupDraft?.targetMonthlyProfit
         )
+    }
+    LaunchedEffect(
+        financialState.entries.size,
+        financialState.summary.totalIncome,
+        financialState.summary.totalExpenses,
+        financialState.summary.estimatedProfit
+    ) {
         dashboardInsightsViewModel.refresh()
     }
 
@@ -807,12 +820,14 @@ fun DashboardScreen(
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         ProgressScoreCard(
-            title = "Business Growth Score",
-            score = dashboard.healthScore.score,
-            helper = dashboard.healthScore.explanation,
+            title = "Business Health Score",
+            score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
+            helper = insightsState.diagnosis?.healthScore?.explanation ?: dashboard.healthScore.explanation,
             containerColor = LavenderSoft
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        DashboardInsightPanel(uiState = insightsState)
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             MetricCard(
                 title = "Revenue",
@@ -949,6 +964,224 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
     }
+}
+
+@Composable
+private fun DashboardInsightPanel(uiState: DashboardInsightsUiState) {
+    val diagnosis = uiState.diagnosis
+    SectionHeader(title = "Business Diagnosis", actionLabel = "Rule-based")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    when {
+        uiState.isLoading -> {
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+                Text(text = "Generating insights...", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "UsahaNaik is reviewing your saved profile and local financial records.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+            }
+        }
+        uiState.errorMessage != null -> {
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+                Text(text = "Insight generation needs attention", style = MaterialTheme.typography.titleMedium)
+                Text(text = uiState.errorMessage, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            }
+        }
+        diagnosis != null -> {
+            DiagnosisScoreCard(diagnosis = diagnosis)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            InsightSummaryCards(diagnosis = diagnosis)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            uiState.emptyStateMessage?.let { message ->
+                UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+                    Text(text = "Improve insight accuracy", style = MaterialTheme.typography.titleMedium)
+                    Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                }
+                Spacer(modifier = Modifier.height(AppSpacing.md))
+            }
+            BusinessInsightsSection(insights = diagnosis.insights)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            PriorityActionsSection(actions = diagnosis.priorityActions)
+            if (diagnosis.riskSignals.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(AppSpacing.md))
+                RiskSignalsSection(risks = diagnosis.riskSignals)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiagnosisScoreCard(diagnosis: BusinessDiagnosis) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                PillBadge(
+                    text = diagnosis.healthScore.statusLabel,
+                    containerColor = CreamBackground,
+                    contentColor = CoralPrimary
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(text = "Rule-based business health", style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = "Generated from saved profile and local financial records. Suggestions are planning guidance, not guaranteed outcomes.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+            }
+            Text(
+                text = "${diagnosis.healthScore.score}/100",
+                style = MaterialTheme.typography.headlineMedium,
+                color = CoralPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        diagnosis.breakdown.forEach { item ->
+            Text(text = item.component.label, style = MaterialTheme.typography.labelLarge)
+            LinearProgressIndicator(
+                progress = { item.progress },
+                modifier = Modifier.fillMaxWidth(),
+                color = GreenPositive,
+                trackColor = CreamBackground
+            )
+            Text(
+                text = "${item.score}/${item.maxScore} - ${item.explanation}",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun InsightSummaryCards(diagnosis: BusinessDiagnosis) {
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+        MetricCard(
+            title = "Finance",
+            value = diagnosis.summary.financeInsightCount.toString(),
+            helper = "Insights",
+            modifier = Modifier.weight(1f),
+            containerColor = GreenSoft,
+            accentColor = GreenPositive
+        )
+        MetricCard(
+            title = "Warnings",
+            value = diagnosis.summary.warningCount.toString(),
+            helper = "Attention",
+            modifier = Modifier.weight(1f),
+            containerColor = RoseSoft,
+            accentColor = CoralPrimary
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+        MetricCard(
+            title = "Actions",
+            value = diagnosis.summary.priorityActionCount.toString(),
+            helper = "Next steps",
+            modifier = Modifier.weight(1f),
+            containerColor = BlueSoft,
+            accentColor = CoralPrimary
+        )
+        MetricCard(
+            title = "Goal",
+            value = diagnosis.summary.goalProgressStatus,
+            helper = "Progress",
+            modifier = Modifier.weight(1f),
+            containerColor = YellowSoft,
+            accentColor = GreenPositive
+        )
+    }
+}
+
+@Composable
+private fun BusinessInsightsSection(insights: List<BusinessInsight>) {
+    SectionHeader(title = "Business Insights")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    insights.take(5).forEach { insight ->
+        UsahaNaikCard(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = insightContainerColor(insight.severity)
+        ) {
+            InsightSeverityBadge(severity = insight.severity)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = insight.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = insight.category.label, style = MaterialTheme.typography.labelMedium, color = InkMuted)
+            Text(text = insight.message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+@Composable
+private fun PriorityActionsSection(actions: List<com.justindwinata.usahanaik.domain.model.PriorityAction>) {
+    SectionHeader(title = "Priority Actions")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    actions.forEach { action ->
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                PillBadge(text = action.difficulty.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+                PillBadge(text = action.estimatedTime.label, containerColor = CreamBackground, contentColor = GreenPositive)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = action.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = action.description, style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Text(text = "Reason: ${action.reason}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+            Text(
+                text = "Expected outcome: ${action.expectedOutcome}",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+@Composable
+private fun RiskSignalsSection(risks: List<BusinessRiskSignal>) {
+    SectionHeader(title = "Risk / Attention")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    risks.forEach { risk ->
+        UsahaNaikCard(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = insightContainerColor(risk.severity)
+        ) {
+            InsightSeverityBadge(severity = risk.severity)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = risk.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = risk.category.label, style = MaterialTheme.typography.labelMedium, color = InkMuted)
+            Text(text = risk.message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+@Composable
+private fun InsightSeverityBadge(severity: InsightSeverity) {
+    PillBadge(
+        text = "Severity: ${severity.label}",
+        containerColor = CreamBackground,
+        contentColor = when (severity) {
+            InsightSeverity.Positive -> GreenPositive
+            InsightSeverity.Info -> CoralPrimary
+            InsightSeverity.Warning -> CoralPrimary
+            InsightSeverity.Critical -> CoralPrimary
+        }
+    )
+}
+
+private fun insightContainerColor(severity: InsightSeverity) = when (severity) {
+    InsightSeverity.Positive -> GreenSoft
+    InsightSeverity.Info -> BlueSoft
+    InsightSeverity.Warning -> YellowSoft
+    InsightSeverity.Critical -> RoseSoft
 }
 
 @Composable
