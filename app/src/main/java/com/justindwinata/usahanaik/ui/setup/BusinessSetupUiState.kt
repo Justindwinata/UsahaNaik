@@ -11,6 +11,7 @@ data class BusinessSetupUiState(
     val validationResult: BusinessSetupValidationResult = BusinessSetupValidator.validate(draft),
     val hasAttemptedReview: Boolean = false,
     val isReviewVisible: Boolean = false,
+    val isLoadingSavedProfile: Boolean = false,
     val isSavingProfile: Boolean = false,
     val savedProfile: BusinessProfile? = null,
     val saveSuccessMessage: String? = null,

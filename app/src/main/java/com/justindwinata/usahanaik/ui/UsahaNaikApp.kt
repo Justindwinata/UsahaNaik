@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -54,6 +55,9 @@ fun UsahaNaikApp() {
             factory = BusinessSetupViewModelFactory(businessProfileRepository)
         )
         val setupState by setupViewModel.uiState.collectAsState()
+        LaunchedEffect(Unit) {
+            setupViewModel.loadSavedProfile()
+        }
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
         val showBottomBar = currentRoute != null && currentRoute !in onboardingRoutes
@@ -99,7 +103,9 @@ fun UsahaNaikApp() {
             ) {
                 composable(AppRoute.Welcome.route) {
                     WelcomeScreen(
+                        savedProfile = setupState.savedProfile,
                         onStartClick = { navController.navigate(AppRoute.CategorySelection.route) },
+                        onResumeSavedProfileClick = { navController.navigate(AppRoute.Dashboard.route) },
                         onPreviewDashboardClick = { navController.navigate(AppRoute.Dashboard.route) }
                     )
                 }
@@ -119,7 +125,7 @@ fun UsahaNaikApp() {
                 }
                 composable(AppRoute.Dashboard.route) {
                     DashboardScreen(
-                        setupDraft = setupState.draft.takeIf { setupState.isValid }
+                        setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid }
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {

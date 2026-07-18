@@ -45,6 +45,7 @@ import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryReposit
 import com.justindwinata.usahanaik.data.repository.SampleGrowthRepository
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
+import com.justindwinata.usahanaik.domain.model.BusinessProfile
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
@@ -81,7 +82,9 @@ import com.justindwinata.usahanaik.ui.theme.YellowSoft
 
 @Composable
 fun WelcomeScreen(
+    savedProfile: BusinessProfile? = null,
     onStartClick: () -> Unit,
+    onResumeSavedProfileClick: () -> Unit = {},
     onPreviewDashboardClick: () -> Unit
 ) {
     ScreenContainer {
@@ -112,6 +115,28 @@ fun WelcomeScreen(
             color = InkMuted
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
+        if (savedProfile != null) {
+            UsahaNaikCard(containerColor = BlueSoft) {
+                PillBadge(text = "Saved locally", containerColor = CreamBackground, contentColor = CoralPrimary)
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(
+                    text = savedProfile.draft.businessName,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = "Your business profile is saved locally on this device.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                PrimaryActionButton(
+                    text = "Resume Saved Profile",
+                    onClick = onResumeSavedProfileClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+        }
         PrimaryActionButton(
             text = "Mulai Setup Bisnis",
             onClick = onStartClick,

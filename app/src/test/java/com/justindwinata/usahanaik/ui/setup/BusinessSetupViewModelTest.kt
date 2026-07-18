@@ -130,6 +130,22 @@ class BusinessSetupViewModelTest {
         )
     }
 
+    @Test
+    fun loadSavedProfileRestoresDraftState() = runTest {
+        val repository = FakeBusinessProfileRepository()
+        val savedDraft = validDraft()
+        repository.saveBusinessProfile(savedDraft)
+        val viewModel = BusinessSetupViewModel(repository)
+
+        viewModel.loadSavedProfile()
+        advanceUntilIdle()
+
+        assertEquals("Toko Naik", viewModel.uiState.value.draft.businessName)
+        assertEquals("food_beverage", viewModel.uiState.value.draft.categoryId)
+        assertEquals(savedDraft, viewModel.uiState.value.savedProfile?.draft)
+        assertTrue(viewModel.uiState.value.isValid)
+    }
+
     private fun fillValidDraft(viewModel: BusinessSetupViewModel) {
         viewModel.updateBusinessName("Toko Naik")
         viewModel.selectCategory("food_beverage")
@@ -147,6 +163,12 @@ class BusinessSetupViewModelTest {
         viewModel.updateTargetMonthlyProfit("Rp 4.000.000")
         viewModel.updateMainFocus(MonthlyFocus.ImproveSales)
         viewModel.updateAvailableTime(AvailableTime.ThreeToFiveHours)
+    }
+
+    private fun validDraft(): BusinessSetupDraft {
+        val viewModel = BusinessSetupViewModel()
+        fillValidDraft(viewModel)
+        return viewModel.uiState.value.draft
     }
 
     private class FakeBusinessProfileRepository : BusinessProfileRepository {

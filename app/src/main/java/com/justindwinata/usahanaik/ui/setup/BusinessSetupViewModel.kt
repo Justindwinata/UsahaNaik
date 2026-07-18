@@ -90,6 +90,30 @@ class BusinessSetupViewModel(
         _uiState.value = _uiState.value.copy(isReviewVisible = false)
     }
 
+    fun loadSavedProfile() {
+        val repository = businessProfileRepository ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingSavedProfile = true)
+            runCatching {
+                repository.getActiveBusinessProfile()
+            }.onSuccess { profile ->
+                _uiState.value = if (profile == null) {
+                    _uiState.value.copy(isLoadingSavedProfile = false)
+                } else {
+                    BusinessSetupUiState.fromDraft(
+                        draft = profile.draft,
+                        savedProfile = profile
+                    ).copy(isLoadingSavedProfile = false)
+                }
+            }.onFailure { error ->
+                _uiState.value = _uiState.value.copy(
+                    isLoadingSavedProfile = false,
+                    saveErrorMessage = error.message ?: "Failed to load saved business profile."
+                )
+            }
+        }
+    }
+
     fun saveCompletedProfile(onSaved: () -> Unit = {}) {
         val reviewAllowed = requestReview()
         if (!reviewAllowed) return
