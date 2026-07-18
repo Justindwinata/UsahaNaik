@@ -42,8 +42,13 @@ The app is not professional financial advice and does not guarantee profit incre
 13. User follows weekly plan tasks and marks tasks completed.
 14. User reviews weekly challenge and milestones.
 15. User sees weekly progress on the dashboard.
-16. User reviews AI-assisted content idea previews.
-17. User can delete local profile data from Settings/Profile.
+16. User opens Content Planner.
+17. User selects platform, content goal, and optional content type.
+18. User generates local deterministic content ideas.
+19. User saves ideas, favorites ideas, marks ideas planned/done, or deletes ideas.
+20. User reviews promotion campaign suggestions.
+21. User sees content planning summary on the dashboard.
+22. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -171,6 +176,20 @@ For UN-0005, content ideas remain local deterministic samples. The diagnosis eng
 
 For UN-0006, content ideas remain local deterministic samples. Weekly plans are also deterministic and do not call an AI API.
 
+For UN-0007, Content Planner becomes an interactive feature. It uses a deterministic local provider to generate 5-10 category-aware and challenge-aware content ideas with hook, caption draft, CTA, visual suggestion, posting note, and safety note. Generated ideas can be saved locally, favorited, marked planned, marked done, deleted, and filtered by status.
+
+UN-0007 also adds optional AI provider architecture with settings model, prompt builder, configurable provider skeleton, and fallback wrapper. Remote AI generation is not implemented yet. The app remains useful offline and does not require paid AI access.
+
+Content generation safety requirements:
+
+- No hardcoded API keys.
+- No committed secrets.
+- Local deterministic generation must always work.
+- Generated ideas are suggestions and should be reviewed before posting.
+- Avoid guaranteed sales, guaranteed profit, fake scarcity, unsupported product claims, and sensitive medical/legal/financial claims.
+- Skincare and beauty content must avoid cure or guaranteed result claims.
+- Food and beverage content must avoid health claims unless independently supported.
+
 ## Limitations
 
 - No authentication.
@@ -179,6 +198,9 @@ For UN-0006, content ideas remain local deterministic samples. Weekly plans are 
 - Local persistence only.
 - No notification system yet.
 - No real AI integration yet.
+- AI provider architecture is present, but remote AI generation is not implemented yet.
+- Content generation remains local deterministic in the app build.
+- Content ideas should be reviewed before posting.
 - Diagnosis is deterministic and heuristic.
 - Weekly plan is deterministic and heuristic.
 - No professional financial advice.

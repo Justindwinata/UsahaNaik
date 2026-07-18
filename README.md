@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0006 adds a deterministic weekly growth plan and milestone generator so UMKM owners can generate, save, and track weekly tasks from saved profile, diagnosis, and financial data.
+UN-0007 adds a real Content Planner with deterministic local content idea generation, saved ideas, status tracking, promotion campaign suggestions, and optional AI provider architecture without hardcoded secrets.
 
 Implemented UN-0001 screens:
 
@@ -97,13 +97,25 @@ Implemented UN-0006 foundation:
 - Dashboard weekly plan summary with active focus, task progress, milestone progress, next task, and CTA to the Weekly Plan tab.
 - Unit tests cover generator rules, persistence, mapping, ViewModel behavior, and dashboard summary mapping.
 
+Implemented UN-0007 foundation:
+
+- Content planner domain models for ideas, platforms, goals, types, status, generation source, promotion campaigns, calendar items, requests, and results.
+- Improved deterministic `LocalContentIdeaProvider` with category-aware, challenge-aware, platform-aware ideas.
+- Optional AI provider architecture with settings model, prompt builder, configurable provider skeleton, and safe fallback wrapper.
+- No hardcoded API keys, no paid AI dependency, and no required network call.
+- Room `content_ideas` table with DAO, migration, repository, and entity/domain mappers.
+- Content Planner screen with generation controls, generated idea cards, saved ideas, status filters, favorite/planned/done/delete actions, and promotion campaign cards.
+- Dashboard content summary with saved, planned, done, favorite, next idea, and CTA.
+- Settings/Profile local-only AI provider section documenting planned configuration and key safety rules.
+- Tests cover local generation, fallback behavior, prompt safety, persistence, ViewModel state, and dashboard content mapping.
+
 ## Tech Stack
 
 - Kotlin
 - Jetpack Compose
 - Material Design 3
 - Navigation Compose
-- ViewModel-ready architecture
+- ViewModel architecture
 - Repository pattern-ready structure
 - Room Database
 - Kotlin Coroutines
@@ -136,9 +148,12 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Only one active business profile is supported.
 - Financial entries are simple local records, not a full accounting ledger.
 - No real AI API integration yet.
-- Content ideas are local preview samples only.
+- Content ideas are deterministic local suggestions unless a future optional AI provider is configured.
 - Diagnosis is deterministic and heuristic.
 - Weekly plan is deterministic and heuristic.
+- AI provider architecture is present, but remote AI generation is not implemented in this milestone.
+- No hardcoded API keys.
+- Generated content ideas should be reviewed before posting.
 - No authentication, cloud sync, payment, or notification system.
 - No guaranteed profit increase.
 - Not professional accounting software.
@@ -146,7 +161,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0007, safe configurable AI content provider integration with local deterministic fallback.
+Next recommended milestone: UN-0008, milestone progress history, content calendar scheduling, and portfolio polish around progress continuity.
 
 ## Documentation
 

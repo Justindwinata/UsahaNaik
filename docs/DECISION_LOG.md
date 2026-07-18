@@ -147,3 +147,29 @@ Plan generation and regeneration live in the Weekly Plan tab. The dashboard show
 ### No Guaranteed Outcome Copy
 
 Task expected outcomes use wording such as "may help" and "dapat membantu." Weekly plans are positioned as planning suggestions, not guaranteed sales, profit, or business success.
+
+## UN-0007 Decisions
+
+### Local Content Generation Remains Primary
+
+UN-0007 upgrades the content planner around deterministic local generation first. This keeps the app useful offline, testable without network calls, and free from paid AI requirements.
+
+### Optional AI Boundary Without Real Remote Calls
+
+The app now includes AI settings, prompt building, configurable provider skeleton, and fallback wrapper, but it does not perform real remote AI calls. Real integration is deferred until key storage, provider selection, response validation, timeout behavior, and privacy copy can be implemented deliberately.
+
+### No Hardcoded Secrets
+
+No API key is stored in source code. Settings copy states that future keys must be user-provided, masked in UI, stored locally on device, and never logged.
+
+### Saved Ideas Are Local Planning Artifacts
+
+Generated ideas can be saved, favorited, marked planned, marked done, and deleted locally. This makes the Content Planner useful as a workflow, not only as a generator preview.
+
+### Safety Notes On Every Idea
+
+Content ideas include safety notes and use review-before-posting copy. The generator avoids guaranteed sales/profit claims, fake scarcity, and unsupported sensitive product claims.
+
+### Promotion Campaigns Use Non-Guaranteed Outcomes
+
+Promotion campaign cards include expected-outcome wording without guaranteeing viral reach, sales growth, or profit increase.

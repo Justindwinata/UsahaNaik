@@ -77,9 +77,22 @@ Completed scope:
 
 Add safe configurable AI provider integration without hardcoded keys, while preserving local fallback mode.
 
+Completed scope:
+
+- Add content planner domain models for ideas, platforms, goals, types, statuses, generation source, promotion campaigns, calendar items, requests, and results.
+- Upgrade local deterministic content generation with category-aware, challenge-aware, and platform-aware ideas.
+- Generate hook, caption draft, CTA, visual suggestion, posting note, and safety note for each idea.
+- Add promotion campaign suggestions with safe expected-outcome wording.
+- Add optional AI provider architecture with settings model, prompt builder, configurable provider skeleton, and local fallback wrapper.
+- Persist saved content ideas locally with Room.
+- Render Content Planner screen with generation controls, generated ideas, saved ideas, status filters, favorite/planned/done/delete actions, and promotion planner cards.
+- Add dashboard content planning summary.
+- Add local-only AI provider information in Settings/Profile.
+- Keep remote AI calls and API key storage deferred.
+
 ## UN-0008 - Milestones And Progress
 
-Add milestone completion, progress history, streaks, and plan retrospectives.
+Add milestone completion, progress history, content calendar scheduling, streaks, and plan retrospectives.
 
 ## UN-0009 - Notifications
 

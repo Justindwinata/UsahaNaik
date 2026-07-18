@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.7.0 - UN-0007
+
+- Added content planner domain models for content ideas, platforms, goals, types, statuses, generation sources, promotion campaigns, calendar items, requests, and results.
+- Upgraded deterministic local content generation with category-aware and challenge-aware ideas for UMKM business types.
+- Added platform-specific hooks, caption drafts, CTA suggestions, visual suggestions, posting notes, and safety notes.
+- Added promotion campaign suggestions with objective, recommended content sequence, expected outcome wording, and safety note.
+- Added optional AI provider architecture with local fallback, settings model, prompt builder, and configurable provider skeleton.
+- Added Room `content_ideas` persistence with DAO, migration, repository, and entity/domain mapper.
+- Added `ContentPlannerViewModel` for loading profile state, generating ideas, saving ideas, filtering, favorite toggles, planned/done status, and delete actions.
+- Replaced the static content ideas preview with a real Content Planner screen.
+- Added dashboard content summary with saved, planned, done, favorite, next idea, and CTA.
+- Added Settings/Profile AI provider section explaining local-only mode and key safety rules for future configuration.
+- Added tests for local provider behavior, fallback behavior, prompt safety, persistence, ViewModel state, and dashboard content summary mapping.
+
+### Known Limitations
+
+- Local content generation is deterministic.
+- Remote AI generation is not implemented yet.
+- No hardcoded API keys.
+- No guaranteed content performance.
+- No guaranteed sales or profit increase.
+- Content ideas should be reviewed before posting.
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No notification system.
+
 ## 0.6.0 - UN-0006
 
 - Added weekly growth plan domain models for focus, task, challenge, milestone, status, and progress summary.

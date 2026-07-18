@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0006 adds deterministic weekly growth plan generation, task completion persistence, milestone progress, and dashboard weekly plan summary. Real AI integration, cloud sync, and production diagnosis refinement remain planned for later contracts.
+UN-0007 adds deterministic content planning, saved content ideas, promotion campaign suggestions, and optional AI provider architecture with local fallback. Real remote AI integration, cloud sync, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -18,11 +18,15 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - `FinancialEntryViewModel` exposes immutable financial form, recent activity, validation, and summary state to Compose.
 - `DashboardInsightsViewModel` loads saved profile and financial summary, then exposes diagnosis state to Compose.
 - `WeeklyPlanViewModel` loads the active plan, generates a new weekly plan, toggles task completion, and exposes progress state to Compose.
+- `ContentPlannerViewModel` loads saved profile state, generates content ideas, saves ideas, filters saved ideas, updates favorite/planned/done status, and deletes ideas.
 - Dashboard cards can use persisted financial summaries when entries exist.
 - Dashboard insight UI renders rule-based score, breakdown, insights, risks, and priority actions.
 - Weekly Plan UI renders focus, progress, task checklist, challenge, milestones, and regenerate confirmation.
 - Dashboard shows a compact weekly plan summary and CTA to the Weekly Plan tab.
+- Dashboard shows a compact content planner summary and CTA to the Content Planner tab.
+- Content Planner UI renders generation controls, generated ideas, saved ideas, promotion campaigns, filters, and local-only safety messaging.
 - Settings/Profile can show and delete the saved local business profile.
+- Settings/Profile shows the current local-only AI provider mode and documents future API key safety rules.
 
 ## Domain Layer
 
@@ -42,6 +46,8 @@ The domain layer contains plain Kotlin models for:
 - Weekly growth plan models for plan, focus, task, challenge, milestone, status, and progress summary.
 - `WeeklyPlanGenerator` for deterministic weekly task, challenge, and milestone creation.
 - Dashboard weekly plan summary mapping.
+- Content planner models for ideas, platforms, goals, types, statuses, sources, promotion campaigns, calendar items, requests, and results.
+- Content dashboard summary mapping.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
 - Milestones, tasks, product performance, and recommendations.
@@ -74,14 +80,20 @@ The data layer uses local sample and Room-backed repositories:
 - `WeeklyGrowthPlanEntity`
 - `WeeklyTaskEntity`
 - `WeeklyMilestoneEntity`
+- `ContentIdeaRepository`
+- `LocalContentIdeaRepository`
+- `ContentIdeaDao`
+- `ContentIdeaEntity`
 
-Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, and one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`. Multi-business support is deferred.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, and saved content ideas in `content_ideas`. Multi-business support is deferred.
 
 UN-0003 saves completed setup data locally and reloads it on app startup. UN-0004 saves income and expense entries locally and maps monthly entry summaries into dashboard cards and trend visuals.
 
 UN-0005 does not add new Room tables. It reads the saved business profile and financial summary through repository interfaces, then generates diagnosis output in the domain layer.
 
 UN-0006 updates Room to version 3 with additive weekly plan tables. Replacing/regenerating the active weekly plan deletes the previous active plan rows and saves the new plan, tasks, and milestones.
+
+UN-0007 updates Room to version 4 with an additive `content_ideas` table. Generated content ideas can be saved, filtered, favorited, marked planned, marked done, deleted, or cleared locally.
 
 Planned data direction:
 
@@ -91,19 +103,24 @@ Planned data direction:
 - Diagnosis is calculated in memory from local data and is not persisted yet.
 - Weekly plan task completion is persisted locally.
 - Milestone progress is persisted and refreshed from related task completion where practical.
+- Content idea status and favorite state are persisted locally.
 - Sample repositories remain useful for previews and tests.
 
 ## AI Integration Planned
 
-UN-0001 defines an AI-ready boundary through a content idea provider interface. The current implementation is deterministic and local.
+UN-0001 defines an AI-ready boundary through a content idea provider interface. UN-0007 expands this boundary into a safe provider architecture while keeping the shipped app deterministic and local.
 
 Current contract:
 
 - `ContentIdeaProvider` defines the AI boundary.
-- `LocalContentIdeaProvider` returns deterministic sample ideas.
-- No API key, paid AI dependency, or external request is used in UN-0001.
+- `LocalContentIdeaProvider` returns deterministic category-aware and challenge-aware ideas.
+- `ConfigurableAiContentIdeaProvider` is a remote-provider skeleton that requires future user-provided settings before any real integration.
+- `FallbackContentIdeaProvider` catches provider failure and returns local fallback ideas.
+- `ContentIdeaPromptBuilder` builds a structured, safe prompt without secrets.
+- `AiContentSettings` models local-only or AI-assisted modes without storing any key in source code.
+- No API key, paid AI dependency, or external request is used in UN-0007.
 
-UN-0006 does not change the AI boundary. Content ideas remain local/sample-based, diagnosis is rule-based, and weekly plans are deterministic rather than AI-generated.
+Content ideas are labeled as suggestions that must be reviewed before posting. The app avoids guaranteed sales/profit claims, fake scarcity, and unsupported sensitive claims.
 
 Future AI integration should:
 
@@ -112,6 +129,7 @@ Future AI integration should:
 - Clearly label generated suggestions.
 - Keep disclaimers around non-guaranteed recommendations.
 - Allow deterministic fallback samples for offline/test mode.
+- Never log user API keys.
 
 ## Local-First Direction
 
@@ -126,5 +144,7 @@ Current local-first behavior:
 - Dashboard can generate rule-based business diagnosis insights from local profile and financial records.
 - Weekly plans can be generated, saved, restored, and progressed locally.
 - Dashboard can show active weekly plan progress.
+- Content ideas can be generated, saved, filtered, favorited, planned, completed, and deleted locally.
+- Dashboard can show content planning progress.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.
