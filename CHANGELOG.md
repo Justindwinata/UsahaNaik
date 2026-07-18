@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.3.0 - UN-0003
+
+- Added Room runtime, Room KTX, Room compiler, Room testing, and KSP configuration.
+- Added `UsahaNaikDatabase`, `BusinessProfileEntity`, and `BusinessProfileDao`.
+- Added `BusinessProfileRepository` and `LocalBusinessProfileRepository`.
+- Added entity/domain mapping for setup drafts, enums, selected challenges, and metadata timestamps.
+- Added save profile action from setup review.
+- Added saved profile loading on app startup.
+- Added saved profile resume card on welcome screen.
+- Updated dashboard preview to prefer persisted profile data when available.
+- Added Settings/Profile local data summary and delete confirmation.
+- Added tests for mapping, repository save/read/update/delete, ViewModel save/load/delete, and dashboard mapping.
+
+### Known Limitations
+
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- Content ideas are still local/sample-based.
+- No full business diagnosis engine yet.
+- No weekly plan generation from real diagnosis yet.
+- No notification system.
+- No guaranteed profit increase.
+- Not professional financial advice.
+
 ## 0.2.0 - UN-0002
 
 - Added `BusinessSetupDraft` domain model and setup enums for channel, stage, cost driver, stock issue, challenges, focus, and available time.

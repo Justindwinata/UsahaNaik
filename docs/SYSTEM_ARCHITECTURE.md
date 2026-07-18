@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0002 adds interactive setup state, validation, review, and dashboard draft mapping. Persistence, real AI integration, and production data flows are planned for later contracts.
+UN-0003 adds Room persistence for one active local business profile. Real AI integration, cloud sync, and production diagnosis flows remain planned for later contracts.
 
 ## UI Layer
 
@@ -15,6 +15,7 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - Dashboard, weekly plan, content ideas, interactive setup, and settings screens.
 - Compose-drawn lightweight visual components for progress and trend charts.
 - `BusinessSetupViewModel` exposes immutable setup UI state to Compose.
+- Settings/Profile can show and delete the saved local business profile.
 
 ## Domain Layer
 
@@ -22,6 +23,7 @@ The domain layer contains plain Kotlin models for:
 
 - Business categories.
 - Business setup draft and setup enums.
+- Business profile domain model with created/updated timestamps.
 - Business setup validation result and field identifiers.
 - Setup calculations for profit margin, revenue target gap, and profit target gap.
 - Business dashboard preview.
@@ -36,20 +38,25 @@ Domain models are intentionally independent from Android UI classes.
 
 ## Data Layer
 
-UN-0001 uses local sample repositories:
+The data layer uses local sample and Room-backed repositories:
 
 - `SampleBusinessCategoryRepository`
 - `SampleGrowthRepository`
 - `LocalContentIdeaProvider`
+- `BusinessProfileRepository`
+- `LocalBusinessProfileRepository`
+- `UsahaNaikDatabase`
+- `BusinessProfileDao`
+- `BusinessProfileEntity`
 
-Room is planned later for persistent business setup data, weekly plans, financial entries, content ideas, and progress history.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`. Multi-business support is deferred.
 
-UN-0002 keeps setup data in memory through `BusinessSetupViewModel`. The dashboard can map a valid draft into preview data, but the draft is not permanently saved.
+UN-0003 saves completed setup data locally and reloads it on app startup. The dashboard maps saved profile data into preview cards.
 
 Planned data direction:
 
 - Repository interfaces expose app data.
-- Local Room implementations persist user input.
+- Local Room implementations persist completed setup profile data.
 - Sample repositories remain useful for previews and tests.
 
 ## AI Integration Planned
@@ -62,7 +69,7 @@ Current contract:
 - `LocalContentIdeaProvider` returns deterministic sample ideas.
 - No API key, paid AI dependency, or external request is used in UN-0001.
 
-UN-0002 does not change the AI boundary. Content ideas remain local/sample-based.
+UN-0003 does not change the AI boundary. Content ideas remain local/sample-based.
 
 Future AI integration should:
 
@@ -74,4 +81,12 @@ Future AI integration should:
 
 ## Local-First Direction
 
-The app should work without login in early milestones. User data persistence should start locally with Room before any cloud sync is considered.
+The app works without login. User setup data is persisted locally with Room before any cloud sync is considered.
+
+Current local-first behavior:
+
+- Completed setup can be saved locally.
+- Saved profile can be restored on app startup.
+- Dashboard can use saved business data.
+- Settings/Profile can delete the saved local profile.
+- No authentication or cloud sync is used.

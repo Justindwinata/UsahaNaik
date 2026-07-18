@@ -21,17 +21,26 @@ Completed scope:
 
 Persist business profile, financial baseline, goals, tasks, milestones, and content idea history locally.
 
-Recommended next scope:
+Completed scope:
 
 - Add Room entities for business setup draft and goals.
 - Persist setup draft locally.
 - Restore setup state after app process recreation.
 - Keep migrations simple and covered by tests.
 - Avoid cloud sync until local-first behavior is stable.
+- Add local profile delete/reset action.
+- Restore dashboard from saved profile data.
 
 ## UN-0004 - Financial Tracking
 
 Add revenue, expense, profit, margin, and basic transaction tracking with local reports.
+
+Recommended next scope:
+
+- Add local financial entry models and Room tables.
+- Track revenue and expense entries.
+- Connect dashboard financial cards to persisted entries.
+- Keep calculations transparent and avoid professional financial advice claims.
 
 ## UN-0005 - Dashboard Insights
 

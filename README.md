@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0002 adds the first real interactive business setup workflow on top of the UN-0001 Android foundation.
+UN-0003 adds Room persistence so the completed business setup can be saved locally and restored after app restart.
 
 Implemented UN-0001 screens:
 
@@ -48,6 +48,20 @@ Implemented UN-0002 foundation:
 - Dashboard preview can use valid draft values.
 - Unit tests for validation, state reducers, hints, and dashboard draft mapping.
 
+Implemented UN-0003 foundation:
+
+- Room database configured with KSP.
+- Single active business profile stored in `business_profiles`.
+- Local repository abstraction for save, read, observe, delete, and has-profile checks.
+- Entity/domain mappers for setup draft, enums, challenges, and timestamps.
+- Setup review saves the completed business profile locally.
+- App startup loads the saved profile into dashboard-ready state.
+- Welcome screen can resume a saved local profile.
+- Dashboard preview can use persisted business data.
+- Settings/Profile shows saved profile summary and local-first data notice.
+- Settings/Profile can delete the saved local profile with confirmation.
+- Unit tests cover mapping, repository behavior, save action, restore action, and delete action.
+
 ## Tech Stack
 
 - Kotlin
@@ -56,7 +70,7 @@ Implemented UN-0002 foundation:
 - Navigation Compose
 - ViewModel-ready architecture
 - Repository pattern-ready structure
-- Room planned for later
+- Room Database
 - Kotlin Coroutines
 - JUnit
 
@@ -83,9 +97,8 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Limitations
 
-- No full business form persistence yet.
-- Setup draft is not permanently saved yet.
-- No Room database yet.
+- Local persistence only.
+- Only one active business profile is supported.
 - No real AI API integration yet.
 - Content ideas are local preview samples only.
 - No full business diagnosis engine yet.
@@ -96,7 +109,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0003, Room persistence for business setup drafts, goals, and local dashboard data.
+Next recommended milestone: UN-0004, financial tracking with local revenue/expense entries and basic reports.
 
 ## Documentation
 

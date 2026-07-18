@@ -59,3 +59,25 @@ The app shows a review section before dashboard creation so users can understand
 ### Dashboard Mapping Is Preview-Only
 
 Draft values personalize the dashboard preview, but this is not a full business diagnosis engine. Deeper diagnosis and weekly plan generation are deferred to later milestones.
+
+## UN-0003 Decisions
+
+### Single Active Profile
+
+UN-0003 stores one active business profile row. This keeps local persistence simple and fits the current product flow. Multi-business support can be added later without changing the user-facing promise of local-first setup.
+
+### Room With KSP
+
+Room uses KSP for annotation processing because the project already uses modern Kotlin and Compose. This keeps generated code integration explicit and buildable in Android Studio.
+
+### Domain Model Kept Separate From Entity
+
+The UI and dashboard use domain models. Room entities stay in the data layer, with mapper tests covering enum and challenge serialization.
+
+### Local-Only Data Copy
+
+Settings/Profile explicitly says the business profile is saved locally and not synced to cloud. This avoids implying authentication, backend storage, or remote AI processing.
+
+### Delete Instead Of Account Reset
+
+UN-0003 adds local profile deletion only. It does not add account management because there is no authentication or cloud account in this version.

@@ -31,11 +31,13 @@ The app is not professional financial advice and does not guarantee profit incre
 2. User selects a business category.
 3. User fills interactive business setup data.
 4. User reviews the setup summary with derived margin and target gaps.
-5. User opens a dashboard preview personalized from the draft state.
-6. User reviews health score, finance summary, tasks, milestones, and ideas.
-7. User follows weekly plan tasks.
-8. User reviews AI-assisted content idea previews.
-9. User updates profile/settings in future milestones.
+5. User saves the completed setup locally.
+6. User opens a dashboard preview personalized from saved profile data.
+7. User can close/reopen the app and resume the saved local profile.
+8. User reviews health score, finance summary, tasks, milestones, and ideas.
+9. User follows weekly plan tasks.
+10. User reviews AI-assisted content idea previews.
+11. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -57,6 +59,14 @@ UN-0002 implements an in-memory multi-section form:
 Validation covers required business name, category, required financial values, product/service count, at least one challenge, target revenue, target profit, main focus, and available weekly time. Numeric fields reject negative values and accept common Indonesian-style currency input where practical.
 
 Category-driven hints appear in the setup form so the selected business type influences guidance without hardcoding one category in the UI.
+
+## Local Persistence
+
+UN-0003 stores one active business profile locally using Room Database. Saved data includes business identity, financial baseline, product/service data, selected challenges, monthly goals, and metadata timestamps.
+
+The profile is saved on-device only. UsahaNaik does not sync this data to cloud, does not require authentication, and does not send setup data to an external AI service in this version.
+
+Users can delete the saved local profile from Settings/Profile. Deleting local profile removes the saved setup from this device.
 
 ## Dashboard Concept
 
@@ -84,13 +94,14 @@ For UN-0001, AI content ideas are local deterministic samples. No real API calls
 
 For UN-0002, content ideas remain local deterministic samples. The setup draft can personalize the dashboard preview, but the app still does not call a real AI API.
 
+For UN-0003, content ideas remain local deterministic samples. Room persistence only applies to the business setup/profile data.
+
 ## Limitations
 
 - No authentication.
-- No cloud database.
+- No cloud database or cloud sync.
 - No payment system.
-- No Room persistence yet.
-- Setup draft is not permanently saved yet.
+- Local persistence only.
 - No notification system yet.
 - No real AI integration yet.
 - No full business diagnosis engine yet.
