@@ -125,3 +125,25 @@ Priority actions are grounded in available app data and category metadata. The g
 ### Diagnosis Is Not Persisted Yet
 
 Diagnosis is calculated in memory from Room-backed profile and financial records. Persisting diagnosis history is deferred until progress tracking and weekly plan generation are more mature.
+
+## UN-0006 Decisions
+
+### Deterministic Weekly Plans Before AI
+
+UN-0006 generates weekly plans with local deterministic rules instead of AI. This keeps task generation explainable, testable, offline-friendly, and free from API keys or paid dependencies.
+
+### One Active Weekly Plan
+
+The app persists one active weekly plan. Regenerating replaces the active plan because the current product flow is focused on one UMKM owner following one weekly plan at a time.
+
+### Task Completion Drives Milestone Progress
+
+Task completion is persisted directly. Milestone progress is stored and recalculated from related task IDs where practical, keeping progress simple without adding a separate progress-history table yet.
+
+### Weekly Plan Screen Owns Plan Management
+
+Plan generation and regeneration live in the Weekly Plan tab. The dashboard shows a compact summary and CTA so the dashboard remains scannable.
+
+### No Guaranteed Outcome Copy
+
+Task expected outcomes use wording such as "may help" and "dapat membantu." Weekly plans are positioned as planning suggestions, not guaranteed sales, profit, or business success.

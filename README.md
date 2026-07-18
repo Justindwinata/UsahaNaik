@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0005 adds a deterministic business diagnosis engine so UMKM owners can see rule-based health scores, insight cards, risk signals, and priority actions from saved profile and financial data.
+UN-0006 adds a deterministic weekly growth plan and milestone generator so UMKM owners can generate, save, and track weekly tasks from saved profile, diagnosis, and financial data.
 
 Implemented UN-0001 screens:
 
@@ -84,6 +84,19 @@ Implemented UN-0005 foundation:
 - Dashboard UI for rule-based score breakdown, insight summary cards, business insight cards, risk/attention cards, and 3-5 priority action cards.
 - Unit tests cover scoring rules, insights, risks, category actions, state integration, and dashboard mapping behavior.
 
+Implemented UN-0006 foundation:
+
+- Weekly growth plan domain models for plan, focus, task, challenge, milestone, status, and progress summary.
+- Deterministic `WeeklyPlanGenerator` that uses saved profile, diagnosis, challenges, category, available time, and financial summary.
+- Rule-based weekly focus selection for financial records, expenses, sales, content, repeat orders, stock, risks, and general execution.
+- 5-7 weekly tasks with category, estimated time, difficulty, reason, and non-guaranteed expected outcome wording.
+- One weekly challenge and 3-5 milestones per generated plan.
+- Room persistence for `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones` with database migration to version 3.
+- `WeeklyPlanViewModel` for loading, generating, regenerating, saving, toggling task completion, and progress tracking.
+- Weekly Plan screen with focus card, progress card, checklist task cards, challenge card, milestone cards, and regenerate confirmation.
+- Dashboard weekly plan summary with active focus, task progress, milestone progress, next task, and CTA to the Weekly Plan tab.
+- Unit tests cover generator rules, persistence, mapping, ViewModel behavior, and dashboard summary mapping.
+
 ## Tech Stack
 
 - Kotlin
@@ -125,7 +138,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - No real AI API integration yet.
 - Content ideas are local preview samples only.
 - Diagnosis is deterministic and heuristic.
-- Weekly plan is not fully generated from diagnosis yet.
+- Weekly plan is deterministic and heuristic.
 - No authentication, cloud sync, payment, or notification system.
 - No guaranteed profit increase.
 - Not professional accounting software.
@@ -133,7 +146,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0006, deterministic weekly planning engine generated from saved profile, diagnosis signals, challenges, and goals.
+Next recommended milestone: UN-0007, safe configurable AI content provider integration with local deterministic fallback.
 
 ## Documentation
 

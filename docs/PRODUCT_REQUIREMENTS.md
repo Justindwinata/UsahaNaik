@@ -38,10 +38,12 @@ The app is not professional financial advice and does not guarantee profit incre
 9. User reviews dashboard financial metrics generated from saved entries.
 10. User reviews rule-based business diagnosis insights and risk signals.
 11. User follows 3-5 priority actions generated from category, challenges, goals, and financial records.
-12. User reviews health score, finance summary, tasks, milestones, and ideas.
-13. User follows weekly plan tasks.
-14. User reviews AI-assisted content idea previews.
-15. User can delete local profile data from Settings/Profile.
+12. User generates a weekly growth plan from the latest local data.
+13. User follows weekly plan tasks and marks tasks completed.
+14. User reviews weekly challenge and milestones.
+15. User sees weekly progress on the dashboard.
+16. User reviews AI-assisted content idea previews.
+17. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -113,6 +115,28 @@ Diagnosis outputs include:
 
 Recommendations are planning suggestions, not guaranteed outcomes. UsahaNaik is not a replacement for professional financial advice.
 
+## Weekly Growth Plan
+
+UN-0006 adds a deterministic weekly growth plan generator. Plans are generated from saved profile data, financial summary, diagnosis result, selected challenges, business category, goals, stock issue, cost driver, and available weekly time.
+
+Each weekly growth plan includes:
+
+- Week title and generated date.
+- Business category.
+- Weekly focus and target.
+- Priority reason.
+- 5-7 practical tasks.
+- One weekly challenge.
+- 3-5 milestones.
+- Progress summary.
+- Limitations note.
+
+Weekly plan tasks include title, description, category, estimated time, difficulty, status, reason, and non-guaranteed expected outcome wording.
+
+The active weekly plan is saved locally with Room. Task completion persists, and milestone progress is derived from related task completion where practical.
+
+Plans are rule-based suggestions for structured action. They do not guarantee revenue growth, sales growth, or business success.
+
 ## Dashboard Concept
 
 The dashboard should show:
@@ -145,6 +169,8 @@ For UN-0004, content ideas remain local deterministic samples. Room persistence 
 
 For UN-0005, content ideas remain local deterministic samples. The diagnosis engine is rule-based and does not call an AI API.
 
+For UN-0006, content ideas remain local deterministic samples. Weekly plans are also deterministic and do not call an AI API.
+
 ## Limitations
 
 - No authentication.
@@ -154,7 +180,7 @@ For UN-0005, content ideas remain local deterministic samples. The diagnosis eng
 - No notification system yet.
 - No real AI integration yet.
 - Diagnosis is deterministic and heuristic.
-- Weekly plan is not fully generated from diagnosis yet.
+- Weekly plan is deterministic and heuristic.
 - No professional financial advice.
 - Not professional accounting software.
 - No guaranteed profit increase.

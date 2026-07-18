@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0 - UN-0006
+
+- Added weekly growth plan domain models for focus, task, challenge, milestone, status, and progress summary.
+- Added deterministic `WeeklyPlanGenerator` using saved profile, financial summary, diagnosis, challenges, category, goals, and available time.
+- Added rule-based weekly focus selection for financial tracking, expense control, sales activity, content consistency, repeat orders, stock control, and general execution.
+- Added generated weekly challenges and 3-5 milestones.
+- Added Room `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones` persistence with migration to database version 3.
+- Added `WeeklyPlanRepository` and `LocalWeeklyPlanRepository`.
+- Added `WeeklyPlanViewModel` for loading, generating, regenerating, saving, toggling task completion, and deleting active plans.
+- Replaced the static Weekly Plan preview with a state-driven weekly plan screen.
+- Added dashboard weekly plan summary with focus, task progress, milestone progress, next task, and CTA.
+- Added tests for generator rules, mapper behavior, repository persistence, ViewModel state, and dashboard summary mapping.
+
+### Known Limitations
+
+- Weekly plan is deterministic and heuristic.
+- Task recommendations are planning suggestions.
+- Not professional financial advice.
+- No guaranteed profit increase.
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- Content ideas are still local/sample-based.
+- No notification system.
+
 ## 0.5.0 - UN-0005
 
 - Added business diagnosis domain models for health score, score breakdown, insights, risk signals, priority actions, severities, categories, difficulty, and estimated time.

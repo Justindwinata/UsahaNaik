@@ -62,6 +62,17 @@ Completed scope:
 
 Generate structured weekly plans from business category, challenges, and goals using deterministic local logic.
 
+Completed scope:
+
+- Add weekly growth plan, task, challenge, milestone, and progress models.
+- Generate deterministic weekly focus, 5-7 tasks, one challenge, and 3-5 milestones.
+- Use saved profile, diagnosis, category, challenges, available time, and financial summary as inputs.
+- Persist one active weekly plan locally with Room.
+- Persist task completion and milestone progress.
+- Render Weekly Plan screen with progress, checklist tasks, challenge, milestones, and regenerate confirmation.
+- Add dashboard weekly plan summary.
+- Keep plan recommendations transparent, heuristic, and non-guaranteed.
+
 ## UN-0007 - AI Content Provider Integration
 
 Add safe configurable AI provider integration without hardcoded keys, while preserving local fallback mode.

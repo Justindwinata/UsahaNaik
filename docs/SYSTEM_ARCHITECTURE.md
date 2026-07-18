@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0005 adds a deterministic business diagnosis engine and dashboard insight state. Real AI integration, cloud sync, and production diagnosis refinement remain planned for later contracts.
+UN-0006 adds deterministic weekly growth plan generation, task completion persistence, milestone progress, and dashboard weekly plan summary. Real AI integration, cloud sync, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -17,8 +17,11 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - `BusinessSetupViewModel` exposes immutable setup UI state to Compose.
 - `FinancialEntryViewModel` exposes immutable financial form, recent activity, validation, and summary state to Compose.
 - `DashboardInsightsViewModel` loads saved profile and financial summary, then exposes diagnosis state to Compose.
+- `WeeklyPlanViewModel` loads the active plan, generates a new weekly plan, toggles task completion, and exposes progress state to Compose.
 - Dashboard cards can use persisted financial summaries when entries exist.
 - Dashboard insight UI renders rule-based score, breakdown, insights, risks, and priority actions.
+- Weekly Plan UI renders focus, progress, task checklist, challenge, milestones, and regenerate confirmation.
+- Dashboard shows a compact weekly plan summary and CTA to the Weekly Plan tab.
 - Settings/Profile can show and delete the saved local business profile.
 
 ## Domain Layer
@@ -36,6 +39,9 @@ The domain layer contains plain Kotlin models for:
 - Business diagnosis models for health score, breakdown, insights, risk signals, priority actions, severity, category, difficulty, and estimated time.
 - `BusinessDiagnosisEngine` for deterministic score and insight rules.
 - `PriorityActionGenerator` for category-aware and challenge-aware action recommendations.
+- Weekly growth plan models for plan, focus, task, challenge, milestone, status, and progress summary.
+- `WeeklyPlanGenerator` for deterministic weekly task, challenge, and milestone creation.
+- Dashboard weekly plan summary mapping.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
 - Milestones, tasks, product performance, and recommendations.
@@ -62,12 +68,20 @@ The data layer uses local sample and Room-backed repositories:
 - `BusinessProfileEntity`
 - `FinancialEntryDao`
 - `FinancialEntryEntity`
+- `WeeklyPlanRepository`
+- `LocalWeeklyPlanRepository`
+- `WeeklyPlanDao`
+- `WeeklyGrowthPlanEntity`
+- `WeeklyTaskEntity`
+- `WeeklyMilestoneEntity`
 
-Room stores one active business profile in `usahanaik.db`, table `business_profiles`, and simple local financial records in `financial_entries`. Multi-business support is deferred.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, and one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`. Multi-business support is deferred.
 
 UN-0003 saves completed setup data locally and reloads it on app startup. UN-0004 saves income and expense entries locally and maps monthly entry summaries into dashboard cards and trend visuals.
 
 UN-0005 does not add new Room tables. It reads the saved business profile and financial summary through repository interfaces, then generates diagnosis output in the domain layer.
+
+UN-0006 updates Room to version 3 with additive weekly plan tables. Replacing/regenerating the active weekly plan deletes the previous active plan rows and saves the new plan, tasks, and milestones.
 
 Planned data direction:
 
@@ -75,6 +89,8 @@ Planned data direction:
 - Local Room implementations persist completed setup profile data.
 - Financial entries are persisted as simple local records, not as a full accounting ledger.
 - Diagnosis is calculated in memory from local data and is not persisted yet.
+- Weekly plan task completion is persisted locally.
+- Milestone progress is persisted and refreshed from related task completion where practical.
 - Sample repositories remain useful for previews and tests.
 
 ## AI Integration Planned
@@ -87,7 +103,7 @@ Current contract:
 - `LocalContentIdeaProvider` returns deterministic sample ideas.
 - No API key, paid AI dependency, or external request is used in UN-0001.
 
-UN-0005 does not change the AI boundary. Content ideas remain local/sample-based, and diagnosis is rule-based rather than AI-generated.
+UN-0006 does not change the AI boundary. Content ideas remain local/sample-based, diagnosis is rule-based, and weekly plans are deterministic rather than AI-generated.
 
 Future AI integration should:
 
@@ -108,5 +124,7 @@ Current local-first behavior:
 - Dashboard can use saved business data.
 - Dashboard can use saved financial entries for monthly revenue, expenses, estimated profit, margin, target progress, recent entries, and trend visuals.
 - Dashboard can generate rule-based business diagnosis insights from local profile and financial records.
+- Weekly plans can be generated, saved, restored, and progressed locally.
+- Dashboard can show active weekly plan progress.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.
