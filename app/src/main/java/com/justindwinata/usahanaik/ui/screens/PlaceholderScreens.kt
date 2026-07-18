@@ -50,6 +50,7 @@ import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
 import com.justindwinata.usahanaik.domain.model.BusinessDiagnosis
 import com.justindwinata.usahanaik.domain.model.BusinessInsight
+import com.justindwinata.usahanaik.domain.model.BusinessMilestone
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
 import com.justindwinata.usahanaik.domain.model.BusinessRiskSignal
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
@@ -64,6 +65,9 @@ import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.model.FinancialEntry
 import com.justindwinata.usahanaik.domain.model.FinancialEntryType
 import com.justindwinata.usahanaik.domain.model.InsightSeverity
+import com.justindwinata.usahanaik.domain.model.WeeklyGrowthPlan
+import com.justindwinata.usahanaik.domain.model.WeeklyTask
+import com.justindwinata.usahanaik.domain.model.WeeklyTaskStatus
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
@@ -92,6 +96,8 @@ import com.justindwinata.usahanaik.ui.theme.InkMuted
 import com.justindwinata.usahanaik.ui.theme.LavenderSoft
 import com.justindwinata.usahanaik.ui.theme.RoseSoft
 import com.justindwinata.usahanaik.ui.theme.YellowSoft
+import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
+import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
 
 @Composable
 fun WelcomeScreen(
@@ -1495,47 +1501,277 @@ private fun RecentFinancialEntryRow(
 }
 
 @Composable
-fun WeeklyPlanScreen() {
-    val weeklyPlan = remember { SampleGrowthRepository().getWeeklyPlanPreview() }
+fun WeeklyPlanScreen(viewModel: WeeklyPlanViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
 
     ScreenContainer {
-        SectionHeader(title = "Weekly Plan")
+        SectionHeader(title = "Weekly Plan", actionLabel = "Local")
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(containerColor = YellowSoft) {
-            Text(text = weeklyPlan.title, style = MaterialTheme.typography.titleLarge)
-            Text(
-                text = weeklyPlan.target,
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
+        when {
+            uiState.isLoading -> WeeklyPlanLoadingCard()
+            uiState.activePlan == null -> WeeklyPlanEmptyState(
+                uiState = uiState,
+                onGenerate = viewModel::generatePlan
             )
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            LinearProgressIndicator(
-                progress = { weeklyPlan.milestoneProgress },
-                modifier = Modifier.fillMaxWidth(),
-                color = GreenPositive,
-                trackColor = CreamBackground
+            else -> WeeklyPlanContent(
+                plan = checkNotNull(uiState.activePlan),
+                uiState = uiState,
+                onToggleTask = viewModel::toggleTaskCompletion,
+                onRequestRegenerate = viewModel::requestRegeneratePlan,
+                onConfirmRegenerate = viewModel::confirmRegeneratePlan,
+                onCancelRegenerate = viewModel::cancelRegeneratePlan
             )
         }
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
-        SectionHeader(title = "Priority Actions")
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        weeklyPlan.priorityActions.forEach { action ->
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth()) {
-                Text(text = action, style = MaterialTheme.typography.bodyMedium)
+        uiState.successMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(containerColor = GreenSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
             }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
-        SectionHeader(title = "Daily Tasks")
+        uiState.errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(containerColor = RoseSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeeklyPlanLoadingCard() {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        Text(text = "Loading weekly plan...", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "UsahaNaik is checking your saved local plan.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun WeeklyPlanEmptyState(
+    uiState: WeeklyPlanUiState,
+    onGenerate: () -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        Text(
+            text = uiState.emptyStateMessage ?: "Generate your first weekly growth plan.",
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text(
+            text = "Weekly plans are generated with rule-based suggestions from your saved profile, financial data, and diagnosis insights.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(
+            onClick = onGenerate,
+            enabled = !uiState.isGenerating && uiState.profile != null,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (uiState.isGenerating) "Generating..." else "Generate Weekly Growth Plan")
+        }
+    }
+}
+
+@Composable
+private fun WeeklyPlanContent(
+    plan: WeeklyGrowthPlan,
+    uiState: WeeklyPlanUiState,
+    onToggleTask: (String) -> Unit,
+    onRequestRegenerate: () -> Unit,
+    onConfirmRegenerate: () -> Unit,
+    onCancelRegenerate: () -> Unit
+) {
+    WeeklyPlanHeader(plan = plan)
+    Spacer(modifier = Modifier.height(AppSpacing.md))
+    WeeklyFocusCard(plan = plan)
+    Spacer(modifier = Modifier.height(AppSpacing.md))
+    WeeklyProgressCard(plan = plan)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    SectionHeader(title = "Task List", actionLabel = "${plan.progressSummary.completedTasks}/${plan.progressSummary.totalTasks}")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    plan.tasks.forEach { task ->
+        WeeklyTaskCard(task = task, onToggleTask = onToggleTask)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        weeklyPlan.dailyTasks.forEach { task ->
-            TaskChecklistRow(task = task)
+    }
+    SectionHeader(title = "Weekly Challenge")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    WeeklyChallengeCard(plan = plan)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    SectionHeader(title = "Milestones")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    plan.milestones.forEach { milestone ->
+        WeeklyMilestoneCard(milestone = milestone)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Text(text = "Plan note", style = MaterialTheme.typography.titleMedium)
+        Text(text = plan.limitationsNote, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        if (uiState.showRegenerateConfirmation) {
+            Text(
+                text = "Replace the active weekly plan with a new plan from the latest data?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = CoralPrimary
+            )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                Button(
+                    onClick = onConfirmRegenerate,
+                    enabled = !uiState.isGenerating,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(if (uiState.isGenerating) "Generating..." else "Replace")
+                }
+                OutlinedButton(onClick = onCancelRegenerate, modifier = Modifier.weight(1f)) {
+                    Text("Cancel")
+                }
+            }
+        } else {
+            OutlinedButton(onClick = onRequestRegenerate, modifier = Modifier.fillMaxWidth()) {
+                Text("Regenerate Plan")
+            }
         }
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
-            PillBadge(text = "Challenge", containerColor = CreamBackground, contentColor = CoralPrimary)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = weeklyPlan.challenge, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
+private fun WeeklyPlanHeader(plan: WeeklyGrowthPlan) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+        PillBadge(text = plan.status.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = plan.businessName, style = MaterialTheme.typography.titleLarge)
+        Text(text = "${plan.businessCategoryName} - Week of ${plan.generatedDate}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+    }
+}
+
+@Composable
+private fun WeeklyFocusCard(plan: WeeklyGrowthPlan) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        PillBadge(text = plan.focus.category.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = plan.focus.title, style = MaterialTheme.typography.titleLarge)
+        Text(text = plan.priorityReason, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Target: ${plan.target}", style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun WeeklyProgressCard(plan: WeeklyGrowthPlan) {
+    val summary = plan.progressSummary
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Tasks",
+                value = "${summary.completedTasks}/${summary.totalTasks}",
+                helper = "Completed",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+            MetricCard(
+                title = "Milestones",
+                value = "${summary.completedMilestones}/${summary.totalMilestones}",
+                helper = "Reached",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
         }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        LinearProgressIndicator(
+            progress = { summary.taskProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Text(
+            text = "Next task: ${summary.nextTask?.title ?: "All tasks completed"}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun WeeklyTaskCard(
+    task: WeeklyTask,
+    onToggleTask: (String) -> Unit
+) {
+    val completed = task.status == WeeklyTaskStatus.Completed
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (completed) GreenSoft else BlueSoft
+    ) {
+        Row(verticalAlignment = Alignment.Top) {
+            Checkbox(
+                checked = completed,
+                onCheckedChange = { onToggleTask(task.id) }
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)) {
+                    PillBadge(text = task.difficulty.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+                    PillBadge(text = task.estimatedTime.label, containerColor = CreamBackground, contentColor = GreenPositive)
+                }
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
+                Text(text = task.title, style = MaterialTheme.typography.titleMedium)
+                Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
+                Text(text = "Reason: ${task.reason}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+                Text(text = "Expected outcome: ${task.expectedOutcome}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeeklyChallengeCard(plan: WeeklyGrowthPlan) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+        PillBadge(text = "Challenge", containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = plan.challenge.title, style = MaterialTheme.typography.titleLarge)
+        Text(text = plan.challenge.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        plan.challenge.checklistItems.forEach { item ->
+            Text(text = "- $item", style = MaterialTheme.typography.bodyMedium)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Target: ${plan.challenge.completionTarget}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = plan.challenge.motivationalCopy, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+    }
+}
+
+@Composable
+private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                PillBadge(text = milestone.status.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Text(text = milestone.title, style = MaterialTheme.typography.titleMedium)
+                Text(text = milestone.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
+            Text(
+                text = "${milestone.progressPercentage}%",
+                style = MaterialTheme.typography.titleMedium,
+                color = CoralPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        LinearProgressIndicator(
+            progress = { milestone.progressPercentage / 100f },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
     }
 }
 
