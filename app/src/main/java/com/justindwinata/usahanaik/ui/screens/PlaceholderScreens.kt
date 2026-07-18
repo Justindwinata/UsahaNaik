@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +56,8 @@ import com.justindwinata.usahanaik.domain.model.Milestone
 import com.justindwinata.usahanaik.domain.model.MonthlyFocus
 import com.justindwinata.usahanaik.domain.model.SellingChannel
 import com.justindwinata.usahanaik.domain.model.StockIssue
+import com.justindwinata.usahanaik.domain.model.FinancialEntry
+import com.justindwinata.usahanaik.domain.model.FinancialEntryType
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
@@ -65,6 +68,8 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
+import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
+import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
@@ -768,8 +773,19 @@ private fun ReviewRow(label: String, value: String) {
 }
 
 @Composable
-fun DashboardScreen(setupDraft: BusinessSetupDraft? = null) {
+fun DashboardScreen(
+    setupDraft: BusinessSetupDraft? = null,
+    financialEntryViewModel: FinancialEntryViewModel
+) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
+    val financialState by financialEntryViewModel.uiState.collectAsState()
+
+    LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
+        financialEntryViewModel.refresh(
+            targetMonthlyRevenue = setupDraft?.targetMonthlyRevenue,
+            targetMonthlyProfit = setupDraft?.targetMonthlyProfit
+        )
+    }
 
     ScreenContainer {
         DashboardHeader(
@@ -859,6 +875,20 @@ fun DashboardScreen(setupDraft: BusinessSetupDraft? = null) {
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.lg))
+        FinancialTrackingSection(
+            uiState = financialState,
+            onTypeChange = financialEntryViewModel::updateType,
+            onTitleChange = financialEntryViewModel::updateTitle,
+            onAmountChange = financialEntryViewModel::updateAmount,
+            onCategoryChange = financialEntryViewModel::updateCategory,
+            onDateChange = financialEntryViewModel::updateDate,
+            onNoteChange = financialEntryViewModel::updateNote,
+            onSave = financialEntryViewModel::saveEntry,
+            onRequestDelete = financialEntryViewModel::requestDeleteEntry,
+            onConfirmDelete = financialEntryViewModel::confirmDeleteEntry,
+            onCancelDelete = financialEntryViewModel::cancelDelete
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         SectionHeader(title = "Milestones")
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         dashboard.milestones.forEach { milestone ->
@@ -897,6 +927,254 @@ fun DashboardScreen(setupDraft: BusinessSetupDraft? = null) {
         dashboard.contentIdeas.take(2).forEach { idea ->
             ContentIdeaPreviewCard(idea = idea)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun FinancialTrackingSection(
+    uiState: FinancialEntryUiState,
+    onTypeChange: (FinancialEntryType) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onAmountChange: (String) -> Unit,
+    onCategoryChange: (String) -> Unit,
+    onDateChange: (String) -> Unit,
+    onNoteChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onRequestDelete: (Long) -> Unit,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit
+) {
+    SectionHeader(title = "Financial Tracking", actionLabel = "Local")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        Text(text = "Record income or expenses", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Saved locally on this device. These entries help make dashboard metrics more accurate.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            FinancialTypeChip(
+                label = "Income",
+                selected = uiState.form.type == FinancialEntryType.Income,
+                onClick = { onTypeChange(FinancialEntryType.Income) },
+                modifier = Modifier.weight(1f)
+            )
+            FinancialTypeChip(
+                label = "Expense",
+                selected = uiState.form.type == FinancialEntryType.Expense,
+                onClick = { onTypeChange(FinancialEntryType.Expense) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        OutlinedTextField(
+            value = uiState.form.title,
+            onValueChange = onTitleChange,
+            label = { Text("Title") },
+            isError = uiState.visibleTitleError() != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        FieldError(uiState.visibleTitleError())
+        OutlinedTextField(
+            value = uiState.form.amount,
+            onValueChange = onAmountChange,
+            label = { Text("Amount") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            isError = uiState.visibleAmountError() != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        FieldError(uiState.visibleAmountError())
+        OutlinedTextField(
+            value = uiState.form.date,
+            onValueChange = onDateChange,
+            label = { Text("Date") },
+            isError = uiState.visibleDateError() != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        FieldError(uiState.visibleDateError())
+        Text(
+            text = "Category",
+            style = MaterialTheme.typography.labelLarge,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        FinancialCategoryChips(
+            categories = uiState.categoriesForSelectedType,
+            selectedCategory = uiState.form.category,
+            onCategoryChange = onCategoryChange
+        )
+        FieldError(uiState.visibleCategoryError())
+        OutlinedTextField(
+            value = uiState.form.note,
+            onValueChange = onNoteChange,
+            label = { Text("Note optional") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(
+            onClick = onSave,
+            enabled = !uiState.isSaving,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (uiState.isSaving) "Saving..." else "Save Financial Entry")
+        }
+        uiState.successMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+        }
+        uiState.errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.md))
+    SectionHeader(title = "Recent Financial Activity")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (uiState.entries.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(text = "No financial entries yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Start recording income and expenses to make your dashboard more accurate.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
+        uiState.entries.take(5).forEach { entry ->
+            RecentFinancialEntryRow(
+                entry = entry,
+                pendingDeleteEntryId = uiState.pendingDeleteEntryId,
+                isDeleting = uiState.isDeleting,
+                onRequestDelete = onRequestDelete,
+                onConfirmDelete = onConfirmDelete,
+                onCancelDelete = onCancelDelete
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun FinancialTypeChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FinancialCategoryChips(
+    categories: List<String>,
+    selectedCategory: String,
+    onCategoryChange: (String) -> Unit
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+    ) {
+        categories.forEach { category ->
+            FilterChip(
+                selected = selectedCategory == category,
+                onClick = { onCategoryChange(category) },
+                label = { Text(category) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentFinancialEntryRow(
+    entry: FinancialEntry,
+    pendingDeleteEntryId: Long?,
+    isDeleting: Boolean,
+    onRequestDelete: (Long) -> Unit,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit
+) {
+    val isIncome = entry.type == FinancialEntryType.Income
+    val amountLabel = if (isIncome) {
+        "+${BusinessSetupCalculator.formatRupiah(entry.amount)}"
+    } else {
+        "-${BusinessSetupCalculator.formatRupiah(entry.amount)}"
+    }
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (isIncome) GreenSoft else CoralSoft
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                PillBadge(
+                    text = entry.type.label,
+                    containerColor = CreamBackground,
+                    contentColor = if (isIncome) GreenPositive else CoralPrimary
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.xs))
+                Text(text = entry.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "${entry.category} - ${entry.date}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+                if (entry.note.isNotBlank()) {
+                    Text(
+                        text = entry.note,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = InkMuted
+                    )
+                }
+            }
+            Text(
+                text = amountLabel,
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isIncome) GreenPositive else CoralPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        if (pendingDeleteEntryId == entry.id) {
+            Text(
+                text = "Delete this local financial entry?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = CoralPrimary
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                Button(
+                    onClick = onConfirmDelete,
+                    enabled = !isDeleting,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(if (isDeleting) "Deleting..." else "Delete")
+                }
+                OutlinedButton(
+                    onClick = onCancelDelete,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        } else {
+            OutlinedButton(
+                onClick = { onRequestDelete(entry.id) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Delete Entry")
+            }
         }
     }
 }

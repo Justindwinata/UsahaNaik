@@ -23,6 +23,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
+import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
+import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModelFactory
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
 import com.justindwinata.usahanaik.ui.navigation.bottomTabs
 import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
@@ -45,14 +48,21 @@ import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
 fun UsahaNaikApp() {
     UsahaNaikTheme {
         val context = LocalContext.current
-        val businessProfileRepository = remember {
-            LocalBusinessProfileRepository(
-                UsahaNaikDatabase.getDatabase(context).businessProfileDao()
-            )
+        val database = remember {
+            UsahaNaikDatabase.getDatabase(context)
+        }
+        val businessProfileRepository = remember(database) {
+            LocalBusinessProfileRepository(database.businessProfileDao())
+        }
+        val financialEntryRepository = remember(database) {
+            LocalFinancialEntryRepository(database.financialEntryDao())
         }
         val navController = rememberNavController()
         val setupViewModel: BusinessSetupViewModel = viewModel(
             factory = BusinessSetupViewModelFactory(businessProfileRepository)
+        )
+        val financialEntryViewModel: FinancialEntryViewModel = viewModel(
+            factory = FinancialEntryViewModelFactory(financialEntryRepository)
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -125,7 +135,8 @@ fun UsahaNaikApp() {
                 }
                 composable(AppRoute.Dashboard.route) {
                     DashboardScreen(
-                        setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid }
+                        setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid },
+                        financialEntryViewModel = financialEntryViewModel
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {
