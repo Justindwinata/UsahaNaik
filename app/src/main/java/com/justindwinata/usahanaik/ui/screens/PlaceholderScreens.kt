@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,12 +18,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +39,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.data.repository.SampleBusinessCategoryRepository
 import com.justindwinata.usahanaik.data.repository.SampleGrowthRepository
+import com.justindwinata.usahanaik.domain.model.AvailableTime
+import com.justindwinata.usahanaik.domain.model.BusinessChallenge
+import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
 import com.justindwinata.usahanaik.domain.model.ContentIdea
+import com.justindwinata.usahanaik.domain.model.CostDriver
 import com.justindwinata.usahanaik.domain.model.Milestone
+import com.justindwinata.usahanaik.domain.model.MonthlyFocus
+import com.justindwinata.usahanaik.domain.model.SellingChannel
+import com.justindwinata.usahanaik.domain.model.StockIssue
+import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
+import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
 import com.justindwinata.usahanaik.ui.components.MetricCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
 import com.justindwinata.usahanaik.ui.components.PrimaryActionButton
@@ -43,6 +62,8 @@ import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
 import com.justindwinata.usahanaik.ui.components.SectionHeader
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
+import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
+import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
 import com.justindwinata.usahanaik.ui.theme.BorderSubtle
 import com.justindwinata.usahanaik.ui.theme.BlueSoft
@@ -114,7 +135,7 @@ fun WelcomeScreen(
 }
 
 @Composable
-fun CategorySelectionScreen(onContinueClick: () -> Unit) {
+fun CategorySelectionScreen(onContinueClick: (String) -> Unit) {
     val categories = remember { SampleBusinessCategoryRepository().getCategories() }
     var selectedCategoryId by remember { mutableStateOf(categories.first().id) }
     val selectedCategory = categories.first { it.id == selectedCategoryId }
@@ -132,11 +153,11 @@ fun CategorySelectionScreen(onContinueClick: () -> Unit) {
             UsahaNaikCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(22.dp))
+                    .clip(RoundedCornerShape(22.dp))
                     .border(
                         width = if (isSelected) 2.dp else 1.dp,
                         color = if (isSelected) CoralPrimary else BorderSubtle,
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
+                        shape = RoundedCornerShape(22.dp)
                     )
                     .clickable { selectedCategoryId = category.id },
                 containerColor = listOf(BlueSoft, GreenSoft, LavenderSoft, YellowSoft)[index % 4]
@@ -170,92 +191,471 @@ fun CategorySelectionScreen(onContinueClick: () -> Unit) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
         PrimaryActionButton(
             text = "Lanjut ke Setup",
-            onClick = onContinueClick,
+            onClick = { onContinueClick(selectedCategoryId) },
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
-fun BusinessSetupScreen(onContinueClick: () -> Unit) {
+fun BusinessSetupScreen(
+    viewModel: BusinessSetupViewModel,
+    onContinueClick: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val categories = remember { SampleBusinessCategoryRepository().getCategories() }
+    val selectedCategory = categories.firstOrNull { it.id == uiState.draft.categoryId } ?: categories.first()
+    val guidance = BusinessCategorySetupHints.guidanceFor(selectedCategory)
+
     ScreenContainer {
-        SectionHeader(title = "Setup Bisnis")
+        SectionHeader(title = "Setup Bisnis", actionLabel = "${uiState.completedSectionCount}/${uiState.totalSectionCount}")
         Text(
-            text = "Preview form ini menunjukkan struktur data yang akan dipersist dengan Room pada kontrak berikutnya.",
+            text = "Lengkapi draft setup agar dashboard preview bisa terasa lebih personal. Data UN-0002 masih disimpan di memory ViewModel.",
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        SetupPreviewSection(
-            title = "Business Identity",
-            fields = listOf("Business name", "Business category", "Selling platform"),
-            containerColor = BlueSoft
+        UsahaNaikCard(containerColor = LavenderSoft) {
+            PillBadge(text = selectedCategory.displayName, containerColor = CreamBackground, contentColor = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Category setup hints", style = MaterialTheme.typography.titleMedium)
+            Text(text = guidance.focusArea, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            guidance.setupHints.forEach { hint ->
+                Text(text = "- $hint", style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = "Recommended focus: ${guidance.recommendedMonthlyFocus.label}",
+                style = MaterialTheme.typography.labelLarge,
+                color = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(containerColor = GreenSoft) {
+            Text(text = "Setup progress", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            LinearProgressIndicator(
+                progress = { uiState.setupProgress },
+                modifier = Modifier.fillMaxWidth(),
+                color = GreenPositive,
+                trackColor = CreamBackground
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            SectionCompletionRow("Identity", uiState.isIdentityComplete)
+            SectionCompletionRow("Financial", uiState.isFinancialComplete)
+            SectionCompletionRow("Product", uiState.isProductComplete)
+            SectionCompletionRow("Challenges", uiState.isChallengesComplete)
+            SectionCompletionRow("Goals", uiState.isGoalsComplete)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        BusinessIdentityForm(
+            uiState = uiState,
+            selectedCategoryName = selectedCategory.displayName,
+            onBusinessNameChange = viewModel::updateBusinessName,
+            onOwnerNameChange = viewModel::updateOwnerName,
+            onSellingChannelChange = viewModel::updateSellingChannel,
+            onBusinessLocationChange = viewModel::updateBusinessLocation,
+            onBusinessStageChange = viewModel::updateBusinessStage
         )
-        SetupPreviewSection(
-            title = "Financial Baseline",
-            fields = listOf("Starting capital", "Monthly revenue", "Monthly expenses", "Estimated profit"),
-            containerColor = GreenSoft
+        FinancialBaselineForm(
+            uiState = uiState,
+            onStartingCapitalChange = viewModel::updateStartingCapital,
+            onMonthlyRevenueChange = viewModel::updateMonthlyRevenue,
+            onMonthlyExpensesChange = viewModel::updateMonthlyExpenses,
+            onEstimatedProfitChange = viewModel::updateEstimatedMonthlyProfit,
+            onDailyTransactionsChange = viewModel::updateAverageDailyTransactions,
+            onAverageTransactionValueChange = viewModel::updateAverageTransactionValue
         )
-        SetupPreviewSection(
-            title = "Product / Service Data",
-            fields = listOf("Number of products", "Best-selling product", "Highest-margin product"),
-            containerColor = LavenderSoft
+        ProductDataForm(
+            uiState = uiState,
+            onProductCountChange = viewModel::updateProductCount,
+            onBestSellingProductChange = viewModel::updateBestSellingProduct,
+            onHighestMarginProductChange = viewModel::updateHighestMarginProduct,
+            onCostDriverChange = viewModel::updateMainCostDriver,
+            onStockIssueChange = viewModel::updateStockIssue
         )
-        SetupPreviewSection(
-            title = "Business Challenges",
-            fields = listOf(
-                "Low sales",
-                "Low profit margin",
-                "Inconsistent content",
-                "Poor financial records",
-                "Repeat order problem",
-                "Stock problem"
-            ),
-            containerColor = RoseSoft
+        ChallengesForm(
+            uiState = uiState,
+            onChallengeToggle = viewModel::toggleChallenge
         )
-        SetupPreviewSection(
-            title = "Monthly Goal",
-            fields = listOf("Target revenue", "Target profit", "Main focus"),
-            containerColor = YellowSoft
+        MonthlyGoalsForm(
+            uiState = uiState,
+            onTargetRevenueChange = viewModel::updateTargetMonthlyRevenue,
+            onTargetProfitChange = viewModel::updateTargetMonthlyProfit,
+            onMainFocusChange = viewModel::updateMainFocus,
+            onAvailableTimeChange = viewModel::updateAvailableTime
         )
-        PrimaryActionButton(
-            text = "Buka Dashboard",
-            onClick = onContinueClick,
+        Button(
+            onClick = {
+                if (viewModel.requestReview()) {
+                    onContinueClick()
+                }
+            },
             modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = if (uiState.isValid) "Review Setup" else "Check Setup")
+        }
+        if (uiState.hasAttemptedReview && !uiState.isValid) {
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = "Beberapa data penting masih perlu dilengkapi sebelum review.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        OutlinedButton(
+            onClick = viewModel::resetDraft,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Reset Draft")
+        }
+    }
+}
+
+@Composable
+private fun BusinessIdentityForm(
+    uiState: BusinessSetupUiState,
+    selectedCategoryName: String,
+    onBusinessNameChange: (String) -> Unit,
+    onOwnerNameChange: (String) -> Unit,
+    onSellingChannelChange: (SellingChannel) -> Unit,
+    onBusinessLocationChange: (String) -> Unit,
+    onBusinessStageChange: (BusinessStage) -> Unit
+) {
+    SetupSectionCard(title = "1. Business Identity", isComplete = uiState.isIdentityComplete, containerColor = BlueSoft) {
+        SetupTextField(
+            label = "Business name",
+            value = uiState.draft.businessName,
+            onValueChange = onBusinessNameChange,
+            error = uiState.visibleError(BusinessSetupField.BusinessName)
+        )
+        SetupTextField(
+            label = "Owner name (optional)",
+            value = uiState.draft.ownerName,
+            onValueChange = onOwnerNameChange
+        )
+        SetupReadOnlyValue(label = "Business category", value = selectedCategoryName)
+        ChoiceGroup(
+            title = "Selling platform/channel",
+            options = SellingChannel.entries,
+            selected = uiState.draft.sellingChannel,
+            label = { it.label },
+            onSelected = onSellingChannelChange
+        )
+        SetupTextField(
+            label = "Business location (optional)",
+            value = uiState.draft.businessLocation,
+            onValueChange = onBusinessLocationChange
+        )
+        ChoiceGroup(
+            title = "Business stage",
+            options = BusinessStage.entries,
+            selected = uiState.draft.businessStage,
+            label = { it.label },
+            onSelected = onBusinessStageChange
         )
     }
 }
 
 @Composable
-private fun SetupPreviewSection(
-    title: String,
-    fields: List<String>,
-    containerColor: androidx.compose.ui.graphics.Color
+private fun FinancialBaselineForm(
+    uiState: BusinessSetupUiState,
+    onStartingCapitalChange: (String) -> Unit,
+    onMonthlyRevenueChange: (String) -> Unit,
+    onMonthlyExpensesChange: (String) -> Unit,
+    onEstimatedProfitChange: (String) -> Unit,
+    onDailyTransactionsChange: (String) -> Unit,
+    onAverageTransactionValueChange: (String) -> Unit
 ) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = containerColor) {
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(AppSpacing.xs))
-        fields.forEach { field ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = field,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                PillBadge(
-                    text = "Preview",
-                    containerColor = CreamBackground,
-                    contentColor = InkMuted
+    SetupSectionCard(title = "2. Financial Baseline", isComplete = uiState.isFinancialComplete, containerColor = GreenSoft) {
+        MoneyTextField("Starting capital", uiState.draft.startingCapital, onStartingCapitalChange)
+        MoneyTextField(
+            label = "Monthly revenue",
+            value = uiState.draft.monthlyRevenue,
+            onValueChange = onMonthlyRevenueChange,
+            error = uiState.visibleError(BusinessSetupField.MonthlyRevenue)
+        )
+        MoneyTextField(
+            label = "Monthly expenses",
+            value = uiState.draft.monthlyExpenses,
+            onValueChange = onMonthlyExpensesChange,
+            error = uiState.visibleError(BusinessSetupField.MonthlyExpenses)
+        )
+        MoneyTextField(
+            label = "Estimated monthly profit",
+            value = uiState.draft.estimatedMonthlyProfit,
+            onValueChange = onEstimatedProfitChange,
+            error = uiState.visibleError(BusinessSetupField.EstimatedMonthlyProfit)
+        )
+        NumberTextField(
+            label = "Average daily transactions",
+            value = uiState.draft.averageDailyTransactions,
+            onValueChange = onDailyTransactionsChange
+        )
+        MoneyTextField(
+            label = "Average transaction value (optional)",
+            value = uiState.draft.averageTransactionValue,
+            onValueChange = onAverageTransactionValueChange
+        )
+    }
+}
+
+@Composable
+private fun ProductDataForm(
+    uiState: BusinessSetupUiState,
+    onProductCountChange: (String) -> Unit,
+    onBestSellingProductChange: (String) -> Unit,
+    onHighestMarginProductChange: (String) -> Unit,
+    onCostDriverChange: (CostDriver) -> Unit,
+    onStockIssueChange: (StockIssue) -> Unit
+) {
+    SetupSectionCard(title = "3. Product / Service Data", isComplete = uiState.isProductComplete, containerColor = LavenderSoft) {
+        NumberTextField(
+            label = "Number of products/services",
+            value = uiState.draft.productCount,
+            onValueChange = onProductCountChange,
+            error = uiState.visibleError(BusinessSetupField.ProductCount)
+        )
+        SetupTextField(
+            label = "Best-selling product/service",
+            value = uiState.draft.bestSellingProduct,
+            onValueChange = onBestSellingProductChange
+        )
+        SetupTextField(
+            label = "Highest-margin product/service (optional)",
+            value = uiState.draft.highestMarginProduct,
+            onValueChange = onHighestMarginProductChange
+        )
+        ChoiceGroup(
+            title = "Main cost driver",
+            options = CostDriver.entries,
+            selected = uiState.draft.mainCostDriver,
+            label = { it.label },
+            onSelected = onCostDriverChange
+        )
+        ChoiceGroup(
+            title = "Stock issue indicator",
+            options = StockIssue.entries,
+            selected = uiState.draft.stockIssue,
+            label = { it.label },
+            onSelected = onStockIssueChange
+        )
+    }
+}
+
+@Composable
+private fun ChallengesForm(
+    uiState: BusinessSetupUiState,
+    onChallengeToggle: (BusinessChallenge) -> Unit
+) {
+    SetupSectionCard(title = "4. Business Challenges", isComplete = uiState.isChallengesComplete, containerColor = RoseSoft) {
+        Text(
+            text = "Pilih satu atau lebih tantangan yang paling terasa saat ini.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ChipFlow {
+            BusinessChallenge.entries.forEach { challenge ->
+                FilterChip(
+                    selected = challenge in uiState.draft.challenges,
+                    onClick = { onChallengeToggle(challenge) },
+                    label = { Text(challenge.label) }
                 )
             }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+        FieldError(uiState.visibleError(BusinessSetupField.Challenges))
+    }
+}
+
+@Composable
+private fun MonthlyGoalsForm(
+    uiState: BusinessSetupUiState,
+    onTargetRevenueChange: (String) -> Unit,
+    onTargetProfitChange: (String) -> Unit,
+    onMainFocusChange: (MonthlyFocus) -> Unit,
+    onAvailableTimeChange: (AvailableTime) -> Unit
+) {
+    SetupSectionCard(title = "5. Monthly Goals", isComplete = uiState.isGoalsComplete, containerColor = YellowSoft) {
+        MoneyTextField(
+            label = "Target monthly revenue",
+            value = uiState.draft.targetMonthlyRevenue,
+            onValueChange = onTargetRevenueChange,
+            error = uiState.visibleError(BusinessSetupField.TargetMonthlyRevenue)
+        )
+        MoneyTextField(
+            label = "Target monthly profit",
+            value = uiState.draft.targetMonthlyProfit,
+            onValueChange = onTargetProfitChange,
+            error = uiState.visibleError(BusinessSetupField.TargetMonthlyProfit)
+        )
+        ChoiceGroup(
+            title = "Main focus this month",
+            options = MonthlyFocus.entries,
+            selected = uiState.draft.mainFocus,
+            label = { it.label },
+            onSelected = onMainFocusChange
+        )
+        FieldError(uiState.visibleError(BusinessSetupField.MainFocus))
+        ChoiceGroup(
+            title = "Available time per week",
+            options = AvailableTime.entries,
+            selected = uiState.draft.availableTime,
+            label = { it.label },
+            onSelected = onAvailableTimeChange
+        )
+        FieldError(uiState.visibleError(BusinessSetupField.AvailableTime))
+    }
+}
+
+@Composable
+private fun SetupSectionCard(
+    title: String,
+    isComplete: Boolean,
+    containerColor: androidx.compose.ui.graphics.Color,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = containerColor) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            PillBadge(
+                text = if (isComplete) "Complete" else "Draft",
+                containerColor = CreamBackground,
+                contentColor = if (isComplete) GreenPositive else InkMuted
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        content()
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+}
+
+@Composable
+private fun SectionCompletionRow(label: String, completed: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        PillBadge(
+            text = if (completed) "Complete" else "Draft",
+            containerColor = CreamBackground,
+            contentColor = if (completed) GreenPositive else InkMuted
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.xs))
+}
+
+@Composable
+private fun SetupTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    error: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(label) },
+        isError = error != null,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        singleLine = true
+    )
+    FieldError(error)
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+}
+
+@Composable
+private fun MoneyTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    error: String? = null
+) {
+    SetupTextField(
+        label = label,
+        value = value,
+        onValueChange = onValueChange,
+        error = error,
+        keyboardType = KeyboardType.Number
+    )
+}
+
+@Composable
+private fun NumberTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    error: String? = null
+) {
+    SetupTextField(
+        label = label,
+        value = value,
+        onValueChange = onValueChange,
+        error = error,
+        keyboardType = KeyboardType.Number
+    )
+}
+
+@Composable
+private fun SetupReadOnlyValue(label: String, value: String) {
+    Text(text = label, style = MaterialTheme.typography.labelMedium, color = InkMuted)
+    Text(text = value, style = MaterialTheme.typography.titleMedium)
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+}
+
+@Composable
+private fun <T> ChoiceGroup(
+    title: String,
+    options: List<T>,
+    selected: T?,
+    label: (T) -> String,
+    onSelected: (T) -> Unit
+) {
+    Text(text = title, style = MaterialTheme.typography.labelLarge)
+    Spacer(modifier = Modifier.height(AppSpacing.xs))
+    ChipFlow {
+        options.forEach { option ->
+            FilterChip(
+                selected = option == selected,
+                onClick = { onSelected(option) },
+                label = { Text(label(option)) }
+            )
         }
     }
     Spacer(modifier = Modifier.height(AppSpacing.sm))
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun ChipFlow(content: @Composable () -> Unit) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun FieldError(error: String?) {
+    if (error != null) {
+        Text(
+            text = error,
+            style = MaterialTheme.typography.bodyMedium,
+            color = CoralPrimary
+        )
+    }
 }
 
 @Composable

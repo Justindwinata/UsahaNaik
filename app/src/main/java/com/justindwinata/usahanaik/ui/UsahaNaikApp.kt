@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -26,6 +27,7 @@ import com.justindwinata.usahanaik.ui.screens.DashboardScreen
 import com.justindwinata.usahanaik.ui.screens.SettingsScreen
 import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
 import com.justindwinata.usahanaik.ui.screens.WelcomeScreen
+import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CreamBackground
 import com.justindwinata.usahanaik.ui.theme.InkMuted
@@ -36,6 +38,7 @@ import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
 fun UsahaNaikApp() {
     UsahaNaikTheme {
         val navController = rememberNavController()
+        val setupViewModel: BusinessSetupViewModel = viewModel()
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
         val showBottomBar = currentRoute != null && currentRoute !in onboardingRoutes
@@ -87,11 +90,15 @@ fun UsahaNaikApp() {
                 }
                 composable(AppRoute.CategorySelection.route) {
                     CategorySelectionScreen(
-                        onContinueClick = { navController.navigate(AppRoute.BusinessSetup.route) }
+                        onContinueClick = { categoryId ->
+                            setupViewModel.selectCategory(categoryId)
+                            navController.navigate(AppRoute.BusinessSetup.route)
+                        }
                     )
                 }
                 composable(AppRoute.BusinessSetup.route) {
                     BusinessSetupScreen(
+                        viewModel = setupViewModel,
                         onContinueClick = { navController.navigate(AppRoute.Dashboard.route) }
                     )
                 }
