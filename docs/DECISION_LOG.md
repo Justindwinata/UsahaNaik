@@ -265,3 +265,25 @@ Reminder messages focus on routines such as recording sales, reviewing weekly ta
 ### Demo Reminders Use Existing Demo Mode
 
 Dapur Rasa Nusantara demo data now includes local reminders so the portfolio demo shows a complete planning loop without requiring Android notification delivery.
+
+## UN-0012 Decisions
+
+### WorkManager For Approximate Reminder Execution
+
+UN-0012 uses WorkManager for local reminder notification execution. UMKM routine reminders do not require exact-to-the-minute delivery, and WorkManager gives the app stable unique work names, replacement behavior, and cancellation without exact alarm permission complexity.
+
+### Permission Request From User Action Only
+
+Android 13+ notification permission is requested only when the user taps `Enable Notifications` in Profile. The app does not request notification permission during startup or onboarding.
+
+### In-App Fallback Remains A Product Requirement
+
+System notification permission is optional. Dashboard/Profile continue to show active reminder counts, next reminder, and fallback copy when notifications are denied or unavailable.
+
+### Worker Must Fail Safely
+
+`ReminderNotificationWorker` treats missing reminders, inactive reminders, and denied permission as successful no-op outcomes. This keeps stale scheduled work from crashing the app or showing incorrect notifications.
+
+### Exact Alarms Avoided
+
+UN-0012 does not request `SCHEDULE_EXACT_ALARM` and does not use exact alarms. Approximate reminders match the product need and avoid extra platform permission risk.

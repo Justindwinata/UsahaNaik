@@ -108,6 +108,8 @@ Manual QA requires an emulator or physical Android device:
 - Permission granted flow.
 - Permission denied flow.
 - In-app fallback after denial.
+- Reminder scheduling after enable/update.
+- Reminder cancellation after pause/delete.
 - Notification tap opens the app.
 
 If no emulator/device is attached, notification delivery must not be claimed as manually tested.

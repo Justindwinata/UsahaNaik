@@ -273,9 +273,9 @@ Dashboard continuity:
 
 - Dashboard shows weekly completion, content calendar execution, latest retrospective takeaway, and simple progress trend cards.
 
-## Local Reminders And Notification-Ready Planning
+## Local Reminders And Notification Execution
 
-UN-0011 adds optional local reminders so UMKM owners can remember important business routines without login or cloud sync.
+UN-0011 adds optional local reminders so UMKM owners can remember important business routines without login or cloud sync. UN-0012 connects those reminders to permission-safe local notification execution using approximate Android WorkManager scheduling.
 
 Supported reminder types:
 
@@ -291,12 +291,19 @@ Reminder behavior:
 - Users can create, edit, enable, pause, and delete reminders from Profile.
 - Dashboard shows active reminder count, paused count, next reminder, and notification permission state.
 - Demo Mode includes sample reminders for Dapur Rasa Nusantara.
+- If Android notification permission is available, active reminders can be scheduled as local system notifications.
 - If Android notification permission is unavailable or denied, reminders still appear in-app.
 
-Notification-ready scope:
+Notification execution scope:
 
-- UN-0011 adds notification permission state handling, notification channel setup, safe reminder messages, and scheduler abstraction.
-- Exact OS-level alarm/work scheduling is deferred to a later milestone and requires emulator/device QA.
+- The app declares `POST_NOTIFICATIONS` and requests it only from a user action in Profile on Android 13+.
+- The app creates one local reminder notification channel.
+- Active reminders are scheduled through WorkManager with stable unique work names.
+- Paused or deleted reminders cancel their scheduled work.
+- Reminder notifications use safe copy and open the app when tapped.
+- Exact alarms are not used.
+- Notification delivery remains approximate and depends on Android OS scheduling and battery behavior.
+- Runtime notification behavior requires emulator/device QA.
 - The app does not claim cloud reminders, server reminders, or guaranteed habit/business outcomes.
 
 ## Limitations
@@ -305,8 +312,9 @@ Notification-ready scope:
 - No cloud database or cloud sync.
 - No payment system.
 - Local persistence only.
-- Local reminders exist, but exact system notification scheduling is not implemented yet.
-- Notification behavior requires device/emulator QA.
+- Local reminders use approximate WorkManager notification scheduling when permission is available.
+- Notification behavior requires device/emulator QA before claiming runtime delivery.
+- No exact alarm dependency.
 - No external calendar integration.
 - No real AI integration yet.
 - AI provider architecture is present, but remote AI generation is not implemented yet.

@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.2.0 - UN-0012
+
+- Added WorkManager-based local notification execution for business reminders.
+- Added `ReminderNotificationWorker` with safe Room lookup, permission checks, notification channel usage, and app-opening notification taps.
+- Added stable unique WorkManager names for reminders so active reminders can be scheduled, updated, replaced, paused, cancelled, and deleted predictably.
+- Added user-triggered Android 13+ `POST_NOTIFICATIONS` permission request flow from Profile.
+- Updated `ReminderViewModel` so permission refresh can schedule active reminders and reminder enable/pause/delete actions are connected to scheduler execution.
+- Updated Demo Mode reminder seeding so demo reminders can be scheduled without duplicating demo data.
+- Polished Dashboard/Profile reminder fallback copy for permission granted, permission denied, active, paused, and in-app fallback states.
+- Added notification architecture documentation and QA guidance based on official Android notification, channel, WorkManager, and exact alarm documentation.
+
+### Known Limitations
+
+- Reminders are local and approximate.
+- Notification delivery depends on Android OS scheduling and battery behavior.
+- No exact alarm dependency.
+- Notification delivery requires emulator/device QA before claiming runtime behavior.
+- No cloud sync.
+- No authentication.
+- No real AI API integration.
+- No PDF export yet.
+- Not professional financial advice.
+- No guaranteed profit increase.
+
 ## 1.1.0 - UN-0011
 
 - Added local reminder domain models for daily financial tracking, weekly plan tasks, scheduled content, weekly retrospectives, and business report review.

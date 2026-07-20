@@ -142,21 +142,22 @@ Completed scope:
 - Persist reminders locally with Room database version 9.
 - Add reminder repository, mapper, summary helpers, and tests.
 - Add notification-ready scheduler architecture with permission helper, notification channel setup, and safe message factory.
-- Keep system notification scheduling as architecture/skeleton with in-app fallback.
+- Keep reminders useful with in-app fallback when notification permission is unavailable.
 - Add Profile reminder management UI and Dashboard reminder summary card.
 - Add demo reminders for Dapur Rasa Nusantara.
 - Document permission-safe behavior and device QA limitations.
 
 ## UN-0012 - Notification Execution And Device QA
 
-Implement exact local notification execution after reminder planning is stable.
+Completed scope:
 
-Planned scope:
-
-- Choose AlarmManager or WorkManager based on precision needs.
+- Use WorkManager for approximate local reminder notification execution.
 - Request notification permission only from user action.
-- Schedule and cancel local notifications from active reminders.
-- Add device/emulator QA for permission granted and denied flows.
+- Schedule and cancel local notification work from active reminder state.
+- Add a notification worker that safely handles missing, inactive, or permission-denied reminders.
+- Keep exact alarms out of scope.
+- Keep in-app fallback visible when notifications are unavailable.
+- Document device/emulator QA requirements for permission granted and denied flows.
 - Keep reminders local-only with no cloud sync.
 
 ## UN-0013 - Export And Reports

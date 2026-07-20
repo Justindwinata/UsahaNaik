@@ -103,7 +103,7 @@ Return to `Profile` and show:
 
 Safe talking point:
 
-> Reminders are local and visible in the app. System notification execution is prepared architecturally but still needs device notification QA before claiming reliable alerts.
+> Reminders are local and visible in the app. When notification permission is available, UsahaNaik schedules approximate local reminders through Android WorkManager. In-app reminder cards remain available if permission is denied.
 
 ## Close
 
@@ -115,9 +115,9 @@ Position the project as an Android portfolio showcase demonstrating Compose UI, 
 - No cloud sync.
 - No authentication.
 - No real AI API integration yet.
-- Local reminders exist.
-- Exact system notification scheduling is not implemented yet.
-- Notification behavior requires device/emulator QA.
+- Local reminders use approximate WorkManager notification scheduling when permission is available.
+- No exact alarm dependency.
+- Notification delivery behavior requires device/emulator QA before claiming runtime reliability.
 - No PDF export yet.
 - Not professional financial advice.
 - No guaranteed profit increase.

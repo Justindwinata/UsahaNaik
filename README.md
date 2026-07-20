@@ -18,7 +18,7 @@ The app does not claim guaranteed profit, guaranteed business success, or profes
 - Weekly progress snapshots and deterministic retrospectives.
 - Business Report dashboard with KPI cards, simple Compose visual summaries, export-ready text, and local report snapshots.
 - Demo Mode for portfolio presentation using sample UMKM data.
-- Local reminder planning for daily finance tracking, weekly tasks, scheduled content, retrospectives, and report review.
+- Local reminder notifications for daily finance tracking, weekly tasks, scheduled content, retrospectives, and report review, with in-app fallback.
 
 ## Target Users
 
@@ -30,7 +30,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0011 adds local reminder planning and notification-ready architecture. Reminders are persisted locally, visible in Dashboard/Profile, included in Demo Mode, and designed to work as in-app fallback even when Android notification permission is unavailable.
+UN-0012 adds permission-safe local notification execution for reminders. Reminders are persisted locally, scheduled through WorkManager when notification permission is available, cancelled when paused or deleted, visible in Dashboard/Profile, included in Demo Mode, and still useful as in-app fallback when Android notification permission is denied.
 
 Demo Mode sample business:
 
@@ -188,6 +188,16 @@ Implemented UN-0011 foundation:
 - Demo Mode now seeds sample reminders for Dapur Rasa Nusantara.
 - Unit tests cover reminder models, mapping, repository behavior, scheduler fallback, ViewModel state, and demo reminder seeding.
 
+Implemented UN-0012 foundation:
+
+- Added WorkManager-based reminder notification execution for approximate local reminder delivery.
+- Added `ReminderNotificationWorker` that loads reminders from Room, skips missing/inactive reminders safely, respects notification permission state, and opens the app from notification taps.
+- Added stable unique reminder work names such as `business_reminder_42` so reminder updates replace existing work and pause/delete actions cancel scheduled work.
+- Added user-triggered Android 13+ `POST_NOTIFICATIONS` permission flow from Profile. The app does not request notification permission on launch.
+- Updated reminder ViewModel integration so enabling reminders schedules work, pausing/deleting reminders cancels work, and permission refresh can schedule active reminders when permission becomes available.
+- Polished reminder fallback copy in Dashboard/Profile so users understand whether system notifications are available or only in-app reminders are active.
+- Added notification architecture documentation based on official Android guidance for notification permission, channels, WorkManager, and exact alarm restrictions.
+
 ## Tech Stack
 
 - Kotlin
@@ -198,6 +208,7 @@ Implemented UN-0011 foundation:
 - Repository pattern-ready structure
 - Room Database
 - Kotlin Coroutines
+- WorkManager
 - JUnit
 
 ## Local Setup
@@ -241,8 +252,9 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
 - No hardcoded API keys.
 - Generated content ideas should be reviewed before posting.
-- Reminder system notifications are architecture-ready, but exact OS alarm/work scheduling is not implemented yet.
-- Notification behavior requires device/emulator QA.
+- Reminders use approximate WorkManager scheduling, not exact alarms.
+- Notification delivery depends on Android OS scheduling and battery behavior.
+- Notification behavior requires device/emulator QA before claiming reliable runtime delivery.
 - No external calendar integration.
 - No authentication, cloud sync, or payment system.
 - No guaranteed profit increase.
@@ -251,7 +263,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0012, notification execution and permission QA with AlarmManager or WorkManager after the local reminder architecture is stable.
+Next recommended milestone: UN-0013, PDF/share export for the Business Report after notification execution is stable.
 
 ## Documentation
 
@@ -262,5 +274,6 @@ Next recommended milestone: UN-0012, notification execution and permission QA wi
 - [UI Reference Analysis](docs/UI_REFERENCE_ANALYSIS.md)
 - [Demo Script](docs/DEMO_SCRIPT.md)
 - [QA Checklist](docs/QA_CHECKLIST.md)
+- [Notification Architecture](docs/NOTIFICATION_ARCHITECTURE.md)
 - [Screenshot Plan](docs/SCREENSHOT_PLAN.md)
 - [Portfolio Showcase](docs/PORTFOLIO_SHOWCASE.md)

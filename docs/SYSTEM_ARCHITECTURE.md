@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0011 adds local reminder planning, Room reminder persistence, Dashboard/Profile reminder UI, and notification-ready architecture with in-app fallback. Real PDF export, remote AI integration, cloud sync, external calendar integration, exact system notification scheduling, and production diagnosis refinement remain planned for later contracts.
+UN-0012 adds permission-safe local reminder notification execution with WorkManager, Android notification permission UX, and in-app fallback. Real PDF export, remote AI integration, cloud sync, external calendar integration, exact alarm scheduling, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -35,7 +35,7 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - Dashboard shows a compact Business Report card and CTA.
 - `ReminderViewModel` loads local reminders, validates reminder forms, creates/updates reminders, enables/pauses/deletes reminders, and calls the scheduler abstraction.
 - Dashboard shows a compact local reminder summary.
-- Settings/Profile renders reminder permission status, reminder form, saved reminder list, and enable/pause/delete actions.
+- Settings/Profile renders reminder permission status, a user-triggered notification permission request, reminder form, saved reminder list, and enable/pause/delete actions.
 - Settings/Profile exposes Demo Mode controls for loading and clearing local sample data with confirmation dialogs.
 - Shared UI components include reusable empty, loading, error, and CTA state cards.
 - Settings/Profile can show and delete the saved local business profile.
@@ -129,6 +129,10 @@ The data layer uses local sample and Room-backed repositories:
 - `BusinessReminderDao`
 - `BusinessReminderEntity`
 - `DemoDataSeeder`
+- `ReminderNotificationWorker`
+- `AndroidReminderScheduler`
+- `WorkManagerReminderWorkEnqueuer`
+- `ReminderSchedulePlanner`
 
 Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, weekly retrospectives in `weekly_retrospectives`, saved report snapshots in `business_report_snapshots`, and local reminder definitions in `business_reminders`. Multi-business support is deferred.
 
@@ -166,7 +170,7 @@ Planned data direction:
 
 ## Reminder And Notification Architecture
 
-UN-0011 adds notification-ready reminder architecture without implementing exact OS alarm/work scheduling yet.
+UN-0012 implements local notification execution through WorkManager while keeping reminders useful as in-app fallback cards. Reminder delivery is approximate and local-only.
 
 Components:
 
@@ -178,13 +182,24 @@ Components:
 - `ReminderNotificationManager` creates the local reminder notification channel.
 - `ReminderMessageFactory` creates safe reminder copy without guaranteed business outcomes.
 - `ReminderScheduler` abstracts scheduling and cancellation.
-- `AndroidReminderScheduler` currently prepares channel/permission behavior and returns in-app fallback results.
+- `ReminderSchedulePlanner` maps reminder frequency, date labels, and time labels into one-time or periodic WorkManager schedules.
+- `ReminderNotificationWorkData` creates stable unique work names and worker input data.
+- `WorkManagerReminderWorkEnqueuer` enqueues one-time and periodic unique work and cancels by unique work name.
+- `AndroidReminderScheduler` checks permission, creates the notification channel, schedules active reminders, and cancels inactive/deleted reminders.
+- `ReminderNotificationWorker` loads the reminder from Room, skips missing or inactive reminders, skips if permission is unavailable, and posts a local notification that opens `MainActivity`.
+
+Implementation rules:
+
+- Android 13+ `POST_NOTIFICATIONS` is requested only from the Profile reminder UI after a user action.
+- Notification channel creation is idempotent.
+- Paused, completed, disabled, or deleted reminders cancel their unique WorkManager job.
+- Exact alarms are intentionally avoided because UMKM routine reminders do not require exact-to-the-minute delivery.
+- Dashboard/Profile still show active reminder counts, next reminder, and fallback copy when notification permission is denied.
 
 Current limitation:
 
-- Reminders are persisted and visible in-app.
-- System notification execution is architecture/skeleton only in UN-0011.
-- Exact scheduling through AlarmManager or WorkManager is deferred until device/emulator QA can verify permission granted and denied flows.
+- Notification delivery depends on Android OS scheduling and battery behavior.
+- Device/emulator QA is required before claiming runtime notification delivery behavior.
 
 ## AI Integration Planned
 
@@ -233,5 +248,7 @@ Current local-first behavior:
 - Dashboard can show a compact Business Report summary.
 - Demo data can be loaded and cleared locally from Settings/Profile.
 - Local reminders can be created, enabled, paused, deleted, and shown on Dashboard/Profile.
+- Active local reminders can be scheduled as approximate WorkManager notification work when permission is available.
+- In-app reminder fallback remains available when notification permission is denied or unavailable.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.

@@ -29,9 +29,11 @@ Use an emulator/device when available.
 - Profile can load demo data after confirmation.
 - Profile can clear demo data after confirmation.
 - Profile shows local reminder permission status.
+- Profile shows notification permission explanation and `Enable Notifications` action.
 - Reminder form can create a daily finance reminder.
 - Reminder can be enabled, paused, edited, and deleted.
 - Reminder list remains usable if notification permission is denied.
+- Reminder cards explain whether system notification scheduling is available or in-app fallback is active.
 - Dashboard reloads and shows demo data.
 - Dashboard shows active reminder count and next reminder.
 - Financial entries appear and can be deleted.
@@ -67,10 +69,14 @@ If no emulator/device is attached, runtime QA and notification behavior QA canno
 
 ## Notification QA Notes
 
-UN-0011 includes notification-ready architecture and a notification channel helper, but exact system notification scheduling is deferred. Device/emulator QA should eventually cover:
+UN-0012 schedules approximate reminder notifications through WorkManager when notification permission is available. Device/emulator QA should cover:
 
 - Android 13+ permission prompt from user action.
 - Permission granted behavior.
 - Permission denied behavior.
 - In-app fallback behavior.
 - Cancelling scheduled notifications when reminders are paused or deleted.
+- Notification tap opens the app.
+- Demo reminders do not duplicate after loading demo data repeatedly.
+
+Do not claim notification delivery was manually verified unless an emulator or physical Android device was used.

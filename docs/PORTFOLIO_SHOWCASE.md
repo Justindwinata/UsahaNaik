@@ -20,7 +20,7 @@ UsahaNaik is a local-first Android business growth planner for Indonesian UMKM o
 - Content calendar and progress continuity.
 - Business report aggregation and export-ready text.
 - Demo Mode for portfolio presentation.
-- Local reminder planning and notification-ready architecture.
+- Local reminder planning with permission-safe WorkManager notification execution and in-app fallback.
 - Testable domain and data logic.
 
 ## Product Modules
@@ -34,7 +34,7 @@ UsahaNaik is a local-first Android business growth planner for Indonesian UMKM o
 - Content calendar.
 - Weekly retrospective.
 - Business report.
-- Local reminders.
+- Local reminders and notification permission UX.
 - Profile, local data controls, and Demo Mode.
 
 ## Safe Product Positioning
@@ -43,12 +43,12 @@ UsahaNaik helps users organize business data, monitor estimated financial summar
 
 ## Demo Story
 
-The demo business `Dapur Rasa Nusantara` shows a Food & Beverage UMKM with realistic sample finance entries, weekly tasks, content ideas, scheduled content, retrospective, report snapshot, and local reminders. This allows the app to be presented quickly without manual data entry.
+The demo business `Dapur Rasa Nusantara` shows a Food & Beverage UMKM with realistic sample finance entries, weekly tasks, content ideas, scheduled content, retrospective, report snapshot, and local reminders. When notification permission is available, demo reminders can be scheduled as approximate local WorkManager notifications; in-app reminder cards remain available without permission.
 
 ## Next Portfolio Improvements
 
 - Capture real emulator screenshots.
 - Add UI tests for critical routes.
-- Implement exact local notification scheduling with device/emulator QA.
+- Capture device/emulator QA evidence for notification granted and denied flows.
 - Add PDF/share export after report UI is stable.
 - Improve animation and accessibility pass with device testing.
