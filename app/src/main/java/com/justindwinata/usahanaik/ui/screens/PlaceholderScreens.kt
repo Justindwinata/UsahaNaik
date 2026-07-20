@@ -101,6 +101,9 @@ import com.justindwinata.usahanaik.domain.report.BusinessReportDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummaryMapper
 import com.justindwinata.usahanaik.ui.components.MetricCard
+import com.justindwinata.usahanaik.ui.components.EmptyStateCard
+import com.justindwinata.usahanaik.ui.components.ErrorStateCard
+import com.justindwinata.usahanaik.ui.components.LoadingStateCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
 import com.justindwinata.usahanaik.ui.components.PrimaryActionButton
 import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
@@ -903,6 +906,24 @@ fun DashboardScreen(
             weekLabel = dashboard.summary.weekLabel
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+            PillBadge(text = "Business command center", containerColor = CreamBackground, contentColor = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = "Pantau kondisi usaha, tindakan mingguan, konten, laporan, dan progress dari data lokal.",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = if (setupDraft == null) {
+                    "Complete setup or load demo data from Profile to explore the full portfolio experience."
+                } else {
+                    "Dashboard ini membantu monitoring dan perencanaan. Tidak ada klaim profit pasti."
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         ProgressScoreCard(
             title = "Business Health Score",
             score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
@@ -1079,20 +1100,16 @@ private fun DashboardInsightPanel(uiState: DashboardInsightsUiState) {
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     when {
         uiState.isLoading -> {
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-                Text(text = "Generating insights...", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "UsahaNaik is reviewing your saved profile and local financial records.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
-                )
-            }
+            LoadingStateCard(
+                title = "Generating insights...",
+                message = "UsahaNaik is reviewing your saved profile and local financial records."
+            )
         }
         uiState.errorMessage != null -> {
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
-                Text(text = "Insight generation needs attention", style = MaterialTheme.typography.titleMedium)
-                Text(text = uiState.errorMessage, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
-            }
+            ErrorStateCard(
+                title = "Insight generation needs attention",
+                message = uiState.errorMessage
+            )
         }
         diagnosis != null -> {
             DiagnosisScoreCard(diagnosis = diagnosis)
@@ -1100,10 +1117,10 @@ private fun DashboardInsightPanel(uiState: DashboardInsightsUiState) {
             InsightSummaryCards(diagnosis = diagnosis)
             Spacer(modifier = Modifier.height(AppSpacing.md))
             uiState.emptyStateMessage?.let { message ->
-                UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-                    Text(text = "Improve insight accuracy", style = MaterialTheme.typography.titleMedium)
-                    Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-                }
+                EmptyStateCard(
+                    title = "Improve insight accuracy",
+                    message = message
+                )
                 Spacer(modifier = Modifier.height(AppSpacing.md))
             }
             BusinessInsightsSection(insights = diagnosis.insights)
@@ -3139,26 +3156,18 @@ private fun BusinessReportPeriodSelector(
 
 @Composable
 private fun BusinessReportLoadingCard() {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-        Text(text = "Generating report...", style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = "UsahaNaik is combining local finance, plan, content, calendar, and retrospective data.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
-    }
+    LoadingStateCard(
+        title = "Generating report...",
+        message = "UsahaNaik is combining local finance, plan, content, calendar, and retrospective data."
+    )
 }
 
 @Composable
 private fun BusinessReportEmptyCard(message: String) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-        Text(text = message, style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = "Record income, expenses, weekly tasks, and content activity to make this report more complete.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
-    }
+    EmptyStateCard(
+        title = message,
+        message = "Record income, expenses, weekly tasks, and content activity to make this report more complete."
+    )
 }
 
 @Composable
@@ -3174,10 +3183,10 @@ private fun BusinessReportContent(
     }
     uiState.errorMessage?.let { message ->
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
-            Text(text = "Report needs attention", style = MaterialTheme.typography.titleMedium)
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
-        }
+        ErrorStateCard(
+            title = "Report needs attention",
+            message = message
+        )
     }
     uiState.successMessage?.let { message ->
         Spacer(modifier = Modifier.height(AppSpacing.md))
