@@ -118,8 +118,14 @@ import com.justindwinata.usahanaik.ui.components.ErrorStateCard
 import com.justindwinata.usahanaik.ui.components.LoadingStateCard
 import com.justindwinata.usahanaik.ui.components.PillBadge
 import com.justindwinata.usahanaik.ui.components.PrimaryActionButton
+import com.justindwinata.usahanaik.ui.components.ProfessionalActionTile
+import com.justindwinata.usahanaik.ui.components.ProfessionalKpiCard
+import com.justindwinata.usahanaik.ui.components.ProfessionalSectionHeader
 import com.justindwinata.usahanaik.ui.components.ProgressScoreCard
+import com.justindwinata.usahanaik.ui.components.ScreenHeroHeader
 import com.justindwinata.usahanaik.ui.components.SectionHeader
+import com.justindwinata.usahanaik.ui.components.StatusBadge
+import com.justindwinata.usahanaik.ui.components.StatusTone
 import com.justindwinata.usahanaik.ui.components.TrendLineChart
 import com.justindwinata.usahanaik.ui.components.UsahaNaikCard
 import com.justindwinata.usahanaik.ui.content.ContentPlannerUiState
@@ -341,17 +347,23 @@ fun BusinessSetupScreen(
     val categories = remember { SampleBusinessCategoryRepository().getCategories() }
     val selectedCategory = categories.firstOrNull { it.id == uiState.draft.categoryId } ?: categories.first()
     val guidance = BusinessCategorySetupHints.guidanceFor(selectedCategory)
+    val strings = LocalAppStrings.current
 
     ScreenContainer {
-        SectionHeader(title = "Setup Bisnis", actionLabel = "${uiState.completedSectionCount}/${uiState.totalSectionCount}")
-        Text(
-            text = "Lengkapi draft setup agar dashboard preview bisa terasa lebih personal. Data UN-0002 masih disimpan di memory ViewModel.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+        ScreenHeroHeader(
+            title = strings.businessSetup,
+            subtitle = "Isi profil bisnis inti agar dashboard, rencana mingguan, laporan, dan pengingat terasa lebih personal.",
+            badge = "${uiState.completedSectionCount}/${uiState.totalSectionCount} sections"
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(containerColor = LavenderSoft) {
-            PillBadge(text = selectedCategory.displayName, containerColor = CreamBackground, contentColor = CoralPrimary)
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
+                PillBadge(text = selectedCategory.displayName, containerColor = CreamBackground, contentColor = CoralPrimary)
+                StatusBadge(
+                    text = if (uiState.isValid) "Ready to review" else "In progress",
+                    tone = if (uiState.isValid) StatusTone.Positive else StatusTone.Info
+                )
+            }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(text = "Category setup hints", style = MaterialTheme.typography.titleMedium)
             Text(text = guidance.focusArea, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
@@ -368,7 +380,10 @@ fun BusinessSetupScreen(
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(containerColor = GreenSoft) {
-            Text(text = "Setup progress", style = MaterialTheme.typography.titleMedium)
+            ProfessionalSectionHeader(
+                title = "Setup progress",
+                subtitle = "Complete the required sections before saving your local business profile."
+            )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             LinearProgressIndicator(
                 progress = { uiState.setupProgress },
@@ -932,6 +947,7 @@ fun DashboardScreen(
     val reportSummary = remember(reportState.report) {
         BusinessReportDashboardMapper.from(reportState.report)
     }
+    val strings = LocalAppStrings.current
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
         financialEntryViewModel.refresh(
@@ -950,17 +966,27 @@ fun DashboardScreen(
     }
 
     ScreenContainer {
-        DashboardHeader(
-            businessName = dashboard.summary.businessName,
-            categoryName = dashboard.summary.categoryName,
-            weekLabel = dashboard.summary.weekLabel
+        ScreenHeroHeader(
+            title = strings.dashboard,
+            subtitle = if (setupDraft == null) {
+                "Complete setup or load demo data to turn this into your business command center."
+            } else {
+                "${dashboard.summary.businessName} - ${dashboard.summary.categoryName}"
+            },
+            badge = dashboard.summary.weekLabel
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-            PillBadge(text = "Business command center", containerColor = CreamBackground, contentColor = CoralPrimary)
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
+                PillBadge(text = "Business command center", containerColor = CreamBackground, contentColor = CoralPrimary)
+                StatusBadge(
+                    text = if (setupDraft == null) strings.completeSetup else "Local data active",
+                    tone = if (setupDraft == null) StatusTone.Warning else StatusTone.Positive
+                )
+            }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(
-                text = "Pantau kondisi usaha, tindakan mingguan, konten, laporan, dan progress dari data lokal.",
+                text = "Pantau kondisi usaha, tindakan mingguan, konten, laporan, pengingat, dan progress dari data lokal.",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -974,8 +1000,76 @@ fun DashboardScreen(
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        ProfessionalSectionHeader(
+            title = strings.financialSummary,
+            subtitle = "KPI utama dari catatan lokal dan baseline setup."
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            ProfessionalKpiCard(
+                title = strings.monthlyRevenue,
+                value = financialMetrics.monthlyRevenue,
+                helper = "Recorded this month",
+                modifier = Modifier.weight(1f),
+                accentColor = GreenPositive
+            )
+            ProfessionalKpiCard(
+                title = strings.monthlyExpenses,
+                value = financialMetrics.monthlyExpenses,
+                helper = "Recorded this month",
+                modifier = Modifier.weight(1f),
+                accentColor = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            ProfessionalKpiCard(
+                title = strings.estimatedProfit,
+                value = financialMetrics.estimatedProfit,
+                helper = "Income minus expenses",
+                modifier = Modifier.weight(1f),
+                accentColor = CoralPrimary
+            )
+            ProfessionalKpiCard(
+                title = strings.profitMargin,
+                value = financialMetrics.profitMargin,
+                helper = "Estimated margin",
+                modifier = Modifier.weight(1f),
+                accentColor = GreenPositive
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        ProfessionalSectionHeader(
+            title = strings.quickActions,
+            subtitle = "Start from the action that best matches today's work."
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ProfessionalActionTile(
+            title = strings.generateWeeklyPlan,
+            message = "Review tasks, milestones, and retrospective progress.",
+            actionLabel = strings.plan,
+            onClick = onOpenWeeklyPlan,
+            accentColor = GreenPositive
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ProfessionalActionTile(
+            title = strings.generateContentIdeas,
+            message = "Generate, save, and schedule content ideas for your business.",
+            actionLabel = strings.ideas,
+            onClick = onOpenContentPlanner,
+            accentColor = CoralPrimary
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ProfessionalActionTile(
+            title = strings.openBusinessReport,
+            message = "Review KPI, progress, content execution, and export-ready text.",
+            actionLabel = strings.report,
+            onClick = onOpenBusinessReport,
+            accentColor = LavenderSoft
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         ProgressScoreCard(
-            title = "Business Health Score",
+            title = strings.businessHealth,
             score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
             helper = insightsState.diagnosis?.healthScore?.explanation ?: dashboard.healthScore.explanation,
             containerColor = LavenderSoft
