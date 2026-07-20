@@ -67,6 +67,8 @@ import com.justindwinata.usahanaik.ui.screens.BusinessSetupScreen
 import com.justindwinata.usahanaik.ui.screens.CategorySelectionScreen
 import com.justindwinata.usahanaik.ui.screens.ContentIdeasScreen
 import com.justindwinata.usahanaik.ui.screens.DashboardScreen
+import com.justindwinata.usahanaik.ui.screens.LoginScreen
+import com.justindwinata.usahanaik.ui.screens.RegisterScreen
 import com.justindwinata.usahanaik.ui.screens.SettingsScreen
 import com.justindwinata.usahanaik.ui.screens.WeeklyRetrospectiveScreen
 import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
@@ -282,9 +284,36 @@ fun UsahaNaikApp() {
                     composable(AppRoute.Welcome.route) {
                         WelcomeScreen(
                             savedProfile = setupState.savedProfile,
+                            selectedLanguage = languageState.selectedLanguage,
+                            onLanguageSelected = languageViewModel::selectLanguage,
+                            onLoginClick = { navController.navigate(AppRoute.Login.route) },
+                            onRegisterClick = { navController.navigate(AppRoute.Register.route) },
+                            onContinueLocalModeClick = {
+                                navController.navigate(localModeDestination(setupState.savedProfile))
+                            },
                             onStartClick = { navController.navigate(AppRoute.CategorySelection.route) },
                             onResumeSavedProfileClick = { navController.navigate(AppRoute.Dashboard.route) },
                             onPreviewDashboardClick = { navController.navigate(AppRoute.Dashboard.route) }
+                        )
+                    }
+                    composable(AppRoute.Login.route) {
+                        LoginScreen(
+                            selectedLanguage = languageState.selectedLanguage,
+                            onLanguageSelected = languageViewModel::selectLanguage,
+                            onContinueLocalMode = {
+                                navController.navigate(localModeDestination(setupState.savedProfile))
+                            },
+                            onRegisterClick = { navController.navigate(AppRoute.Register.route) }
+                        )
+                    }
+                    composable(AppRoute.Register.route) {
+                        RegisterScreen(
+                            selectedLanguage = languageState.selectedLanguage,
+                            onLanguageSelected = languageViewModel::selectLanguage,
+                            onContinueLocalMode = {
+                                navController.navigate(localModeDestination(setupState.savedProfile))
+                            },
+                            onLoginClick = { navController.navigate(AppRoute.Login.route) }
                         )
                     }
                     composable(AppRoute.CategorySelection.route) {
@@ -389,9 +418,19 @@ private fun localizedBottomTabLabel(
         AppRoute.ContentIdeas -> strings.ideas
         AppRoute.Settings -> strings.profile
         AppRoute.BusinessReport -> strings.report
+        AppRoute.Login -> strings.login
+        AppRoute.Register -> strings.register
         AppRoute.Welcome,
         AppRoute.CategorySelection,
         AppRoute.BusinessSetup,
         AppRoute.Retrospective -> route.route
+    }
+}
+
+private fun localModeDestination(savedProfile: com.justindwinata.usahanaik.domain.model.BusinessProfile?): String {
+    return if (savedProfile != null) {
+        AppRoute.Dashboard.route
+    } else {
+        AppRoute.CategorySelection.route
     }
 }

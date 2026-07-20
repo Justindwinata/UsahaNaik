@@ -53,6 +53,7 @@ import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummary
 import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummaryMapper
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetrics
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetricsMapper
+import com.justindwinata.usahanaik.domain.localization.AppLanguage
 import com.justindwinata.usahanaik.domain.model.ContentCalendarSummaryCalculator
 import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummary
 import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummaryMapper
@@ -110,6 +111,7 @@ import com.justindwinata.usahanaik.domain.report.BusinessReportDashboardMapper
 import com.justindwinata.usahanaik.domain.report.BusinessReportDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummaryMapper
+import com.justindwinata.usahanaik.ui.components.LanguageSelector
 import com.justindwinata.usahanaik.ui.components.MetricCard
 import com.justindwinata.usahanaik.ui.components.EmptyStateCard
 import com.justindwinata.usahanaik.ui.components.ErrorStateCard
@@ -127,6 +129,7 @@ import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.demo.DemoDataViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
+import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
@@ -156,10 +159,16 @@ import java.util.Locale
 @Composable
 fun WelcomeScreen(
     savedProfile: BusinessProfile? = null,
+    selectedLanguage: AppLanguage,
+    onLanguageSelected: (AppLanguage) -> Unit,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onContinueLocalModeClick: () -> Unit,
     onStartClick: () -> Unit,
     onResumeSavedProfileClick: () -> Unit = {},
     onPreviewDashboardClick: () -> Unit
 ) {
+    val strings = LocalAppStrings.current
     ScreenContainer {
         Spacer(modifier = Modifier.height(AppSpacing.xl))
         Box(
@@ -183,41 +192,67 @@ fun WelcomeScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Planner pertumbuhan UMKM dengan insight finansial, target mingguan, milestone, dan ide konten berbasis arsitektur AI-ready.",
+            text = strings.appTagline,
             style = MaterialTheme.typography.bodyLarge,
             color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        LanguageSelector(
+            selectedLanguage = selectedLanguage,
+            onLanguageSelected = onLanguageSelected
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         if (savedProfile != null) {
             UsahaNaikCard(containerColor = BlueSoft) {
-                PillBadge(text = "Saved locally", containerColor = CreamBackground, contentColor = CoralPrimary)
+                PillBadge(text = strings.localFirstNote, containerColor = CreamBackground, contentColor = CoralPrimary)
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
                 Text(
                     text = savedProfile.draft.businessName,
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    text = "Your business profile is saved locally on this device.",
+                    text = strings.localFirstNote,
                     style = MaterialTheme.typography.bodyMedium,
                     color = InkMuted
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
                 PrimaryActionButton(
-                    text = "Resume Saved Profile",
+                    text = strings.dashboard,
                     onClick = onResumeSavedProfileClick,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
             Spacer(modifier = Modifier.height(AppSpacing.lg))
         }
+        UsahaNaikCard(containerColor = BlueSoft) {
+            PillBadge(text = "Auth-ready", containerColor = CreamBackground, contentColor = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = strings.authDemoNote, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                OutlinedButton(onClick = onLoginClick, modifier = Modifier.weight(1f)) {
+                    Text(strings.login)
+                }
+                OutlinedButton(onClick = onRegisterClick, modifier = Modifier.weight(1f)) {
+                    Text(strings.register)
+                }
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            PrimaryActionButton(
+                text = strings.continueLocalMode,
+                onClick = onContinueLocalModeClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         PrimaryActionButton(
-            text = "Mulai Setup Bisnis",
+            text = strings.completeSetup,
             onClick = onStartClick,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         PrimaryActionButton(
-            text = "Lihat Dashboard Preview",
+            text = strings.dashboard,
             onClick = onPreviewDashboardClick,
             modifier = Modifier.fillMaxWidth()
         )
@@ -226,7 +261,7 @@ fun WelcomeScreen(
             PillBadge(text = "Catatan aman", containerColor = CreamBackground, contentColor = GreenPositive)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(
-                text = "UsahaNaik membantu perencanaan dan pemantauan. Aplikasi ini tidak menjamin kenaikan profit dan bukan nasihat finansial profesional.",
+                text = strings.noGuaranteedProfit,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

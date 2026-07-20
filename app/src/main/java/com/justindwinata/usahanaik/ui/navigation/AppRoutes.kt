@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class AppRoute(val route: String) {
     data object Welcome : AppRoute("welcome")
+    data object Login : AppRoute("login")
+    data object Register : AppRoute("register")
     data object CategorySelection : AppRoute("category_selection")
     data object BusinessSetup : AppRoute("business_setup")
     data object Dashboard : AppRoute("dashboard")
@@ -34,6 +36,8 @@ val bottomTabs = listOf(
 
 val onboardingRoutes = setOf(
     AppRoute.Welcome.route,
+    AppRoute.Login.route,
+    AppRoute.Register.route,
     AppRoute.CategorySelection.route,
     AppRoute.BusinessSetup.route
 )
