@@ -77,6 +77,9 @@ import com.justindwinata.usahanaik.domain.model.FinancialEntry
 import com.justindwinata.usahanaik.domain.model.FinancialEntryType
 import com.justindwinata.usahanaik.domain.model.InsightSeverity
 import com.justindwinata.usahanaik.domain.model.WeeklyGrowthPlan
+import com.justindwinata.usahanaik.domain.model.WeeklyProgressHistorySummary
+import com.justindwinata.usahanaik.domain.model.WeeklyProgressSnapshot
+import com.justindwinata.usahanaik.domain.model.WeeklyRetrospective
 import com.justindwinata.usahanaik.domain.model.WeeklyTask
 import com.justindwinata.usahanaik.domain.model.WeeklyTaskStatus
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
@@ -115,6 +118,7 @@ import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
 import com.justindwinata.usahanaik.ui.content.ContentCalendarUiState
 import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
+import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
 
 @Composable
 fun WelcomeScreen(
@@ -1639,7 +1643,10 @@ private fun RecentFinancialEntryRow(
 }
 
 @Composable
-fun WeeklyPlanScreen(viewModel: WeeklyPlanViewModel) {
+fun WeeklyPlanScreen(
+    viewModel: WeeklyPlanViewModel,
+    onOpenRetrospective: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     ScreenContainer {
@@ -1659,6 +1666,19 @@ fun WeeklyPlanScreen(viewModel: WeeklyPlanViewModel) {
                 onConfirmRegenerate = viewModel::confirmRegeneratePlan,
                 onCancelRegenerate = viewModel::cancelRegeneratePlan
             )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+            Text(text = "Weekly Retrospective", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Review this week's task, finance, milestone, and content progress. Evaluation is deterministic and saved locally.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Button(onClick = onOpenRetrospective, modifier = Modifier.fillMaxWidth()) {
+                Text("Open Retrospective")
+            }
         }
         uiState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -1910,6 +1930,202 @@ private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
             color = GreenPositive,
             trackColor = CreamBackground
         )
+    }
+}
+
+@Composable
+fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    ScreenContainer {
+        SectionHeader(title = "Weekly Retrospective", actionLabel = "Local")
+        Text(
+            text = "Generate a deterministic weekly evaluation from saved tasks, milestones, finance, content calendar, and diagnosis signals.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+            Text(text = "This week's review", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = "Retrospectives are planning summaries, not professional financial advice or guaranteed outcomes.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Button(
+                onClick = viewModel::generateAndSaveRetrospective,
+                enabled = !uiState.isGenerating,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (uiState.isGenerating) "Generating..." else "Generate & Save Retrospective")
+            }
+        }
+        uiState.successMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            }
+        }
+        uiState.errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            }
+        }
+        uiState.currentSnapshot?.let { snapshot ->
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            WeeklyProgressSnapshotCard(snapshot = snapshot)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        uiState.latestRetrospective?.let { retrospective ->
+            WeeklyRetrospectiveCard(retrospective = retrospective)
+        } ?: UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(
+                text = uiState.emptyStateMessage ?: "No retrospective yet",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Generate a retrospective after creating a weekly plan, recording finances, and scheduling content.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        ProgressHistorySection(summary = uiState.progressHistorySummary)
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        RetrospectiveHistorySection(history = uiState.history)
+    }
+}
+
+@Composable
+private fun WeeklyProgressSnapshotCard(snapshot: WeeklyProgressSnapshot) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        SectionHeader(title = "Progress Snapshot", actionLabel = snapshot.weekLabel)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Tasks",
+                value = "${snapshot.completedTasks}/${snapshot.totalTasks}",
+                helper = "${(snapshot.taskCompletionRate * 100).toInt()}%",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+            MetricCard(
+                title = "Content",
+                value = snapshot.postedOrDoneContentCount.toString(),
+                helper = "Posted/done",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ReviewRow("Weekly income", BusinessSetupCalculator.formatRupiah(snapshot.weeklyIncome))
+        ReviewRow("Weekly expenses", BusinessSetupCalculator.formatRupiah(snapshot.weeklyExpenses))
+        ReviewRow("Estimated profit", BusinessSetupCalculator.formatRupiah(snapshot.weeklyEstimatedProfit))
+        ReviewRow("Business health score", "${snapshot.businessHealthScore}/100")
+    }
+}
+
+@Composable
+private fun WeeklyRetrospectiveCard(retrospective: WeeklyRetrospective) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        PillBadge(text = retrospective.weekLabel, containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = retrospective.summaryTitle, style = MaterialTheme.typography.titleLarge)
+        Text(text = "Generated ${retrospective.generatedDate}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        retrospective.sections.forEach { section ->
+            Text(text = section.title, style = MaterialTheme.typography.titleMedium)
+            section.insights.forEach { insight ->
+                Text(
+                    text = "- ${insight.message}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = when (insight.severity) {
+                        InsightSeverity.Positive -> GreenPositive
+                        InsightSeverity.Info -> InkMuted
+                        InsightSeverity.Warning -> CoralPrimary
+                        InsightSeverity.Critical -> CoralPrimary
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(CreamBackground)
+                .padding(AppSpacing.md)
+        ) {
+            Text(text = "Next week suggestion", style = MaterialTheme.typography.titleMedium)
+            Text(text = retrospective.nextWeekSuggestion.focus, style = MaterialTheme.typography.bodyMedium)
+            Text(text = retrospective.nextWeekSuggestion.reason, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+            Text(text = retrospective.nextWeekSuggestion.recommendedAction, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        }
+    }
+}
+
+@Composable
+private fun ProgressHistorySection(summary: WeeklyProgressHistorySummary) {
+    SectionHeader(title = "Progress Trend", actionLabel = if (summary.hasHistory) "Saved" else "Empty")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Text(
+            text = if (summary.hasHistory) {
+                "Average task completion: ${(summary.averageTaskCompletionRate * 100).toInt()}%"
+            } else {
+                "Save weekly snapshots to build progress history."
+            },
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        if (summary.trendPoints.isEmpty()) {
+            Text(text = "No trend points yet.", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        } else {
+            summary.trendPoints.forEach { point ->
+                Text(text = point.label, style = MaterialTheme.typography.labelLarge)
+                LinearProgressIndicator(
+                    progress = { point.taskCompletionRate },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = GreenPositive,
+                    trackColor = CreamBackground
+                )
+                Text(
+                    text = "Health score: ${point.businessHealthScore}/100",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkMuted
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+            }
+        }
+    }
+}
+
+@Composable
+private fun RetrospectiveHistorySection(history: List<WeeklyRetrospective>) {
+    SectionHeader(title = "Retrospective History", actionLabel = "${history.size} saved")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (history.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(text = "No saved retrospective history yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Generate and save a retrospective to review progress over time.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
+        history.forEach { item ->
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CreamBackground) {
+                Text(text = item.weekLabel, style = MaterialTheme.typography.titleMedium)
+                Text(text = item.nextWeekSuggestion.focus, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(text = "Generated ${item.generatedDate}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
     }
 }
 

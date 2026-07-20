@@ -27,7 +27,9 @@ import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepositor
 import com.justindwinata.usahanaik.data.repository.LocalContentCalendarRepository
 import com.justindwinata.usahanaik.data.repository.LocalContentIdeaRepository
 import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
+import com.justindwinata.usahanaik.data.repository.LocalWeeklyProgressHistoryRepository
 import com.justindwinata.usahanaik.data.repository.LocalWeeklyPlanRepository
+import com.justindwinata.usahanaik.data.repository.LocalWeeklyRetrospectiveRepository
 import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
 import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModelFactory
 import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
@@ -39,11 +41,14 @@ import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModelFactory
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
 import com.justindwinata.usahanaik.ui.navigation.bottomTabs
 import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
+import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
+import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModelFactory
 import com.justindwinata.usahanaik.ui.screens.BusinessSetupScreen
 import com.justindwinata.usahanaik.ui.screens.CategorySelectionScreen
 import com.justindwinata.usahanaik.ui.screens.ContentIdeasScreen
 import com.justindwinata.usahanaik.ui.screens.DashboardScreen
 import com.justindwinata.usahanaik.ui.screens.SettingsScreen
+import com.justindwinata.usahanaik.ui.screens.WeeklyRetrospectiveScreen
 import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
 import com.justindwinata.usahanaik.ui.screens.WelcomeScreen
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
@@ -78,6 +83,12 @@ fun UsahaNaikApp() {
         val contentCalendarRepository = remember(database) {
             LocalContentCalendarRepository(database.contentCalendarDao())
         }
+        val progressHistoryRepository = remember(database) {
+            LocalWeeklyProgressHistoryRepository(database.weeklyProgressSnapshotDao())
+        }
+        val retrospectiveRepository = remember(database) {
+            LocalWeeklyRetrospectiveRepository(database.weeklyRetrospectiveDao())
+        }
         val contentIdeaProvider = remember {
             LocalContentIdeaProvider()
         }
@@ -110,6 +121,17 @@ fun UsahaNaikApp() {
         )
         val contentCalendarViewModel: ContentCalendarViewModel = viewModel(
             factory = ContentCalendarViewModelFactory(contentCalendarRepository)
+        )
+        val weeklyRetrospectiveViewModel: WeeklyRetrospectiveViewModel = viewModel(
+            factory = WeeklyRetrospectiveViewModelFactory(
+                businessProfileRepository = businessProfileRepository,
+                financialEntryRepository = financialEntryRepository,
+                weeklyPlanRepository = weeklyPlanRepository,
+                contentIdeaRepository = contentIdeaRepository,
+                contentCalendarRepository = contentCalendarRepository,
+                progressHistoryRepository = progressHistoryRepository,
+                retrospectiveRepository = retrospectiveRepository
+            )
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -192,13 +214,19 @@ fun UsahaNaikApp() {
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {
-                    WeeklyPlanScreen(viewModel = weeklyPlanViewModel)
+                    WeeklyPlanScreen(
+                        viewModel = weeklyPlanViewModel,
+                        onOpenRetrospective = { navController.navigate(AppRoute.Retrospective.route) }
+                    )
                 }
                 composable(AppRoute.ContentIdeas.route) {
                     ContentIdeasScreen(
                         viewModel = contentPlannerViewModel,
                         calendarViewModel = contentCalendarViewModel
                     )
+                }
+                composable(AppRoute.Retrospective.route) {
+                    WeeklyRetrospectiveScreen(viewModel = weeklyRetrospectiveViewModel)
                 }
                 composable(AppRoute.Settings.route) {
                     SettingsScreen(viewModel = setupViewModel)

@@ -14,6 +14,7 @@ sealed class AppRoute(val route: String) {
     data object Dashboard : AppRoute("dashboard")
     data object WeeklyPlan : AppRoute("weekly_plan")
     data object ContentIdeas : AppRoute("content_ideas")
+    data object Retrospective : AppRoute("retrospective")
     data object Settings : AppRoute("settings")
 }
 
