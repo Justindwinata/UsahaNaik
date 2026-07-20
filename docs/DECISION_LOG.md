@@ -287,3 +287,21 @@ System notification permission is optional. Dashboard/Profile continue to show a
 ### Exact Alarms Avoided
 
 UN-0012 does not request `SCHEDULE_EXACT_ALARM` and does not use exact alarms. Approximate reminders match the product need and avoid extra platform permission risk.
+
+## UN-0013-R1 Decisions
+
+### Revision Before New Features
+
+The next milestone pauses new feature expansion and prioritizes bilingual support, auth-ready entry, navigation clarity, and professional UI polish. This is necessary because the app has accumulated many functional modules, but the presentation and flow need to feel cohesive for a portfolio review.
+
+### Audit Without Runtime Screenshots
+
+No current runtime screenshots were available in the repository during the audit. The revision plan is based on the provided `UI_Reference.jpg`, the Compose screen implementation, navigation setup, shared components, and existing product documentation.
+
+### Localization Boundary Before Full Resource Migration
+
+Most visible copy is currently hardcoded in Compose. The revision will add a structured language model and copy provider first, then localize high-visibility shell, entry, navigation, dashboard, setup, feature headings, CTA, empty-state, and disclaimer copy. Generated business content can remain deterministic and partially dynamic until later localization hardening.
+
+### Auth-Ready, Not Auth-Implemented
+
+Login and register screens will be added as UI placeholders only. The app remains local-first, does not store passwords, and does not add a backend, cloud sync, or real authentication in this revision.
