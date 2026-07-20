@@ -17,9 +17,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ContentIdeaEntity::class,
         ContentCalendarEntity::class,
         WeeklyProgressSnapshotEntity::class,
-        WeeklyRetrospectiveEntity::class
+        WeeklyRetrospectiveEntity::class,
+        BusinessReportSnapshotEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
@@ -30,6 +31,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun contentCalendarDao(): ContentCalendarDao
     abstract fun weeklyProgressSnapshotDao(): WeeklyProgressSnapshotDao
     abstract fun weeklyRetrospectiveDao(): WeeklyRetrospectiveDao
+    abstract fun businessReportSnapshotDao(): BusinessReportSnapshotDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -219,6 +221,31 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS business_report_snapshots (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        period TEXT NOT NULL,
+                        businessName TEXT NOT NULL,
+                        generatedAt TEXT NOT NULL,
+                        headlineSummary TEXT NOT NULL,
+                        exportReadyText TEXT NOT NULL,
+                        healthScore INTEGER NOT NULL,
+                        totalRevenue INTEGER NOT NULL,
+                        totalExpenses INTEGER NOT NULL,
+                        estimatedProfit INTEGER NOT NULL,
+                        taskCompletionRate REAL NOT NULL,
+                        contentExecutionRate REAL NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -235,7 +262,8 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                         MIGRATION_3_4,
                         MIGRATION_4_5,
                         MIGRATION_5_6,
-                        MIGRATION_6_7
+                        MIGRATION_6_7,
+                        MIGRATION_7_8
                     )
                     .build()
                     .also { instance = it }
