@@ -9,6 +9,7 @@ import com.justindwinata.usahanaik.data.repository.FinancialEntryRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyPlanRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyProgressHistoryRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyRetrospectiveRepository
+import com.justindwinata.usahanaik.data.reminder.ReminderScheduler
 import com.justindwinata.usahanaik.domain.model.ActionDifficulty
 import com.justindwinata.usahanaik.domain.model.ActionEstimatedTime
 import com.justindwinata.usahanaik.domain.model.AvailableTime
@@ -69,7 +70,8 @@ class DemoDataSeeder(
     private val progressHistoryRepository: WeeklyProgressHistoryRepository,
     private val retrospectiveRepository: WeeklyRetrospectiveRepository,
     private val reportSnapshotRepository: BusinessReportSnapshotRepository,
-    private val reminderRepository: BusinessReminderRepository
+    private val reminderRepository: BusinessReminderRepository,
+    private val reminderScheduler: ReminderScheduler? = null
 ) {
     suspend fun loadDemoData(): DemoDataResult {
         clearDemoData()
@@ -81,7 +83,8 @@ class DemoDataSeeder(
         progressHistoryRepository.saveSnapshot(demoProgressSnapshot)
         retrospectiveRepository.saveRetrospective(demoRetrospective)
         reportSnapshotRepository.saveSnapshot(demoReportSnapshot)
-        demoReminders.forEach { reminderRepository.createReminder(it) }
+        val savedReminders = demoReminders.map { reminderRepository.createReminder(it) }
+        savedReminders.filter { it.isActive }.forEach { reminderScheduler?.schedule(it) }
 
         return DemoDataResult(
             profileLoaded = true,

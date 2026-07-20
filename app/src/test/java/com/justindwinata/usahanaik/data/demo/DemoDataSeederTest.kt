@@ -9,6 +9,9 @@ import com.justindwinata.usahanaik.data.repository.FinancialEntryRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyPlanRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyProgressHistoryRepository
 import com.justindwinata.usahanaik.data.repository.WeeklyRetrospectiveRepository
+import com.justindwinata.usahanaik.data.reminder.ReminderScheduleResult
+import com.justindwinata.usahanaik.data.reminder.ReminderScheduleStatus
+import com.justindwinata.usahanaik.data.reminder.ReminderScheduler
 import com.justindwinata.usahanaik.domain.finance.FinancialCalculator
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
 import com.justindwinata.usahanaik.domain.model.BusinessReminder
@@ -56,6 +59,7 @@ class DemoDataSeederTest {
         assertEquals(1, fakes.retrospectiveRepository.listRetrospectives().size)
         assertEquals(1, fakes.reportRepository.listSnapshots().size)
         assertEquals(4, fakes.reminderRepository.listReminders().size)
+        assertEquals(4, fakes.reminderScheduler.scheduledIds.size)
         assertEquals(4, result.reminderCount)
     }
 
@@ -97,6 +101,7 @@ class DemoDataSeederTest {
         val retrospectiveRepository = FakeWeeklyRetrospectiveRepository()
         val reportRepository = FakeBusinessReportSnapshotRepository()
         val reminderRepository = FakeBusinessReminderRepository()
+        val reminderScheduler = FakeReminderScheduler()
 
         val seeder = DemoDataSeeder(
             businessProfileRepository = profileRepository,
@@ -107,7 +112,8 @@ class DemoDataSeederTest {
             progressHistoryRepository = progressRepository,
             retrospectiveRepository = retrospectiveRepository,
             reportSnapshotRepository = reportRepository,
-            reminderRepository = reminderRepository
+            reminderRepository = reminderRepository,
+            reminderScheduler = reminderScheduler
         )
     }
 
@@ -302,6 +308,21 @@ class DemoDataSeederTest {
 
         override suspend fun getReminderSummary(): ReminderSummary {
             return ReminderSummaryCalculator.summarize(reminders.value)
+        }
+    }
+
+    private class FakeReminderScheduler : ReminderScheduler {
+        val scheduledIds = mutableListOf<Long>()
+        val cancelledIds = mutableListOf<Long>()
+
+        override suspend fun schedule(reminder: BusinessReminder): ReminderScheduleResult {
+            scheduledIds += reminder.id
+            return ReminderScheduleResult(ReminderScheduleStatus.ScheduledSystem, "Scheduled.")
+        }
+
+        override suspend fun cancel(reminderId: Long): ReminderScheduleResult {
+            cancelledIds += reminderId
+            return ReminderScheduleResult(ReminderScheduleStatus.Cancelled, "Cancelled.")
         }
     }
 }

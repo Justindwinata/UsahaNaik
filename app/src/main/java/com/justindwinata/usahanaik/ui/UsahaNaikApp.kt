@@ -131,7 +131,8 @@ fun UsahaNaikApp() {
             progressHistoryRepository,
             retrospectiveRepository,
             reportSnapshotRepository,
-            reminderRepository
+            reminderRepository,
+            reminderScheduler
         ) {
             DemoDataSeeder(
                 businessProfileRepository = businessProfileRepository,
@@ -142,7 +143,8 @@ fun UsahaNaikApp() {
                 progressHistoryRepository = progressHistoryRepository,
                 retrospectiveRepository = retrospectiveRepository,
                 reportSnapshotRepository = reportSnapshotRepository,
-                reminderRepository = reminderRepository
+                reminderRepository = reminderRepository,
+                reminderScheduler = reminderScheduler
             )
         }
         val navController = rememberNavController()

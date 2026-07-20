@@ -47,6 +47,9 @@ class ReminderViewModel(
         viewModelScope.launch {
             val permissionState = permissionHelper.currentState()
             val reminders = _uiState.value.reminders.ifEmpty { repository.listReminders() }
+            if (permissionState == ReminderPermissionState.Granted || permissionState == ReminderPermissionState.NotRequired) {
+                reminders.filter { it.status == ReminderStatus.Active }.forEach { scheduler.schedule(it) }
+            }
             _uiState.value = _uiState.value.copy(
                 permissionState = permissionState,
                 summary = ReminderSummaryCalculator.summarize(reminders, permissionState)
