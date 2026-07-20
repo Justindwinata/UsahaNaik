@@ -18,6 +18,7 @@ The app does not claim guaranteed profit, guaranteed business success, or profes
 - Weekly progress snapshots and deterministic retrospectives.
 - Business Report dashboard with KPI cards, simple Compose visual summaries, export-ready text, and local report snapshots.
 - Demo Mode for portfolio presentation using sample UMKM data.
+- Local reminder planning for daily finance tracking, weekly tasks, scheduled content, retrospectives, and report review.
 
 ## Target Users
 
@@ -29,13 +30,13 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0010 polishes the app for portfolio presentation with shared state components, dashboard/report polish, planning/content/retrospective polish, demo data mode, navigation refresh hardening, accessibility labels, and portfolio documentation.
+UN-0011 adds local reminder planning and notification-ready architecture. Reminders are persisted locally, visible in Dashboard/Profile, included in Demo Mode, and designed to work as in-app fallback even when Android notification permission is unavailable.
 
 Demo Mode sample business:
 
 - Business: Dapur Rasa Nusantara.
 - Category: Food & Beverage.
-- Includes sample profile, finance entries, weekly plan, content ideas, content calendar schedules, progress snapshot, retrospective, and report snapshot.
+- Includes sample profile, finance entries, weekly plan, content ideas, content calendar schedules, progress snapshot, retrospective, report snapshot, and local reminders.
 
 To load demo data in the app:
 
@@ -175,6 +176,18 @@ Implemented UN-0010 foundation:
 - Bottom navigation accessibility descriptions.
 - Portfolio documentation, demo script, QA checklist, screenshot plan, and showcase summary.
 
+Implemented UN-0011 foundation:
+
+- Local reminder domain models for daily finance tracking, weekly plan tasks, scheduled content, weekly retrospective, and business report review.
+- Room `business_reminders` table with migration to database version 9.
+- Reminder repository and mapper for local create, update, enable, pause, delete, list, active list, and summary behavior.
+- Notification-ready scheduler architecture with permission helper, notification channel setup, message factory, and scheduler abstraction.
+- In-app fallback behavior when notification permission is unavailable.
+- Profile reminder management UI with permission status, reminder form, saved reminder list, enable/pause/delete actions, empty/loading/error states, and status labels.
+- Dashboard reminder summary card with active count, paused count, next reminder, and permission state.
+- Demo Mode now seeds sample reminders for Dapur Rasa Nusantara.
+- Unit tests cover reminder models, mapping, repository behavior, scheduler fallback, ViewModel state, and demo reminder seeding.
+
 ## Tech Stack
 
 - Kotlin
@@ -228,7 +241,8 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
 - No hardcoded API keys.
 - Generated content ideas should be reviewed before posting.
-- No Android notification system yet.
+- Reminder system notifications are architecture-ready, but exact OS alarm/work scheduling is not implemented yet.
+- Notification behavior requires device/emulator QA.
 - No external calendar integration.
 - No authentication, cloud sync, or payment system.
 - No guaranteed profit increase.
@@ -237,7 +251,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0011, optional local reminders for sales tracking, weekly reviews, content planning, retrospective follow-up, and report review.
+Next recommended milestone: UN-0012, notification execution and permission QA with AlarmManager or WorkManager after the local reminder architecture is stable.
 
 ## Documentation
 

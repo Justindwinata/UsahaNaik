@@ -108,7 +108,7 @@ The seeder should avoid duplicate demo data by clearing relevant local records b
 
 - Demo seeding touches many repositories; tests must cover duplicate prevention and complete dataset creation.
 - Dashboard refresh can call several ViewModels; avoid infinite recomposition loops.
-- Room schema is version 8; demo mode should use repositories rather than changing schema.
+- Room schema was version 8 during UN-0010; UN-0011 moves it to version 9 for local reminders. Demo mode should continue using repositories rather than bypassing data boundaries.
 - Report snapshots are local history, not official accounting/tax exports.
 - Manual emulator QA may not be available; if no device is attached, final notes must say so.
 

@@ -243,3 +243,25 @@ Empty, loading, error, and CTA states are centralized in shared UI components so
 ### No Fake Screenshots
 
 Documentation includes a screenshot plan instead of claiming screenshots exist. Screenshots should only be committed after capture from an emulator or device.
+
+## UN-0011 Decisions
+
+### In-App Reminders Before Exact System Scheduling
+
+UN-0011 persists local reminders and shows them in Dashboard/Profile first. Exact Android alarm/work scheduling is deferred so permission behavior can be tested on a real device or emulator before claiming notification reliability.
+
+### Permission-Safe Notification Architecture
+
+Notification permission is checked through a helper and not requested on app launch. If permission is denied or unavailable, the app keeps reminders usable as in-app planning cards.
+
+### Additive Room Migration
+
+The database moves from version 8 to version 9 with one additive `business_reminders` table. Existing business profile, finance, weekly plan, content, calendar, retrospective, and report tables remain unchanged.
+
+### Reminder Copy Avoids Outcome Claims
+
+Reminder messages focus on routines such as recording sales, reviewing weekly tasks, preparing content, and reviewing reports. They avoid guaranteed sales, profit, habit formation, or professional consulting claims.
+
+### Demo Reminders Use Existing Demo Mode
+
+Dapur Rasa Nusantara demo data now includes local reminders so the portfolio demo shows a complete planning loop without requiring Android notification delivery.

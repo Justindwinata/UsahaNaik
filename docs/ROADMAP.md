@@ -134,14 +134,35 @@ Completed scope:
 - Harden route refresh behavior for demo presentation.
 - Add portfolio documentation, demo script, QA checklist, and screenshot plan.
 
-## UN-0011 - Notifications
+## UN-0011 - Local Reminders And Notification-Ready Planning
 
-Add optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
+Completed scope:
 
-## UN-0012 - Export And Reports
+- Add reminder models for daily finance tracking, weekly plan tasks, scheduled content, retrospectives, and report review.
+- Persist reminders locally with Room database version 9.
+- Add reminder repository, mapper, summary helpers, and tests.
+- Add notification-ready scheduler architecture with permission helper, notification channel setup, and safe message factory.
+- Keep system notification scheduling as architecture/skeleton with in-app fallback.
+- Add Profile reminder management UI and Dashboard reminder summary card.
+- Add demo reminders for Dapur Rasa Nusantara.
+- Document permission-safe behavior and device QA limitations.
+
+## UN-0012 - Notification Execution And Device QA
+
+Implement exact local notification execution after reminder planning is stable.
+
+Planned scope:
+
+- Choose AlarmManager or WorkManager based on precision needs.
+- Request notification permission only from user action.
+- Schedule and cancel local notifications from active reminders.
+- Add device/emulator QA for permission granted and denied flows.
+- Keep reminders local-only with no cloud sync.
+
+## UN-0013 - Export And Reports
 
 Add PDF export or platform share flows for owner review after the report dashboard is stable.
 
-## UN-0013 - Portfolio Polish
+## UN-0014 - Portfolio Polish
 
 Improve animations, accessibility, UI tests, screenshots, README assets, and release-readiness documentation.

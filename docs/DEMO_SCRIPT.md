@@ -20,6 +20,7 @@ Demo business:
 - Stage: Running 6-12 months.
 - Channel: Mixed online/offline.
 - Challenges: low sales, inconsistent content, high expenses.
+- Includes local reminders for daily finance tracking, weekly plan review, content preparation, and retrospective.
 
 ## Presentation Flow
 
@@ -29,7 +30,7 @@ Explain that UsahaNaik is a local-first UMKM business growth planner. It does no
 
 ### 2. Profile And Demo Mode
 
-Show `Profile`, local-only data copy, AI provider safety copy, and `Load Demo Data`.
+Show `Profile`, local-only data copy, AI provider safety copy, local reminder controls, and `Load Demo Data`.
 
 Safe talking point:
 
@@ -45,6 +46,7 @@ Show the dashboard as the main command center:
 - Content planner summary.
 - Progress continuity.
 - Business report card.
+- Local reminder summary.
 - Financial metrics and chart.
 
 ### 4. Financial Tracking
@@ -90,6 +92,19 @@ From Dashboard, open Business Report and show:
 - Export-ready text.
 - Saved report snapshots.
 
+### 9. Local Reminders
+
+Return to `Profile` and show:
+
+- Notification permission state.
+- Reminder form.
+- Saved demo reminders.
+- Enable, pause, edit, and delete actions.
+
+Safe talking point:
+
+> Reminders are local and visible in the app. System notification execution is prepared architecturally but still needs device notification QA before claiming reliable alerts.
+
 ## Close
 
 Position the project as an Android portfolio showcase demonstrating Compose UI, Room persistence, ViewModel state, deterministic business logic, local-first product thinking, and safe AI-ready architecture.
@@ -100,7 +115,9 @@ Position the project as an Android portfolio showcase demonstrating Compose UI, 
 - No cloud sync.
 - No authentication.
 - No real AI API integration yet.
-- No notifications/reminders yet.
+- Local reminders exist.
+- Exact system notification scheduling is not implemented yet.
+- Notification behavior requires device/emulator QA.
 - No PDF export yet.
 - Not professional financial advice.
 - No guaranteed profit increase.

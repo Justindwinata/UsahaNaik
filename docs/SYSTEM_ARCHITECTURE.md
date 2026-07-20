@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0010 adds portfolio polish, shared state UI components, local Demo Mode, route refresh hardening, accessibility labels, and portfolio documentation. Real PDF export, remote AI integration, cloud sync, external calendar integration, notifications, and production diagnosis refinement remain planned for later contracts.
+UN-0011 adds local reminder planning, Room reminder persistence, Dashboard/Profile reminder UI, and notification-ready architecture with in-app fallback. Real PDF export, remote AI integration, cloud sync, external calendar integration, exact system notification scheduling, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -33,6 +33,9 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - `BusinessReportViewModel` loads local repositories, generates period-based reports, exposes export-ready text, and saves local report snapshots.
 - Business Report UI renders KPI cards, simple visual summaries, finance, growth, diagnosis, content, retrospective, export-ready text, and snapshot history sections.
 - Dashboard shows a compact Business Report card and CTA.
+- `ReminderViewModel` loads local reminders, validates reminder forms, creates/updates reminders, enables/pauses/deletes reminders, and calls the scheduler abstraction.
+- Dashboard shows a compact local reminder summary.
+- Settings/Profile renders reminder permission status, reminder form, saved reminder list, and enable/pause/delete actions.
 - Settings/Profile exposes Demo Mode controls for loading and clearing local sample data with confirmation dialogs.
 - Shared UI components include reusable empty, loading, error, and CTA state cards.
 - Settings/Profile can show and delete the saved local business profile.
@@ -67,6 +70,7 @@ The domain layer contains plain Kotlin models for:
 - `BusinessReportGenerator` for deterministic period-based aggregation across local app data.
 - `ExportReadyReportRenderer` for markdown-like copy/share-ready report text with safety disclaimers.
 - Business report dashboard summary mapping.
+- Business reminder models, reminder time/schedule helpers, permission state, and summary calculation.
 - Demo data seeding model for local portfolio presentation.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
@@ -120,9 +124,13 @@ The data layer uses local sample and Room-backed repositories:
 - `LocalBusinessReportSnapshotRepository`
 - `BusinessReportSnapshotDao`
 - `BusinessReportSnapshotEntity`
+- `BusinessReminderRepository`
+- `LocalBusinessReminderRepository`
+- `BusinessReminderDao`
+- `BusinessReminderEntity`
 - `DemoDataSeeder`
 
-Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, weekly retrospectives in `weekly_retrospectives`, and saved report snapshots in `business_report_snapshots`. Multi-business support is deferred.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, weekly retrospectives in `weekly_retrospectives`, saved report snapshots in `business_report_snapshots`, and local reminder definitions in `business_reminders`. Multi-business support is deferred.
 
 UN-0003 saves completed setup data locally and reloads it on app startup. UN-0004 saves income and expense entries locally and maps monthly entry summaries into dashboard cards and trend visuals.
 
@@ -138,6 +146,8 @@ UN-0009 updates Room to version 8 with an additive `business_report_snapshots` t
 
 UN-0010 does not change the Room schema. Demo Mode uses existing repositories and tables to insert a sample dataset after confirmation.
 
+UN-0011 updates Room to version 9 with an additive `business_reminders` table. Reminders store title, description, type, frequency, scheduled day/date labels, time label, status, optional related entity id, and metadata timestamps.
+
 Planned data direction:
 
 - Repository interfaces expose app data.
@@ -151,7 +161,30 @@ Planned data direction:
 - Weekly progress snapshots are persisted locally and can replace an existing snapshot for the same week.
 - Weekly retrospectives are persisted locally and can replace an existing retrospective for the same week.
 - Report snapshots are persisted locally as export-ready report history.
+- Reminder definitions are persisted locally and summarized for Dashboard/Profile.
 - Sample repositories remain useful for previews and tests.
+
+## Reminder And Notification Architecture
+
+UN-0011 adds notification-ready reminder architecture without implementing exact OS alarm/work scheduling yet.
+
+Components:
+
+- `BusinessReminder` models local reminder definitions.
+- `ReminderSummaryCalculator` creates Dashboard/Profile counts and next-reminder copy.
+- `BusinessReminderRepository` hides Room persistence from UI.
+- `ReminderViewModel` owns form state, validation, status updates, scheduler calls, and summary state.
+- `ReminderPermissionHelper` checks Android notification permission state.
+- `ReminderNotificationManager` creates the local reminder notification channel.
+- `ReminderMessageFactory` creates safe reminder copy without guaranteed business outcomes.
+- `ReminderScheduler` abstracts scheduling and cancellation.
+- `AndroidReminderScheduler` currently prepares channel/permission behavior and returns in-app fallback results.
+
+Current limitation:
+
+- Reminders are persisted and visible in-app.
+- System notification execution is architecture/skeleton only in UN-0011.
+- Exact scheduling through AlarmManager or WorkManager is deferred until device/emulator QA can verify permission granted and denied flows.
 
 ## AI Integration Planned
 
@@ -199,5 +232,6 @@ Current local-first behavior:
 - Business reports can be generated from local data, previewed in the app, and saved as local snapshots.
 - Dashboard can show a compact Business Report summary.
 - Demo data can be loaded and cleared locally from Settings/Profile.
+- Local reminders can be created, enabled, paused, deleted, and shown on Dashboard/Profile.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.

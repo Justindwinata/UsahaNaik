@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.1.0 - UN-0011
+
+- Added local reminder domain models for daily financial tracking, weekly plan tasks, scheduled content, weekly retrospectives, and business report review.
+- Added Room `business_reminders` persistence with database migration from version 8 to 9.
+- Added reminder repository, mapper, and tests for create, update, enable, pause, delete, active listing, and summary behavior.
+- Added notification-ready scheduler architecture with permission helper, notification channel setup, message factory, scheduler abstraction, and in-app fallback behavior.
+- Added `ReminderViewModel` for reminder form state, validation, create/update, enable, pause, delete, scheduler calls, and summary mapping.
+- Added Profile reminder management UI with permission status, reminder form, saved reminder cards, empty/loading/error states, and no-color-only status labels.
+- Added Dashboard local reminder summary card with active reminders, paused reminders, next reminder, and notification permission state.
+- Updated Demo Mode to include sample reminders for `Dapur Rasa Nusantara`.
+- Updated docs for local reminders, permission-safe behavior, in-app fallback, and manual QA limitations.
+
+### Known Limitations
+
+- Reminders are local only.
+- System notification scheduling is architecture/skeleton only in this milestone; exact OS alarm/work scheduling is deferred.
+- Notification behavior requires device/emulator QA.
+- No cloud sync.
+- No authentication.
+- No real AI API integration.
+- No PDF export yet.
+- Not professional financial advice.
+- No guaranteed profit increase.
+
 ## 1.0.0 - UN-0010
 
 - Added UX polish and demo readiness plan.

@@ -61,6 +61,10 @@ The app is not professional financial advice and does not guarantee profit incre
 32. User can load demo data from Settings/Profile for portfolio presentation.
 33. User can clear demo data from Settings/Profile after confirmation.
 34. User can delete local profile data from Settings/Profile.
+35. User creates local reminders for finance tracking, weekly plan tasks, scheduled content, retrospectives, or report review.
+36. User can enable, pause, edit, or delete local reminders.
+37. User sees reminder summary and next reminder on the dashboard.
+38. If notification permission is unavailable, user still has in-app reminder fallback.
 
 ## Business Categories
 
@@ -269,14 +273,40 @@ Dashboard continuity:
 
 - Dashboard shows weekly completion, content calendar execution, latest retrospective takeaway, and simple progress trend cards.
 
+## Local Reminders And Notification-Ready Planning
+
+UN-0011 adds optional local reminders so UMKM owners can remember important business routines without login or cloud sync.
+
+Supported reminder types:
+
+- Daily financial tracking.
+- Weekly plan task review.
+- Scheduled content preparation.
+- Weekly retrospective.
+- Business report review.
+
+Reminder behavior:
+
+- Reminders are saved locally in Room.
+- Users can create, edit, enable, pause, and delete reminders from Profile.
+- Dashboard shows active reminder count, paused count, next reminder, and notification permission state.
+- Demo Mode includes sample reminders for Dapur Rasa Nusantara.
+- If Android notification permission is unavailable or denied, reminders still appear in-app.
+
+Notification-ready scope:
+
+- UN-0011 adds notification permission state handling, notification channel setup, safe reminder messages, and scheduler abstraction.
+- Exact OS-level alarm/work scheduling is deferred to a later milestone and requires emulator/device QA.
+- The app does not claim cloud reminders, server reminders, or guaranteed habit/business outcomes.
+
 ## Limitations
 
 - No authentication.
 - No cloud database or cloud sync.
 - No payment system.
 - Local persistence only.
-- No notification system yet.
-- No Android notification system yet.
+- Local reminders exist, but exact system notification scheduling is not implemented yet.
+- Notification behavior requires device/emulator QA.
 - No external calendar integration.
 - No real AI integration yet.
 - AI provider architecture is present, but remote AI generation is not implemented yet.

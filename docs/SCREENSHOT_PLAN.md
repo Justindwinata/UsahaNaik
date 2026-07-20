@@ -29,6 +29,7 @@ Capture these screens:
 - Business setup form.
 - Setup review.
 - Dashboard command center.
+- Dashboard local reminder summary.
 - Financial tracking section.
 - Weekly Plan.
 - Content Planner generated ideas.
@@ -36,7 +37,7 @@ Capture these screens:
 - Retrospective.
 - Business Report KPI section.
 - Business Report export-ready text.
-- Profile with Demo Mode controls.
+- Profile with reminder management and Demo Mode controls.
 
 ## Naming Plan
 
@@ -54,7 +55,8 @@ docs/screenshots/
   08_content_calendar.png
   09_retrospective.png
   10_business_report.png
-  11_profile_demo_mode.png
+  11_dashboard_reminders.png
+  12_profile_reminders_demo_mode.png
 ```
 
 ## Quality Checks

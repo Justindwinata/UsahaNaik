@@ -28,7 +28,12 @@ Use an emulator/device when available.
 - Profile can delete local profile.
 - Profile can load demo data after confirmation.
 - Profile can clear demo data after confirmation.
+- Profile shows local reminder permission status.
+- Reminder form can create a daily finance reminder.
+- Reminder can be enabled, paused, edited, and deleted.
+- Reminder list remains usable if notification permission is denied.
 - Dashboard reloads and shows demo data.
+- Dashboard shows active reminder count and next reminder.
 - Financial entries appear and can be deleted.
 - Weekly Plan shows demo tasks and milestones.
 - Task completion toggles persist.
@@ -51,10 +56,21 @@ Use an emulator/device when available.
 
 - Important bottom navigation icons have content descriptions.
 - Status/severity is visible as text labels, not color only.
+- Reminder status is visible as text, not color only.
 - Buttons use readable labels.
 - Cards and text remain readable on small screens with vertical scroll.
 - Touch targets are visually large enough for common actions.
 
 ## Known Manual QA Limitation
 
-If no emulator/device is attached, runtime QA cannot be honestly claimed. In that case, report automated validation only.
+If no emulator/device is attached, runtime QA and notification behavior QA cannot be honestly claimed. In that case, report automated validation only.
+
+## Notification QA Notes
+
+UN-0011 includes notification-ready architecture and a notification channel helper, but exact system notification scheduling is deferred. Device/emulator QA should eventually cover:
+
+- Android 13+ permission prompt from user action.
+- Permission granted behavior.
+- Permission denied behavior.
+- In-app fallback behavior.
+- Cancelling scheduled notifications when reminders are paused or deleted.
