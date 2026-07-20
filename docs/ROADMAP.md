@@ -160,10 +160,26 @@ Completed scope:
 - Document device/emulator QA requirements for permission granted and denied flows.
 - Keep reminders local-only with no cloud sync.
 
-## UN-0013 - Export And Reports
+## UN-0013-R1 - Bilingual UI/UX Revision And Auth-Ready Entry
+
+Completed scope:
+
+- Audit current UI/UX without runtime screenshots and document revision plan.
+- Add Indonesian and English language support with local preference persistence.
+- Add auth-ready Welcome/Login/Register flow without real authentication.
+- Redesign shared UI tokens and reusable components.
+- Improve Dashboard, setup, planning, content, report, profile, reminder, and navigation presentation.
+- Add Business Report as a primary bottom navigation route.
+- Keep existing local-first features, Room data, demo mode, reminders, and reports intact.
+
+## UN-0014 - Screenshot And Device UX QA
+
+Capture emulator screenshots, run device-level UI QA, and revise any layout issues found on actual screens.
+
+## UN-0015 - Export And Reports
 
 Add PDF export or platform share flows for owner review after the report dashboard is stable.
 
-## UN-0014 - Portfolio Polish
+## UN-0016 - Portfolio Polish
 
 Improve animations, accessibility, UI tests, screenshots, README assets, and release-readiness documentation.

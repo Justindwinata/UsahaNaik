@@ -306,15 +306,48 @@ Notification execution scope:
 - Runtime notification behavior requires emulator/device QA.
 - The app does not claim cloud reminders, server reminders, or guaranteed habit/business outcomes.
 
+## Bilingual And Auth-Ready Revision
+
+UN-0013-R1 improves app usability before adding more features.
+
+Language behavior:
+
+- Supported languages: Indonesian and English.
+- Default language: Indonesian.
+- Language can be selected from Welcome, Login, Register, and Profile.
+- Language preference is saved locally on the device.
+- Static high-visibility UI copy uses the selected language where practical.
+- Some generated/dynamic business content remains deterministic and may not be fully translated yet.
+
+Auth-ready behavior:
+
+- Welcome includes login, register, and continue-local-mode options.
+- Login screen includes email and password fields.
+- Register screen includes name, email, password, and confirm password fields.
+- Authentication is not enabled yet.
+- Passwords are not saved.
+- Continue local mode enters Dashboard when a saved profile exists, or setup when no profile exists.
+
+Navigation behavior:
+
+- Main bottom navigation: Dashboard, Plan, Ideas, Report, Profile.
+- Finance remains inside Dashboard.
+- Content Calendar remains under Ideas.
+- Retrospective remains under Plan.
+- Reminders and Demo Mode remain under Profile.
+
 ## Limitations
 
 - No authentication.
+- Login/register screens are placeholders only.
+- No backend server.
 - No cloud database or cloud sync.
 - No payment system.
 - Local persistence only.
 - Local reminders use approximate WorkManager notification scheduling when permission is available.
 - Notification behavior requires device/emulator QA before claiming runtime delivery.
 - No exact alarm dependency.
+- Bilingual support covers high-visibility static UI copy first.
 - No external calendar integration.
 - No real AI integration yet.
 - AI provider architecture is present, but remote AI generation is not implemented yet.

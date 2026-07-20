@@ -14,6 +14,8 @@ UsahaNaik is a local-first Android business growth planner for Indonesian UMKM o
 - Repository pattern.
 - ViewModel-driven state management.
 - Offline-first product architecture.
+- Bilingual UI shell and language preference persistence.
+- Auth-ready entry flow without backend dependency.
 - Deterministic business diagnosis engine.
 - Weekly growth plan generation.
 - Local content idea generator and AI-ready provider boundary.
@@ -35,11 +37,14 @@ UsahaNaik is a local-first Android business growth planner for Indonesian UMKM o
 - Weekly retrospective.
 - Business report.
 - Local reminders and notification permission UX.
+- Login/Register placeholders and local mode entry.
 - Profile, local data controls, and Demo Mode.
 
 ## Safe Product Positioning
 
 UsahaNaik helps users organize business data, monitor estimated financial summaries, follow structured weekly actions, and plan content. It does not guarantee profit, replace professional financial advice, produce official accounting/tax reports, or make real AI calls in this milestone.
+
+UN-0013-R1 also adds bilingual Indonesian/English support and auth-ready entry screens. These screens are placeholders only; the app does not implement real authentication, backend accounts, password persistence, or cloud sync.
 
 ## Demo Story
 
@@ -49,6 +54,7 @@ The demo business `Dapur Rasa Nusantara` shows a Food & Beverage UMKM with reali
 
 - Capture real emulator screenshots.
 - Add UI tests for critical routes.
+- Capture bilingual redesign screenshots from an emulator.
 - Capture device/emulator QA evidence for notification granted and denied flows.
 - Add PDF/share export after report UI is stable.
 - Improve animation and accessibility pass with device testing.

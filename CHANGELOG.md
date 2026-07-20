@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.3.0-r1 - UN-0013-R1
+
+- Added Indonesian and English language model, copy provider, persisted language preference, composition locals, and language ViewModel.
+- Added reusable language selector and placed it on Welcome, Login, Register, and Profile.
+- Added auth-ready Login and Register placeholder screens with local-mode continuation and no password persistence.
+- Added UI/UX revision audit based on the current Compose implementation and available `UI_Reference.jpg`.
+- Redesigned shared UI foundation with stronger colors, typography hierarchy, spacing tokens, professional KPI cards, status badges, action tiles, and screen headers.
+- Redesigned the Dashboard top experience into a clearer command center with KPI grid, quick actions, and business health hierarchy.
+- Improved Business Setup, Weekly Plan, Retrospective, Content Planner, Business Report, Profile, and Reminder headers/grouping.
+- Added Business Report as a primary bottom navigation route and hardened local-mode navigation from auth entry.
+- Added localization, auth-ready flow, and route tests.
+- Added documentation for localization architecture and auth-ready flow.
+
+### Known Limitations
+
+- Real login/register authentication is not implemented yet.
+- No backend server.
+- No cloud sync.
+- No real AI API integration.
+- Some generated/dynamic business content remains deterministic/local and may not be fully translated.
+- Local persistence only.
+- No guaranteed profit increase.
+- Not professional financial advice.
+- Screenshots are not committed unless captured separately.
+
 ## 1.2.0 - UN-0012
 
 - Added WorkManager-based local notification execution for business reminders.

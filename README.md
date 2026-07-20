@@ -19,6 +19,8 @@ The app does not claim guaranteed profit, guaranteed business success, or profes
 - Business Report dashboard with KPI cards, simple Compose visual summaries, export-ready text, and local report snapshots.
 - Demo Mode for portfolio presentation using sample UMKM data.
 - Local reminder notifications for daily finance tracking, weekly tasks, scheduled content, retrospectives, and report review, with in-app fallback.
+- Bilingual Indonesian/English app shell with persisted language preference.
+- Auth-ready welcome, login, and register placeholder flow with local mode entry.
 
 ## Target Users
 
@@ -30,7 +32,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0012 adds permission-safe local notification execution for reminders. Reminders are persisted locally, scheduled through WorkManager when notification permission is available, cancelled when paused or deleted, visible in Dashboard/Profile, included in Demo Mode, and still useful as in-app fallback when Android notification permission is denied.
+UN-0013-R1 revises the product experience before adding more features. It adds Indonesian/English language selection, persisted language preference, auth-ready login/register placeholder screens, a clearer local-mode entry, a stronger Dashboard command center, Report as a primary bottom-tab workflow, and a more professional shared design system.
 
 Demo Mode sample business:
 
@@ -198,6 +200,18 @@ Implemented UN-0012 foundation:
 - Polished reminder fallback copy in Dashboard/Profile so users understand whether system notifications are available or only in-app reminders are active.
 - Added notification architecture documentation based on official Android guidance for notification permission, channels, WorkManager, and exact alarm restrictions.
 
+Implemented UN-0013-R1 revision:
+
+- Added Indonesian and English language model, copy provider, language ViewModel, composition locals, and SharedPreferences persistence.
+- Added reusable language selector on Welcome, Login, Register, and Profile.
+- Added auth-ready Login and Register placeholder screens with local-only messaging and no password persistence.
+- Added local-mode routing from Welcome/Login/Register to Dashboard when a profile exists or setup when no profile exists.
+- Redesigned shared UI tokens with stronger colors, typography, spacing, status badges, professional KPI cards, action tiles, and screen headers.
+- Redesigned Dashboard top structure into a business command center with KPI grid, quick actions, and clearer health/finance hierarchy.
+- Improved Business Setup, Weekly Plan, Content Planner, Retrospective, Business Report, Profile, and Reminder presentation with stronger headers and grouping.
+- Added Business Report to bottom navigation for a clearer main product flow.
+- Added documentation for UI/UX audit, localization architecture, and auth-ready flow.
+
 ## Tech Stack
 
 - Kotlin
@@ -235,6 +249,9 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 ## Limitations
 
 - Local persistence only.
+- Real login/register authentication is not implemented yet.
+- Login/register screens are auth-ready placeholders only.
+- Passwords are not persisted.
 - Only one active business profile is supported.
 - Financial entries are simple local records, not a full accounting ledger.
 - No real AI API integration yet.
@@ -250,20 +267,21 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Demo data is sample local data for presentation only.
 - No PDF export yet.
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
+- Bilingual support covers high-visibility static UI copy; some generated/dynamic business content remains deterministic/local and may not be fully translated yet.
 - No hardcoded API keys.
 - Generated content ideas should be reviewed before posting.
 - Reminders use approximate WorkManager scheduling, not exact alarms.
 - Notification delivery depends on Android OS scheduling and battery behavior.
 - Notification behavior requires device/emulator QA before claiming reliable runtime delivery.
 - No external calendar integration.
-- No authentication, cloud sync, or payment system.
+- No backend server, real authentication, cloud sync, or payment system.
 - No guaranteed profit increase.
 - Not professional accounting software.
 - Not professional financial advice.
 
 ## Roadmap
 
-Next recommended milestone: UN-0013, PDF/share export for the Business Report after notification execution is stable.
+Next recommended milestone: UN-0014, capture emulator screenshots and run device-level UX QA after the bilingual redesign stabilizes.
 
 ## Documentation
 
@@ -272,6 +290,9 @@ Next recommended milestone: UN-0013, PDF/share export for the Business Report af
 - [Roadmap](docs/ROADMAP.md)
 - [Decision Log](docs/DECISION_LOG.md)
 - [UI Reference Analysis](docs/UI_REFERENCE_ANALYSIS.md)
+- [UI/UX Revision Audit](docs/UI_UX_REVISION_AUDIT.md)
+- [Localization Architecture](docs/LOCALIZATION_ARCHITECTURE.md)
+- [Auth-Ready Flow](docs/AUTH_READY_FLOW.md)
 - [Demo Script](docs/DEMO_SCRIPT.md)
 - [QA Checklist](docs/QA_CHECKLIST.md)
 - [Notification Architecture](docs/NOTIFICATION_ARCHITECTURE.md)

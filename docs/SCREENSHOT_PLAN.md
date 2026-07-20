@@ -25,6 +25,9 @@ Before capturing screenshots:
 Capture these screens:
 
 - Welcome screen.
+- Login screen.
+- Register screen.
+- Welcome screen with English selected.
 - Category selection.
 - Business setup form.
 - Setup review.
@@ -46,17 +49,20 @@ Store future screenshots under:
 ```text
 docs/screenshots/
   01_welcome.png
-  02_category_selection.png
-  03_business_setup.png
-  04_dashboard.png
-  05_finance.png
-  06_weekly_plan.png
-  07_content_planner.png
-  08_content_calendar.png
-  09_retrospective.png
-  10_business_report.png
-  11_dashboard_reminders.png
-  12_profile_reminders_demo_mode.png
+  02_login.png
+  03_register.png
+  04_welcome_english.png
+  05_category_selection.png
+  06_business_setup.png
+  07_dashboard.png
+  08_finance.png
+  09_weekly_plan.png
+  10_content_planner.png
+  11_content_calendar.png
+  12_retrospective.png
+  13_business_report.png
+  14_dashboard_reminders.png
+  15_profile_language_reminders_demo_mode.png
 ```
 
 ## Quality Checks
@@ -67,3 +73,5 @@ docs/screenshots/
 - Demo data is visible.
 - Safe disclaimers are visible where relevant.
 - Status labels are visible, not only colors.
+- Language selector is visible on Welcome/Login/Register/Profile.
+- Auth screens clearly say authentication is not enabled in the local demo.

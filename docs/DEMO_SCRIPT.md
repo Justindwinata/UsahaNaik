@@ -8,10 +8,13 @@ Use this script to present UsahaNaik as a local-first Android portfolio project 
 
 1. Build and install the debug app from Android Studio or terminal.
 2. Open the app.
-3. Go to `Profile`.
-4. Tap `Load Demo Data`.
-5. Confirm the replacement warning.
-6. Return to `Dashboard`.
+3. On Welcome, show the language selector and switch between Indonesian and English.
+4. Open Login or Register to show the auth-ready placeholder flow.
+5. Tap `Continue in local mode`.
+6. Go to `Profile`.
+7. Tap `Load Demo Data`.
+8. Confirm the replacement warning.
+9. Return to `Dashboard`.
 
 Demo business:
 
@@ -30,7 +33,7 @@ Explain that UsahaNaik is a local-first UMKM business growth planner. It does no
 
 ### 2. Profile And Demo Mode
 
-Show `Profile`, local-only data copy, AI provider safety copy, local reminder controls, and `Load Demo Data`.
+Show `Profile`, language switch, auth-ready account placeholder, local-only data copy, AI provider safety copy, local reminder controls, and `Load Demo Data`.
 
 Safe talking point:
 
@@ -118,6 +121,8 @@ Position the project as an Android portfolio showcase demonstrating Compose UI, 
 - Local reminders use approximate WorkManager notification scheduling when permission is available.
 - No exact alarm dependency.
 - Notification delivery behavior requires device/emulator QA before claiming runtime reliability.
+- Login/Register are placeholders only; no real authentication or password storage.
+- Some dynamic/generated content may remain deterministic/local and not fully translated.
 - No PDF export yet.
 - Not professional financial advice.
 - No guaranteed profit increase.

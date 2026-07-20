@@ -22,12 +22,19 @@ Use an emulator/device when available.
 
 - App launches without crash.
 - Welcome screen opens.
+- Welcome language selector switches Indonesian/English static labels.
+- Login screen opens from Welcome.
+- Register screen opens from Welcome/Login.
+- Continue local mode works without real authentication.
+- Password fields are not persisted.
 - Category selection works.
 - Business setup form validates required fields.
 - Setup review saves profile.
 - Profile can delete local profile.
 - Profile can load demo data after confirmation.
 - Profile can clear demo data after confirmation.
+- Profile language switch updates visible static labels.
+- Profile shows auth-ready local account placeholder.
 - Profile shows local reminder permission status.
 - Profile shows notification permission explanation and `Enable Notifications` action.
 - Reminder form can create a daily finance reminder.
@@ -53,6 +60,13 @@ Use an emulator/device when available.
 - Bottom navigation routes are reachable.
 - No dead-end screen.
 - Empty states provide clear next action.
+
+## Bilingual/Auth QA Notes
+
+- Default language should be Indonesian on first launch.
+- English selection should persist after app restart.
+- Authentication is not enabled; do not claim login/register creates a real account.
+- Continue local mode should route to Dashboard if a saved profile exists and to setup if no profile exists.
 
 ## Accessibility Pass
 

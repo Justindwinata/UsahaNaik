@@ -4,13 +4,15 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0012 adds permission-safe local reminder notification execution with WorkManager, Android notification permission UX, and in-app fallback. Real PDF export, remote AI integration, cloud sync, external calendar integration, exact alarm scheduling, and production diagnosis refinement remain planned for later contracts.
+UN-0013-R1 adds bilingual app-shell support, local language preference persistence, auth-ready entry screens, a stronger design system, and navigation/UX refinements. Real authentication, backend services, PDF export, remote AI integration, cloud sync, external calendar integration, exact alarm scheduling, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
 The UI layer uses Jetpack Compose screens and reusable design components:
 
 - App theme, color tokens, typography, and reusable card components.
+- Bilingual composition locals expose selected language and static UI copy to Compose.
+- Welcome, Login, Register, Dashboard, Report, and Profile can read shared localization state.
 - Navigation shell with onboarding routes and bottom tabs.
 - Dashboard, weekly plan, content ideas, interactive setup, and settings screens.
 - Compose-drawn lightweight visual components for progress and trend charts.
@@ -37,6 +39,7 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - Dashboard shows a compact local reminder summary.
 - Settings/Profile renders reminder permission status, a user-triggered notification permission request, reminder form, saved reminder list, and enable/pause/delete actions.
 - Settings/Profile exposes Demo Mode controls for loading and clearing local sample data with confirmation dialogs.
+- Settings/Profile exposes language switching and auth-ready account placeholder messaging.
 - Shared UI components include reusable empty, loading, error, and CTA state cards.
 - Settings/Profile can show and delete the saved local business profile.
 - Settings/Profile shows the current local-only AI provider mode and documents future API key safety rules.
@@ -71,6 +74,8 @@ The domain layer contains plain Kotlin models for:
 - `ExportReadyReportRenderer` for markdown-like copy/share-ready report text with safety disclaimers.
 - Business report dashboard summary mapping.
 - Business reminder models, reminder time/schedule helpers, permission state, and summary calculation.
+- Language models and localized app-shell copy.
+- Auth-entry placeholder validation models.
 - Demo data seeding model for local portfolio presentation.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
@@ -129,6 +134,8 @@ The data layer uses local sample and Room-backed repositories:
 - `BusinessReminderDao`
 - `BusinessReminderEntity`
 - `DemoDataSeeder`
+- `SharedPreferencesLanguagePreferenceRepository`
+- `LanguageViewModel`
 - `ReminderNotificationWorker`
 - `AndroidReminderScheduler`
 - `WorkManagerReminderWorkEnqueuer`
