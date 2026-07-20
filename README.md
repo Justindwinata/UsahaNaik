@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0007 adds a real Content Planner with deterministic local content idea generation, saved ideas, status tracking, promotion campaign suggestions, and optional AI provider architecture without hardcoded secrets.
+UN-0008 adds progress continuity features: local content calendar scheduling, weekly progress snapshots, deterministic weekly retrospectives, and dashboard continuity cards.
 
 Implemented UN-0001 screens:
 
@@ -109,6 +109,19 @@ Implemented UN-0007 foundation:
 - Settings/Profile local-only AI provider section documenting planned configuration and key safety rules.
 - Tests cover local generation, fallback behavior, prompt safety, persistence, ViewModel state, and dashboard content mapping.
 
+Implemented UN-0008 foundation:
+
+- Content calendar domain models, status enum, day grouping, and summary calculation.
+- Room `content_calendar_items` table with DAO, migration, repository, and entity/domain mapper.
+- Content Planner scheduling flow for saved ideas with date, optional time label, posting note, platform, status controls, and delete action.
+- Weekly progress snapshot models and deterministic generator for task, milestone, finance, content, and diagnosis continuity metrics.
+- Room `weekly_progress_snapshots` table with replace-current-week repository behavior.
+- Weekly retrospective domain models and deterministic generator for improved items, attention items, completed tasks, missed tasks, content summary, financial summary, and next-week suggestion.
+- Room `weekly_retrospectives` table with save, latest, history, and replace-current-week behavior.
+- Retrospective route and screen accessible from Weekly Plan.
+- Dashboard continuity section with weekly progress, content calendar, latest retrospective, and progress trend cards.
+- Tests cover calendar summary, calendar persistence, calendar ViewModel, snapshot generation, snapshot persistence, retrospective generation, retrospective persistence, and dashboard continuity mapping.
+
 ## Tech Stack
 
 - Kotlin
@@ -151,17 +164,22 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Content ideas are deterministic local suggestions unless a future optional AI provider is configured.
 - Diagnosis is deterministic and heuristic.
 - Weekly plan is deterministic and heuristic.
+- Content calendar is local only.
+- Progress history is deterministic.
+- Weekly retrospective is heuristic and deterministic.
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
 - No hardcoded API keys.
 - Generated content ideas should be reviewed before posting.
-- No authentication, cloud sync, payment, or notification system.
+- No Android notification system yet.
+- No external calendar integration.
+- No authentication, cloud sync, or payment system.
 - No guaranteed profit increase.
 - Not professional accounting software.
 - Not professional financial advice.
 
 ## Roadmap
 
-Next recommended milestone: UN-0008, milestone progress history, content calendar scheduling, and portfolio polish around progress continuity.
+Next recommended milestone: UN-0009, optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
 
 ## Documentation
 

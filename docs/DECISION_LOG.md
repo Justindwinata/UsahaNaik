@@ -173,3 +173,29 @@ Content ideas include safety notes and use review-before-posting copy. The gener
 ### Promotion Campaigns Use Non-Guaranteed Outcomes
 
 Promotion campaign cards include expected-outcome wording without guaranteeing viral reach, sales growth, or profit increase.
+
+## UN-0008 Decisions
+
+### Internal Calendar Before External Calendar
+
+UN-0008 adds an internal local content calendar instead of Android Calendar Provider or Google Calendar integration. This avoids permissions, sync complexity, and unsupported notification claims while still giving UMKM owners a useful content planning workflow.
+
+### Additive Room Migrations
+
+The database moves from version 4 to version 7 through additive tables for content calendar items, weekly progress snapshots, and weekly retrospectives. Existing business profile, finance, weekly plan, and content idea data remain structurally intact.
+
+### One Snapshot And Retrospective Per Week
+
+Saving a progress snapshot or retrospective replaces the existing item for the same week. This keeps the MVP simple and matches the current single-business, single-active-plan product model.
+
+### Deterministic Retrospective Before AI
+
+Weekly retrospectives are generated with local deterministic rules. The app summarizes saved progress and uses cautious wording rather than making AI, consulting, or guaranteed improvement claims.
+
+### Dashboard Continuity Is Compact
+
+The dashboard shows continuity as compact cards for weekly completion, content execution, latest retrospective, and progress trend. Detailed review remains in Weekly Plan, Content Planner, and Retrospective screens.
+
+### Notifications Deferred
+
+UN-0008 does not add Android notifications. Reminder behavior is deferred until the local calendar and retrospective flow are stable.

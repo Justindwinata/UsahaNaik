@@ -48,7 +48,12 @@ The app is not professional financial advice and does not guarantee profit incre
 19. User saves ideas, favorites ideas, marks ideas planned/done, or deletes ideas.
 20. User reviews promotion campaign suggestions.
 21. User sees content planning summary on the dashboard.
-22. User can delete local profile data from Settings/Profile.
+22. User schedules saved content ideas into a local content calendar.
+23. User marks scheduled content planned, posted, skipped, or done.
+24. User generates and saves a weekly progress snapshot.
+25. User generates and saves a deterministic weekly retrospective.
+26. User sees dashboard continuity cards for weekly progress, content execution, retrospective status, and trend history.
+27. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -190,6 +195,34 @@ Content generation safety requirements:
 - Skincare and beauty content must avoid cure or guaranteed result claims.
 - Food and beverage content must avoid health claims unless independently supported.
 
+## Progress Continuity
+
+UN-0008 adds continuity features so users can monitor business execution over time.
+
+Content calendar:
+
+- Saved content ideas can be scheduled locally.
+- Scheduled items include date, optional time label, posting note, platform, and status.
+- Supported statuses are planned, posted, skipped, and done.
+- This is an internal app calendar only. It does not use Android Calendar Provider, external calendar sync, calendar permissions, or notifications.
+
+Weekly progress history:
+
+- The app can generate a weekly progress snapshot from local weekly plan progress, financial summary, content calendar summary, saved ideas count, and diagnosis signals.
+- Snapshots include task completion, milestone progress, income, expenses, estimated profit, margin, content execution counts, business health score, and warning/critical counts.
+- One snapshot per week can be replaced locally.
+
+Weekly retrospective:
+
+- The app can generate a deterministic retrospective from the current snapshot and active weekly plan.
+- Retrospective sections include what improved, what still needs attention, completed tasks, missed tasks, content execution summary, financial summary, and next-week suggestion.
+- Copy uses careful wording such as "may indicate", "suggests", "consider", and "can help".
+- Retrospectives are planning summaries, not professional advice or guaranteed outcomes.
+
+Dashboard continuity:
+
+- Dashboard shows weekly completion, content calendar execution, latest retrospective takeaway, and simple progress trend cards.
+
 ## Limitations
 
 - No authentication.
@@ -197,12 +230,16 @@ Content generation safety requirements:
 - No payment system.
 - Local persistence only.
 - No notification system yet.
+- No Android notification system yet.
+- No external calendar integration.
 - No real AI integration yet.
 - AI provider architecture is present, but remote AI generation is not implemented yet.
 - Content generation remains local deterministic in the app build.
 - Content ideas should be reviewed before posting.
 - Diagnosis is deterministic and heuristic.
 - Weekly plan is deterministic and heuristic.
+- Progress history is deterministic.
+- Weekly retrospective is deterministic and heuristic.
 - No professional financial advice.
 - Not professional accounting software.
 - No guaranteed profit increase.

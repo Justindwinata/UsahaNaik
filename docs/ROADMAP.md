@@ -94,9 +94,19 @@ Completed scope:
 
 Add milestone completion, progress history, content calendar scheduling, streaks, and plan retrospectives.
 
+Completed scope:
+
+- Add local content calendar models, summary helpers, Room persistence, repository, and scheduling UI.
+- Let saved content ideas be scheduled with date, optional time label, posting note, platform, and local status.
+- Support planned, posted, skipped, and done status for scheduled content.
+- Add weekly progress snapshot models, deterministic generator, Room persistence, repository, and dashboard trend mapping.
+- Add weekly retrospective models, deterministic generator, Room persistence, repository, route, and screen.
+- Add dashboard continuity cards for weekly completion, content execution, latest retrospective, and progress trend.
+- Keep notifications, external calendar integration, and cloud sync deferred.
+
 ## UN-0009 - Notifications
 
-Add optional local reminders for sales tracking, weekly reviews, and content planning.
+Add optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
 
 ## UN-0010 - Export And Reports
 

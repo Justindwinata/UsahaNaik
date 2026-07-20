@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.8.0 - UN-0008
+
+- Added local content calendar domain models, status enum, day grouping, and summary calculations.
+- Added Room `content_calendar_items` persistence with DAO, migration, repository, and mapper.
+- Added Content Planner scheduling flow for saved ideas with date, optional time label, posting note, platform, status controls, and delete action.
+- Added weekly progress snapshot domain models and deterministic generator.
+- Added Room `weekly_progress_snapshots` persistence with replace-current-week behavior.
+- Added weekly retrospective domain models and deterministic generator.
+- Added Room `weekly_retrospectives` persistence with save, latest, history, and replace-current-week behavior.
+- Added Retrospective route and screen from Weekly Plan.
+- Added dashboard continuity cards for weekly completion, content calendar execution, latest retrospective, and progress trend.
+- Added tests for calendar models, calendar persistence, calendar ViewModel, snapshot generation/persistence, retrospective generation/persistence, and dashboard continuity mapping.
+
+### Known Limitations
+
+- Content calendar is local only.
+- No Android notifications yet.
+- No external calendar integration.
+- Progress history is deterministic.
+- Retrospective is heuristic.
+- No real AI API integration yet.
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- Not professional financial advice.
+- No guaranteed profit increase.
+
 ## 0.7.0 - UN-0007
 
 - Added content planner domain models for content ideas, platforms, goals, types, statuses, generation sources, promotion campaigns, calendar items, requests, and results.
