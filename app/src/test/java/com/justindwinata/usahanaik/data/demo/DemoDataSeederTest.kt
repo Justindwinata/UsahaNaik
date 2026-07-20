@@ -1,6 +1,7 @@
 package com.justindwinata.usahanaik.data.demo
 
 import com.justindwinata.usahanaik.data.repository.BusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.BusinessReminderRepository
 import com.justindwinata.usahanaik.data.repository.BusinessReportSnapshotRepository
 import com.justindwinata.usahanaik.data.repository.ContentCalendarRepository
 import com.justindwinata.usahanaik.data.repository.ContentIdeaRepository
@@ -10,6 +11,7 @@ import com.justindwinata.usahanaik.data.repository.WeeklyProgressHistoryReposito
 import com.justindwinata.usahanaik.data.repository.WeeklyRetrospectiveRepository
 import com.justindwinata.usahanaik.domain.finance.FinancialCalculator
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
+import com.justindwinata.usahanaik.domain.model.BusinessReminder
 import com.justindwinata.usahanaik.domain.model.BusinessReportSnapshot
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.ContentCalendarSchedule
@@ -22,6 +24,9 @@ import com.justindwinata.usahanaik.domain.model.ContentIdeaStatus
 import com.justindwinata.usahanaik.domain.model.FinancialEntry
 import com.justindwinata.usahanaik.domain.model.FinancialTrackingSummary
 import com.justindwinata.usahanaik.domain.model.MilestoneStatus
+import com.justindwinata.usahanaik.domain.model.ReminderStatus
+import com.justindwinata.usahanaik.domain.model.ReminderSummary
+import com.justindwinata.usahanaik.domain.model.ReminderSummaryCalculator
 import com.justindwinata.usahanaik.domain.model.WeeklyGrowthPlan
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressHistorySummary
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressSnapshot
@@ -50,6 +55,8 @@ class DemoDataSeederTest {
         assertEquals(1, fakes.progressRepository.listSnapshots().size)
         assertEquals(1, fakes.retrospectiveRepository.listRetrospectives().size)
         assertEquals(1, fakes.reportRepository.listSnapshots().size)
+        assertEquals(4, fakes.reminderRepository.listReminders().size)
+        assertEquals(4, result.reminderCount)
     }
 
     @Test
@@ -62,6 +69,7 @@ class DemoDataSeederTest {
         assertEquals(8, fakes.financialRepository.listEntries().size)
         assertEquals(4, fakes.contentIdeaRepository.listIdeas().size)
         assertEquals(4, fakes.calendarRepository.listSchedules().size)
+        assertEquals(4, fakes.reminderRepository.listReminders().size)
         assertEquals(1, fakes.reportRepository.listSnapshots().size)
     }
 
@@ -76,6 +84,7 @@ class DemoDataSeederTest {
         assertEquals(0, fakes.financialRepository.listEntries().size)
         assertEquals(0, fakes.contentIdeaRepository.listIdeas().size)
         assertEquals(0, fakes.calendarRepository.listSchedules().size)
+        assertEquals(0, fakes.reminderRepository.listReminders().size)
     }
 
     private class FakeDemoRepositories {
@@ -87,6 +96,7 @@ class DemoDataSeederTest {
         val progressRepository = FakeWeeklyProgressHistoryRepository()
         val retrospectiveRepository = FakeWeeklyRetrospectiveRepository()
         val reportRepository = FakeBusinessReportSnapshotRepository()
+        val reminderRepository = FakeBusinessReminderRepository()
 
         val seeder = DemoDataSeeder(
             businessProfileRepository = profileRepository,
@@ -96,7 +106,8 @@ class DemoDataSeederTest {
             contentCalendarRepository = calendarRepository,
             progressHistoryRepository = progressRepository,
             retrospectiveRepository = retrospectiveRepository,
-            reportSnapshotRepository = reportRepository
+            reportSnapshotRepository = reportRepository,
+            reminderRepository = reminderRepository
         )
     }
 
@@ -244,6 +255,53 @@ class DemoDataSeederTest {
         }
         override suspend fun clearSnapshots() {
             snapshots.value = emptyList()
+        }
+    }
+
+    private class FakeBusinessReminderRepository : BusinessReminderRepository {
+        private val reminders = MutableStateFlow<List<BusinessReminder>>(emptyList())
+        private var nextId = 1L
+
+        override suspend fun createReminder(reminder: BusinessReminder): BusinessReminder {
+            val saved = reminder.copy(id = nextId++)
+            reminders.value = reminders.value + saved
+            return saved
+        }
+
+        override suspend fun updateReminder(reminder: BusinessReminder): BusinessReminder {
+            reminders.value = reminders.value.map { if (it.id == reminder.id) reminder else it }
+            return reminder
+        }
+
+        override suspend fun getReminder(id: Long): BusinessReminder? = reminders.value.firstOrNull { it.id == id }
+
+        override suspend fun listReminders(): List<BusinessReminder> = reminders.value
+
+        override suspend fun listActiveReminders(): List<BusinessReminder> {
+            return reminders.value.filter { it.status == ReminderStatus.Active }
+        }
+
+        override fun observeReminders(): Flow<List<BusinessReminder>> = reminders
+
+        override suspend fun updateStatus(id: Long, status: ReminderStatus): BusinessReminder? {
+            reminders.value = reminders.value.map { if (it.id == id) it.copy(status = status) else it }
+            return getReminder(id)
+        }
+
+        override suspend fun pauseReminder(id: Long): BusinessReminder? = updateStatus(id, ReminderStatus.Paused)
+
+        override suspend fun enableReminder(id: Long): BusinessReminder? = updateStatus(id, ReminderStatus.Active)
+
+        override suspend fun deleteReminder(id: Long) {
+            reminders.value = reminders.value.filterNot { it.id == id }
+        }
+
+        override suspend fun clearReminders() {
+            reminders.value = emptyList()
+        }
+
+        override suspend fun getReminderSummary(): ReminderSummary {
+            return ReminderSummaryCalculator.summarize(reminders.value)
         }
     }
 }

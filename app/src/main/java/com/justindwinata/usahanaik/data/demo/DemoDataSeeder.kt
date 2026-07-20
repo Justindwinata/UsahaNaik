@@ -1,6 +1,7 @@
 package com.justindwinata.usahanaik.data.demo
 
 import com.justindwinata.usahanaik.data.repository.BusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.BusinessReminderRepository
 import com.justindwinata.usahanaik.data.repository.BusinessReportSnapshotRepository
 import com.justindwinata.usahanaik.data.repository.ContentCalendarRepository
 import com.justindwinata.usahanaik.data.repository.ContentIdeaRepository
@@ -13,6 +14,7 @@ import com.justindwinata.usahanaik.domain.model.ActionEstimatedTime
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
 import com.justindwinata.usahanaik.domain.model.BusinessMilestone
+import com.justindwinata.usahanaik.domain.model.BusinessReminder
 import com.justindwinata.usahanaik.domain.model.BusinessReportPeriod
 import com.justindwinata.usahanaik.domain.model.BusinessReportSnapshot
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
@@ -35,6 +37,9 @@ import com.justindwinata.usahanaik.domain.model.MonthlyFocus
 import com.justindwinata.usahanaik.domain.model.NextWeekSuggestion
 import com.justindwinata.usahanaik.domain.model.RetrospectiveInsight
 import com.justindwinata.usahanaik.domain.model.RetrospectiveSection
+import com.justindwinata.usahanaik.domain.model.ReminderFrequency
+import com.justindwinata.usahanaik.domain.model.ReminderStatus
+import com.justindwinata.usahanaik.domain.model.ReminderType
 import com.justindwinata.usahanaik.domain.model.SellingChannel
 import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.model.WeeklyChallenge
@@ -51,6 +56,7 @@ data class DemoDataResult(
     val weeklyTaskCount: Int,
     val contentIdeaCount: Int,
     val scheduledContentCount: Int,
+    val reminderCount: Int,
     val reportSnapshotCount: Int
 )
 
@@ -62,7 +68,8 @@ class DemoDataSeeder(
     private val contentCalendarRepository: ContentCalendarRepository,
     private val progressHistoryRepository: WeeklyProgressHistoryRepository,
     private val retrospectiveRepository: WeeklyRetrospectiveRepository,
-    private val reportSnapshotRepository: BusinessReportSnapshotRepository
+    private val reportSnapshotRepository: BusinessReportSnapshotRepository,
+    private val reminderRepository: BusinessReminderRepository
 ) {
     suspend fun loadDemoData(): DemoDataResult {
         clearDemoData()
@@ -74,6 +81,7 @@ class DemoDataSeeder(
         progressHistoryRepository.saveSnapshot(demoProgressSnapshot)
         retrospectiveRepository.saveRetrospective(demoRetrospective)
         reportSnapshotRepository.saveSnapshot(demoReportSnapshot)
+        demoReminders.forEach { reminderRepository.createReminder(it) }
 
         return DemoDataResult(
             profileLoaded = true,
@@ -81,6 +89,7 @@ class DemoDataSeeder(
             weeklyTaskCount = plan.tasks.size,
             contentIdeaCount = savedIdeas.size,
             scheduledContentCount = savedIdeas.size.coerceAtMost(4),
+            reminderCount = demoReminders.size,
             reportSnapshotCount = 1
         )
     }
@@ -93,6 +102,7 @@ class DemoDataSeeder(
         progressHistoryRepository.clearSnapshots()
         retrospectiveRepository.clearRetrospectives()
         reportSnapshotRepository.clearSnapshots()
+        reminderRepository.clearReminders()
         businessProfileRepository.deleteBusinessProfile()
     }
 
@@ -227,6 +237,45 @@ class DemoDataSeeder(
             estimatedProfit = 5_950_000,
             taskCompletionRate = 0.6f,
             contentExecutionRate = 0.25f
+        )
+
+        val demoReminders = listOf(
+            BusinessReminder(
+                title = "Demo - record today\u2019s sales",
+                description = "Catat pemasukan dan pengeluaran Dapur Rasa Nusantara setelah tutup toko.",
+                type = ReminderType.DailyFinancialTracking,
+                frequency = ReminderFrequency.Daily,
+                timeLabel = "20:00",
+                status = ReminderStatus.Active
+            ),
+            BusinessReminder(
+                title = "Demo - review weekly plan",
+                description = "Buka weekly plan dan pilih satu task prioritas untuk minggu ini.",
+                type = ReminderType.WeeklyPlanTask,
+                frequency = ReminderFrequency.Weekly,
+                scheduledDay = "Monday",
+                timeLabel = "09:00",
+                status = ReminderStatus.Active
+            ),
+            BusinessReminder(
+                title = "Demo - prepare scheduled content",
+                description = "Review caption dan visual konten sebelum posting.",
+                type = ReminderType.ContentSchedule,
+                frequency = ReminderFrequency.Once,
+                scheduledDate = "2026-07-21",
+                timeLabel = "12:00",
+                relatedEntityId = 1L,
+                status = ReminderStatus.Active
+            ),
+            BusinessReminder(
+                title = "Demo - weekly retrospective",
+                description = "Evaluasi progress, konten, dan ringkasan keuangan lokal minggu ini.",
+                type = ReminderType.WeeklyRetrospective,
+                frequency = ReminderFrequency.Weekly,
+                scheduledDay = "Sunday",
+                timeLabel = "18:00",
+                status = ReminderStatus.Active
+            )
         )
 
         private fun demoIdea(

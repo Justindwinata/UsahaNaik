@@ -2968,7 +2968,7 @@ fun SettingsScreen(
             isLoading = demoState.isLoadingDemoData,
             isClearing = demoState.isClearingDemoData,
             lastResult = demoState.lastResult?.let {
-                "${it.financialEntryCount} finance entries, ${it.weeklyTaskCount} weekly tasks, ${it.contentIdeaCount} content ideas, ${it.scheduledContentCount} schedules"
+                "${it.financialEntryCount} finance entries, ${it.weeklyTaskCount} weekly tasks, ${it.contentIdeaCount} content ideas, ${it.scheduledContentCount} schedules, ${it.reminderCount} reminders"
             },
             onRequestLoad = { showLoadDemoConfirmation = true },
             onRequestClear = { showClearDemoConfirmation = true }
