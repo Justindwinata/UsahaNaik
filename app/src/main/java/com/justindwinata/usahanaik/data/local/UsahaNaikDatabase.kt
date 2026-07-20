@@ -15,9 +15,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         WeeklyTaskEntity::class,
         WeeklyMilestoneEntity::class,
         ContentIdeaEntity::class,
-        ContentCalendarEntity::class
+        ContentCalendarEntity::class,
+        WeeklyProgressSnapshotEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
@@ -26,6 +27,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun weeklyPlanDao(): WeeklyPlanDao
     abstract fun contentIdeaDao(): ContentIdeaDao
     abstract fun contentCalendarDao(): ContentCalendarDao
+    abstract fun weeklyProgressSnapshotDao(): WeeklyProgressSnapshotDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -163,6 +165,37 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS weekly_progress_snapshots (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        weekLabel TEXT NOT NULL,
+                        weekStartDate TEXT NOT NULL,
+                        totalTasks INTEGER NOT NULL,
+                        completedTasks INTEGER NOT NULL,
+                        taskCompletionRate REAL NOT NULL,
+                        milestoneProgress REAL NOT NULL,
+                        weeklyIncome INTEGER NOT NULL,
+                        weeklyExpenses INTEGER NOT NULL,
+                        weeklyEstimatedProfit INTEGER NOT NULL,
+                        profitMarginPercent INTEGER NOT NULL,
+                        savedIdeasCount INTEGER NOT NULL,
+                        plannedContentCount INTEGER NOT NULL,
+                        postedOrDoneContentCount INTEGER NOT NULL,
+                        skippedContentCount INTEGER NOT NULL,
+                        businessHealthScore INTEGER NOT NULL,
+                        warningInsightCount INTEGER NOT NULL,
+                        criticalInsightCount INTEGER NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -173,7 +206,13 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                     UsahaNaikDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                        MIGRATION_3_4,
+                        MIGRATION_4_5,
+                        MIGRATION_5_6
+                    )
                     .build()
                     .also { instance = it }
             }
