@@ -1,6 +1,7 @@
 package com.justindwinata.usahanaik.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Assessment
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.Person
@@ -31,6 +32,7 @@ val bottomTabs = listOf(
     BottomTab(AppRoute.Dashboard, "Dashboard", Icons.Rounded.Dashboard),
     BottomTab(AppRoute.WeeklyPlan, "Plan", Icons.Rounded.TaskAlt),
     BottomTab(AppRoute.ContentIdeas, "Ideas", Icons.Rounded.AutoAwesome),
+    BottomTab(AppRoute.BusinessReport, "Report", Icons.Rounded.Assessment),
     BottomTab(AppRoute.Settings, "Profile", Icons.Rounded.Person)
 )
 

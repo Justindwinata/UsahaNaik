@@ -289,7 +289,7 @@ fun UsahaNaikApp() {
                             onLoginClick = { navController.navigate(AppRoute.Login.route) },
                             onRegisterClick = { navController.navigate(AppRoute.Register.route) },
                             onContinueLocalModeClick = {
-                                navController.navigate(localModeDestination(setupState.savedProfile))
+                                navController.navigateToLocalMode(setupState.savedProfile)
                             },
                             onStartClick = { navController.navigate(AppRoute.CategorySelection.route) },
                             onResumeSavedProfileClick = { navController.navigate(AppRoute.Dashboard.route) },
@@ -301,7 +301,7 @@ fun UsahaNaikApp() {
                             selectedLanguage = languageState.selectedLanguage,
                             onLanguageSelected = languageViewModel::selectLanguage,
                             onContinueLocalMode = {
-                                navController.navigate(localModeDestination(setupState.savedProfile))
+                                navController.navigateToLocalMode(setupState.savedProfile)
                             },
                             onRegisterClick = { navController.navigate(AppRoute.Register.route) }
                         )
@@ -311,7 +311,7 @@ fun UsahaNaikApp() {
                             selectedLanguage = languageState.selectedLanguage,
                             onLanguageSelected = languageViewModel::selectLanguage,
                             onContinueLocalMode = {
-                                navController.navigate(localModeDestination(setupState.savedProfile))
+                                navController.navigateToLocalMode(setupState.savedProfile)
                             },
                             onLoginClick = { navController.navigate(AppRoute.Login.route) }
                         )
@@ -434,5 +434,16 @@ private fun localModeDestination(savedProfile: com.justindwinata.usahanaik.domai
         AppRoute.Dashboard.route
     } else {
         AppRoute.CategorySelection.route
+    }
+}
+
+private fun androidx.navigation.NavHostController.navigateToLocalMode(
+    savedProfile: com.justindwinata.usahanaik.domain.model.BusinessProfile?
+) {
+    navigate(localModeDestination(savedProfile)) {
+        popUpTo(AppRoute.Welcome.route) {
+            inclusive = false
+        }
+        launchSingleTop = true
     }
 }
