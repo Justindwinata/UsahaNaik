@@ -3074,11 +3074,14 @@ private fun calendarStatusContainerColor(status: ContentCalendarStatus) = when (
 fun SettingsScreen(
     viewModel: BusinessSetupViewModel,
     demoDataViewModel: DemoDataViewModel,
-    reminderViewModel: ReminderViewModel
+    reminderViewModel: ReminderViewModel,
+    selectedLanguage: AppLanguage,
+    onLanguageSelected: (AppLanguage) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val demoState by demoDataViewModel.uiState.collectAsState()
     val reminderState by reminderViewModel.uiState.collectAsState()
+    val strings = LocalAppStrings.current
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showLoadDemoConfirmation by remember { mutableStateOf(false) }
     var showClearDemoConfirmation by remember { mutableStateOf(false) }
@@ -3095,12 +3098,42 @@ fun SettingsScreen(
     }
 
     ScreenContainer {
-        SectionHeader(title = "Profile")
-        Text(
-            text = "Your business profile is saved locally on this device. UsahaNaik does not sync this data to cloud in this version.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+        ScreenHeroHeader(
+            title = strings.profile,
+            subtitle = "Manage language, local business data, demo mode, reminders, and auth-ready account settings.",
+            badge = strings.localFirstNote
         )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(containerColor = BlueSoft) {
+            ProfessionalSectionHeader(
+                title = strings.language,
+                subtitle = "Switch static UI copy between Indonesian and English."
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            LanguageSelector(
+                selectedLanguage = selectedLanguage,
+                onLanguageSelected = onLanguageSelected
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(containerColor = GreenSoft) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
+                PillBadge(text = "Auth-ready", containerColor = CreamBackground, contentColor = GreenPositive)
+                StatusBadge(text = "Local mode", tone = StatusTone.Positive)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Account placeholder", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = strings.authDemoNote,
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+            Text(
+                text = "No password is saved. No backend, cloud sync, or real authentication is enabled yet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted
+            )
+        }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         AiProviderSettingsSection()
         Spacer(modifier = Modifier.height(AppSpacing.md))

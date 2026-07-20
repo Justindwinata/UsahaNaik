@@ -399,7 +399,9 @@ fun UsahaNaikApp() {
                         SettingsScreen(
                             viewModel = setupViewModel,
                             demoDataViewModel = demoDataViewModel,
-                            reminderViewModel = reminderViewModel
+                            reminderViewModel = reminderViewModel,
+                            selectedLanguage = languageState.selectedLanguage,
+                            onLanguageSelected = languageViewModel::selectLanguage
                         )
                     }
                 }
