@@ -104,14 +104,28 @@ Completed scope:
 - Add dashboard continuity cards for weekly completion, content execution, latest retrospective, and progress trend.
 - Keep notifications, external calendar integration, and cloud sync deferred.
 
-## UN-0009 - Notifications
+## UN-0009 - Business Report Dashboard
+
+Add local business report dashboard and export-ready text summaries from profile, finance, diagnosis, weekly plan, content planner, calendar, progress history, and retrospective data.
+
+Completed scope:
+
+- Add business report domain models for periods, KPIs, chart-ready data, report sections, export-ready text, and snapshots.
+- Generate deterministic reports from local repositories.
+- Support this week, this month, last 30 days, and all local data periods.
+- Render KPI cards, simple Compose visual summaries, financial, diagnosis, weekly execution, content performance, retrospective, and export-ready text sections.
+- Persist report snapshots locally with Room version 8.
+- Add dashboard Business Report summary card and CTA.
+- Keep PDF export, cloud sync, and official accounting/tax claims deferred.
+
+## UN-0010 - Notifications
 
 Add optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
 
-## UN-0010 - Export And Reports
+## UN-0011 - Export And Reports
 
-Add local financial and progress report export for owner review.
+Add PDF export or platform share flows for owner review after the report dashboard is stable.
 
-## UN-0011 - Portfolio Polish
+## UN-0012 - Portfolio Polish
 
 Improve animations, accessibility, UI tests, screenshots, README assets, and release-readiness documentation.

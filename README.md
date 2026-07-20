@@ -14,7 +14,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0008 adds progress continuity features: local content calendar scheduling, weekly progress snapshots, deterministic weekly retrospectives, and dashboard continuity cards.
+UN-0009 adds a Business Report dashboard that combines local profile, finance, diagnosis, weekly plan, content planner, content calendar, progress history, and retrospective data into KPI cards, simple visual summaries, export-ready text, local report snapshots, and a dashboard report CTA.
 
 Implemented UN-0001 screens:
 
@@ -122,6 +122,17 @@ Implemented UN-0008 foundation:
 - Dashboard continuity section with weekly progress, content calendar, latest retrospective, and progress trend cards.
 - Tests cover calendar summary, calendar persistence, calendar ViewModel, snapshot generation, snapshot persistence, retrospective generation, retrospective persistence, and dashboard continuity mapping.
 
+Implemented UN-0009 foundation:
+
+- Business report domain models for periods, KPIs, financial summary, chart data, content performance, weekly execution, diagnosis summary, retrospective summary, insights, export-ready report text, and report snapshots.
+- Deterministic `BusinessReportGenerator` that aggregates local business profile, financial entries, diagnosis, weekly plan, content ideas, content calendar schedules, progress snapshots, and latest retrospective.
+- Export-ready markdown-like text report with financial, business health, weekly execution, content activity, retrospective, recommendation, and disclaimer sections.
+- Room `business_report_snapshots` table with DAO, migration to database version 8, repository, mapper, and tests.
+- `BusinessReportViewModel` for period selection, report generation, export text exposure, snapshot saving, and saved snapshot history.
+- Business Report route and Compose screen with period selector, KPI cards, simple bar-style visual summaries, report sections, export-ready text preview, and save snapshot action.
+- Dashboard Business Report card with estimated profit, health score, task completion, content execution, and CTA.
+- Tests cover report models, generator period filtering, export renderer safety, snapshot persistence, ViewModel state, and dashboard summary mapping.
+
 ## Tech Stack
 
 - Kotlin
@@ -167,6 +178,10 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Content calendar is local only.
 - Progress history is deterministic.
 - Weekly retrospective is heuristic and deterministic.
+- Business reports are generated from local app data only.
+- Business report snapshots are saved locally.
+- Charts are simple Compose visual summaries.
+- No PDF export yet.
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
 - No hardcoded API keys.
 - Generated content ideas should be reviewed before posting.
@@ -179,7 +194,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0009, optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
+Next recommended milestone: UN-0010, optional local reminders for sales tracking, weekly reviews, content planning, retrospective follow-up, and report review.
 
 ## Documentation
 

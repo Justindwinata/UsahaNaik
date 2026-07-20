@@ -96,6 +96,8 @@ import com.justindwinata.usahanaik.domain.model.WeeklyTaskStatus
 import com.justindwinata.usahanaik.domain.setup.BusinessCategorySetupHints
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupCalculator
 import com.justindwinata.usahanaik.domain.setup.BusinessSetupField
+import com.justindwinata.usahanaik.domain.report.BusinessReportDashboardMapper
+import com.justindwinata.usahanaik.domain.report.BusinessReportDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummary
 import com.justindwinata.usahanaik.domain.weekly.WeeklyPlanDashboardSummaryMapper
 import com.justindwinata.usahanaik.ui.components.MetricCard
@@ -831,9 +833,11 @@ fun DashboardScreen(
     contentPlannerViewModel: ContentPlannerViewModel,
     contentCalendarViewModel: ContentCalendarViewModel,
     weeklyRetrospectiveViewModel: WeeklyRetrospectiveViewModel,
+    businessReportViewModel: BusinessReportViewModel,
     onOpenWeeklyPlan: () -> Unit,
     onOpenContentPlanner: () -> Unit,
-    onOpenRetrospective: () -> Unit
+    onOpenRetrospective: () -> Unit,
+    onOpenBusinessReport: () -> Unit
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
@@ -842,6 +846,7 @@ fun DashboardScreen(
     val contentPlannerState by contentPlannerViewModel.uiState.collectAsState()
     val contentCalendarState by contentCalendarViewModel.uiState.collectAsState()
     val retrospectiveState by weeklyRetrospectiveViewModel.uiState.collectAsState()
+    val reportState by businessReportViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
@@ -871,6 +876,9 @@ fun DashboardScreen(
             progressHistorySummary = retrospectiveState.progressHistorySummary
         )
     }
+    val reportSummary = remember(reportState.report) {
+        BusinessReportDashboardMapper.from(reportState.report)
+    }
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
         financialEntryViewModel.refresh(
@@ -885,6 +893,7 @@ fun DashboardScreen(
         financialState.summary.estimatedProfit
     ) {
         dashboardInsightsViewModel.refresh()
+        businessReportViewModel.refresh()
     }
 
     ScreenContainer {
@@ -918,6 +927,11 @@ fun DashboardScreen(
             onOpenWeeklyPlan = onOpenWeeklyPlan,
             onOpenContentPlanner = onOpenContentPlanner,
             onOpenRetrospective = onOpenRetrospective
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        BusinessReportDashboardSection(
+            summary = reportSummary,
+            onOpenBusinessReport = onOpenBusinessReport
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
@@ -1468,6 +1482,63 @@ private fun DashboardContinuitySection(
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
             }
+        }
+    }
+}
+
+@Composable
+private fun BusinessReportDashboardSection(
+    summary: BusinessReportDashboardSummary,
+    onOpenBusinessReport: () -> Unit
+) {
+    SectionHeader(title = "Business Report", actionLabel = if (summary.hasReport) summary.periodLabel else "New")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (summary.hasReport) LavenderSoft else YellowSoft
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Profit",
+                value = summary.estimatedProfit,
+                helper = "Estimated",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+            MetricCard(
+                title = "Health",
+                value = summary.healthScore,
+                helper = "Score",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Tasks",
+                value = summary.taskCompletion,
+                helper = "Complete",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+            MetricCard(
+                title = "Content",
+                value = summary.contentExecution,
+                helper = "Execution",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = summary.helper, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenBusinessReport, modifier = Modifier.fillMaxWidth()) {
+            Text("Open Business Report")
         }
     }
 }

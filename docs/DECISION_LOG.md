@@ -199,3 +199,25 @@ The dashboard shows continuity as compact cards for weekly completion, content e
 ### Notifications Deferred
 
 UN-0008 does not add Android notifications. Reminder behavior is deferred until the local calendar and retrospective flow are stable.
+
+## UN-0009 Decisions
+
+### Report Dashboard Before PDF Export
+
+UN-0009 adds an in-app Business Report dashboard and export-ready text first. PDF export is deferred so the aggregation model, report copy, and UI can stabilize before adding file generation and sharing complexity.
+
+### Deterministic Local Aggregation
+
+Business reports are generated from local repositories using deterministic Kotlin logic. The report combines profile, finance, diagnosis, weekly plan, content ideas, content calendar, progress history, and retrospective data without remote AI calls.
+
+### Simple Compose Visuals
+
+The report uses KPI cards and lightweight Compose progress/bar summaries instead of a heavy chart library. This keeps the app small, readable, and consistent with the existing dashboard style.
+
+### Report Snapshots Are Local History
+
+Generated report snapshots are saved in Room version 8 as local history. The snapshot stores export-ready text and headline metrics, but it is not an official accounting, tax, or audited financial document.
+
+### Safe Report Copy
+
+Export-ready report text includes a disclaimer and avoids guaranteed profit, tax accuracy, accounting accuracy, and professional financial advice claims.

@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0008 adds local content calendar scheduling, weekly progress history snapshots, deterministic weekly retrospectives, and dashboard continuity cards. Real remote AI integration, cloud sync, external calendar integration, notifications, and production diagnosis refinement remain planned for later contracts.
+UN-0009 adds a Business Report dashboard, deterministic report aggregation, export-ready text summaries, local report snapshots, and a dashboard report summary card. Real PDF export, remote AI integration, cloud sync, external calendar integration, notifications, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -30,6 +30,9 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - Content Planner UI includes a local content calendar section with planned, posted, skipped, and done status controls.
 - Weekly Retrospective UI renders current snapshot, retrospective sections, next-week suggestion, saved history, and progress trend.
 - Dashboard shows continuity cards for weekly completion, content execution, latest retrospective, and trend history.
+- `BusinessReportViewModel` loads local repositories, generates period-based reports, exposes export-ready text, and saves local report snapshots.
+- Business Report UI renders KPI cards, simple visual summaries, finance, growth, diagnosis, content, retrospective, export-ready text, and snapshot history sections.
+- Dashboard shows a compact Business Report card and CTA.
 - Settings/Profile can show and delete the saved local business profile.
 - Settings/Profile shows the current local-only AI provider mode and documents future API key safety rules.
 
@@ -58,6 +61,10 @@ The domain layer contains plain Kotlin models for:
 - `WeeklyProgressSnapshotGenerator` for deterministic continuity snapshots.
 - Weekly retrospective models and `WeeklyRetrospectiveGenerator`.
 - Dashboard continuity summary mapping.
+- Business report models for report periods, KPIs, report chart data, financial summaries, weekly execution, content performance, diagnosis summary, retrospective summary, report insights, export-ready report text, and snapshots.
+- `BusinessReportGenerator` for deterministic period-based aggregation across local app data.
+- `ExportReadyReportRenderer` for markdown-like copy/share-ready report text with safety disclaimers.
+- Business report dashboard summary mapping.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
 - Milestones, tasks, product performance, and recommendations.
@@ -106,8 +113,12 @@ The data layer uses local sample and Room-backed repositories:
 - `LocalWeeklyRetrospectiveRepository`
 - `WeeklyRetrospectiveDao`
 - `WeeklyRetrospectiveEntity`
+- `BusinessReportSnapshotRepository`
+- `LocalBusinessReportSnapshotRepository`
+- `BusinessReportSnapshotDao`
+- `BusinessReportSnapshotEntity`
 
-Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, and weekly retrospectives in `weekly_retrospectives`. Multi-business support is deferred.
+Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, weekly retrospectives in `weekly_retrospectives`, and saved report snapshots in `business_report_snapshots`. Multi-business support is deferred.
 
 UN-0003 saves completed setup data locally and reloads it on app startup. UN-0004 saves income and expense entries locally and maps monthly entry summaries into dashboard cards and trend visuals.
 
@@ -118,6 +129,8 @@ UN-0006 updates Room to version 3 with additive weekly plan tables. Replacing/re
 UN-0007 updates Room to version 4 with an additive `content_ideas` table. Generated content ideas can be saved, filtered, favorited, marked planned, marked done, deleted, or cleared locally.
 
 UN-0008 updates Room to version 7 through additive migrations. Version 5 adds `content_calendar_items`, version 6 adds `weekly_progress_snapshots`, and version 7 adds `weekly_retrospectives`.
+
+UN-0009 updates Room to version 8 with an additive `business_report_snapshots` table. Report snapshots store period, business name, generated date, headline summary, export-ready text, health score, revenue, expenses, estimated profit, task completion rate, content execution rate, and metadata timestamps.
 
 Planned data direction:
 
@@ -131,6 +144,7 @@ Planned data direction:
 - Content calendar status is persisted locally.
 - Weekly progress snapshots are persisted locally and can replace an existing snapshot for the same week.
 - Weekly retrospectives are persisted locally and can replace an existing retrospective for the same week.
+- Report snapshots are persisted locally as export-ready report history.
 - Sample repositories remain useful for previews and tests.
 
 ## AI Integration Planned
@@ -176,5 +190,7 @@ Current local-first behavior:
 - Saved content ideas can be scheduled in an internal local content calendar.
 - Weekly progress snapshots and retrospectives can be generated and saved locally.
 - Dashboard can show continuity cards from weekly plan, calendar, retrospective, and snapshot history state.
+- Business reports can be generated from local data, previewed in the app, and saved as local snapshots.
+- Dashboard can show a compact Business Report summary.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.

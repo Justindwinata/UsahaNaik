@@ -53,7 +53,12 @@ The app is not professional financial advice and does not guarantee profit incre
 24. User generates and saves a weekly progress snapshot.
 25. User generates and saves a deterministic weekly retrospective.
 26. User sees dashboard continuity cards for weekly progress, content execution, retrospective status, and trend history.
-27. User can delete local profile data from Settings/Profile.
+27. User opens Business Report.
+28. User selects a report period.
+29. User reviews KPI cards, simple visual summaries, financial summary, diagnosis summary, weekly execution, content performance, and retrospective highlights.
+30. User reviews export-ready report text and can save a local report snapshot.
+31. User sees a compact Business Report card on the dashboard.
+32. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -218,6 +223,29 @@ Weekly retrospective:
 - Retrospective sections include what improved, what still needs attention, completed tasks, missed tasks, content execution summary, financial summary, and next-week suggestion.
 - Copy uses careful wording such as "may indicate", "suggests", "consider", and "can help".
 - Retrospectives are planning summaries, not professional advice or guaranteed outcomes.
+
+## Business Report Dashboard
+
+UN-0009 adds a Business Report dashboard that combines existing local app data into an owner-friendly report view.
+
+Supported report periods:
+
+- This week.
+- This month.
+- Last 30 days.
+- All local data.
+
+Report sections include:
+
+- KPI overview for revenue, expenses, estimated profit, profit margin, business health, task completion, milestone progress, and content execution.
+- Financial summary with revenue versus expense visual bars, expense breakdown, largest expense category, and limited-data guidance.
+- Growth progress summary from the active weekly plan.
+- Diagnosis summary with health score, warnings, critical count, top insights, and priority actions.
+- Content performance summary from saved ideas and scheduled content status.
+- Retrospective highlights from the latest saved weekly retrospective.
+- Export-ready text report preview.
+
+Generated reports are local planning summaries. They are not official accounting reports, tax documents, audited statements, or professional financial advice. UN-0009 does not implement PDF export.
 
 Dashboard continuity:
 

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.9.0 - UN-0009
+
+- Added business report domain models for report periods, KPI cards, chart data, financial summaries, weekly execution, content performance, diagnosis summaries, retrospective highlights, export-ready text, and report snapshots.
+- Added deterministic `BusinessReportGenerator` that aggregates local profile, finance, diagnosis, weekly plan, content planner, content calendar, progress history, and retrospective data.
+- Added export-ready markdown-like report renderer with safe disclaimer text and no guaranteed outcome claims.
+- Added Room `business_report_snapshots` persistence with DAO, migration to database version 8, repository, mapper, and tests.
+- Added `BusinessReportViewModel` for period selection, report refresh, chart-ready state, export-ready text, snapshot save, and saved snapshot history.
+- Added Business Report route and Compose report dashboard with KPI grid, simple visual charts, financial summary, growth progress, diagnosis, content performance, retrospective, and export-ready summary sections.
+- Added dashboard Business Report card with estimated profit, health score, task completion, content execution, and CTA.
+- Added tests for report models, generator behavior, export renderer safety, snapshot persistence, ViewModel state, and dashboard summary mapping.
+
+### Known Limitations
+
+- Report is generated from local app data only.
+- Report is not an official accounting or tax document.
+- No PDF export yet.
+- Charts are simple Compose visual summaries.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- No guaranteed profit increase.
+- Not professional financial advice.
+
 ## 0.8.0 - UN-0008
 
 - Added local content calendar domain models, status enum, day grouping, and summary calculations.
