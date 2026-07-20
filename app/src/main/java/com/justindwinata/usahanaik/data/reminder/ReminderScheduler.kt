@@ -12,10 +12,12 @@ data class ReminderScheduleResult(
     val message: String
 ) {
     val isSuccess: Boolean = status == ReminderScheduleStatus.ScheduledInApp ||
+        status == ReminderScheduleStatus.ScheduledSystem ||
         status == ReminderScheduleStatus.Cancelled
 }
 
 enum class ReminderScheduleStatus {
+    ScheduledSystem,
     ScheduledInApp,
     Cancelled,
     SkippedDisabled,

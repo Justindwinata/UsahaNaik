@@ -4,11 +4,14 @@ import com.justindwinata.usahanaik.domain.model.BusinessReminder
 import com.justindwinata.usahanaik.domain.model.ReminderPermissionState
 
 class AndroidReminderScheduler(
-    private val notificationManager: ReminderNotificationManager,
-    private val permissionHelper: ReminderPermissionHelper
+    private val notificationManager: ReminderChannelManager,
+    private val permissionHelper: ReminderPermissionHelper,
+    private val workEnqueuer: ReminderWorkEnqueuer,
+    private val schedulePlanner: ReminderSchedulePlanner = ReminderSchedulePlanner()
 ) : ReminderScheduler {
     override suspend fun schedule(reminder: BusinessReminder): ReminderScheduleResult {
         if (!reminder.isActive) {
+            workEnqueuer.cancel(ReminderNotificationWorkData.uniqueWorkName(reminder.id))
             return ReminderScheduleResult(
                 status = ReminderScheduleStatus.SkippedDisabled,
                 message = "Reminder is not active, so no notification was scheduled."
@@ -18,10 +21,13 @@ class AndroidReminderScheduler(
         notificationManager.ensureReminderChannel()
         return when (permissionHelper.currentState()) {
             ReminderPermissionState.Granted,
-            ReminderPermissionState.NotRequired -> ReminderScheduleResult(
-                status = ReminderScheduleStatus.ScheduledInApp,
-                message = "Reminder saved locally. System scheduling is prepared for a future milestone."
-            )
+            ReminderPermissionState.NotRequired -> {
+                workEnqueuer.enqueue(schedulePlanner.plan(reminder))
+                ReminderScheduleResult(
+                    status = ReminderScheduleStatus.ScheduledSystem,
+                    message = "Approximate local notification scheduled."
+                )
+            }
             ReminderPermissionState.Denied,
             ReminderPermissionState.Unknown -> ReminderScheduleResult(
                 status = ReminderScheduleStatus.PermissionDenied,
@@ -31,9 +37,10 @@ class AndroidReminderScheduler(
     }
 
     override suspend fun cancel(reminderId: Long): ReminderScheduleResult {
+        workEnqueuer.cancel(ReminderNotificationWorkData.uniqueWorkName(reminderId))
         return ReminderScheduleResult(
             status = ReminderScheduleStatus.Cancelled,
-            message = "Reminder notification request cancelled locally."
+            message = "Scheduled notification work cancelled locally."
         )
     }
 }

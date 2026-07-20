@@ -5,10 +5,14 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 
+interface ReminderChannelManager {
+    fun ensureReminderChannel()
+}
+
 class ReminderNotificationManager(
     private val context: Context
-) {
-    fun ensureReminderChannel() {
+) : ReminderChannelManager {
+    override fun ensureReminderChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         val channel = NotificationChannel(

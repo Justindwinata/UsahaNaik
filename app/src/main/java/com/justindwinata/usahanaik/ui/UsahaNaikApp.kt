@@ -27,6 +27,7 @@ import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.reminder.AndroidReminderPermissionHelper
 import com.justindwinata.usahanaik.data.reminder.AndroidReminderScheduler
 import com.justindwinata.usahanaik.data.reminder.ReminderNotificationManager
+import com.justindwinata.usahanaik.data.reminder.WorkManagerReminderWorkEnqueuer
 import com.justindwinata.usahanaik.data.repository.LocalBusinessReminderRepository
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
 import com.justindwinata.usahanaik.data.repository.LocalBusinessReportSnapshotRepository
@@ -114,7 +115,8 @@ fun UsahaNaikApp() {
         val reminderScheduler = remember(context, reminderPermissionHelper) {
             AndroidReminderScheduler(
                 notificationManager = ReminderNotificationManager(context),
-                permissionHelper = reminderPermissionHelper
+                permissionHelper = reminderPermissionHelper,
+                workEnqueuer = WorkManagerReminderWorkEnqueuer(context)
             )
         }
         val contentIdeaProvider = remember {
