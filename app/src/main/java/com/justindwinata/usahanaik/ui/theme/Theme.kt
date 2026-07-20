@@ -14,15 +14,24 @@ import androidx.core.view.WindowCompat
 private val LightColorScheme = lightColorScheme(
     primary = CoralPrimary,
     onPrimary = SurfaceWarm,
+    primaryContainer = CoralSoft,
+    onPrimaryContainer = CoralDeep,
     secondary = GreenPositive,
     onSecondary = SurfaceWarm,
-    background = CreamBackground,
+    secondaryContainer = GreenSoft,
+    onSecondaryContainer = GreenDeep,
+    tertiary = BlueDeep,
+    tertiaryContainer = BlueSoft,
+    background = CanvasSoft,
     onBackground = Ink,
     surface = SurfaceWarm,
     onSurface = Ink,
-    surfaceVariant = BlueSoft,
+    surfaceVariant = SurfaceElevated,
     onSurfaceVariant = InkMuted,
-    outline = BorderSubtle
+    outline = BorderSubtle,
+    outlineVariant = BorderStrong,
+    error = RoseDeep,
+    errorContainer = RoseSoft
 )
 
 @Composable
@@ -34,7 +43,7 @@ fun UsahaNaikTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = CreamBackground.toArgb()
+            window.statusBarColor = CanvasSoft.toArgb()
             window.navigationBarColor = SurfaceWarm.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

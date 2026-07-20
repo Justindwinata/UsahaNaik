@@ -3,6 +3,7 @@ package com.justindwinata.usahanaik.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,17 +33,26 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
+import com.justindwinata.usahanaik.ui.theme.BlueSoft
 import com.justindwinata.usahanaik.ui.theme.BorderSubtle
+import com.justindwinata.usahanaik.ui.theme.BorderStrong
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
 import com.justindwinata.usahanaik.ui.theme.GreenPositive
+import com.justindwinata.usahanaik.ui.theme.GreenSoft
+import com.justindwinata.usahanaik.ui.theme.Ink
 import com.justindwinata.usahanaik.ui.theme.InkMuted
+import com.justindwinata.usahanaik.ui.theme.InkStrong
+import com.justindwinata.usahanaik.ui.theme.InkSubtle
+import com.justindwinata.usahanaik.ui.theme.SurfaceElevated
+import com.justindwinata.usahanaik.ui.theme.SurfacePressed
 import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
 
 @Composable
@@ -60,6 +71,224 @@ fun UsahaNaikCard(
             modifier = Modifier.padding(AppSpacing.md),
             content = content
         )
+    }
+}
+
+@Composable
+fun ProfessionalScreen(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    badge: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppSpacing.lg, vertical = AppSpacing.lg),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+    ) {
+        ScreenHeroHeader(title = title, subtitle = subtitle, badge = badge)
+        content()
+    }
+}
+
+@Composable
+fun ScreenHeroHeader(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    badge: String? = null
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        badge?.let {
+            PillBadge(text = it, containerColor = BlueSoft, contentColor = CoralPrimary)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineLarge,
+            color = InkStrong
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+fun ProfessionalSectionHeader(
+    title: String,
+    subtitle: String? = null,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = title, style = MaterialTheme.typography.titleLarge, color = InkStrong)
+            subtitle?.let {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
+        }
+        if (actionLabel != null && onActionClick != null) {
+            Text(
+                modifier = Modifier.clickable(onClick = onActionClick),
+                text = actionLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = CoralPrimary
+            )
+        }
+    }
+}
+
+@Composable
+fun StatusBadge(
+    text: String,
+    modifier: Modifier = Modifier,
+    tone: StatusTone = StatusTone.Neutral
+) {
+    val colors = when (tone) {
+        StatusTone.Positive -> GreenSoft to GreenPositive
+        StatusTone.Warning -> com.justindwinata.usahanaik.ui.theme.YellowSoft to com.justindwinata.usahanaik.ui.theme.YellowDeep
+        StatusTone.Danger -> com.justindwinata.usahanaik.ui.theme.RoseSoft to com.justindwinata.usahanaik.ui.theme.RoseDeep
+        StatusTone.Info -> BlueSoft to com.justindwinata.usahanaik.ui.theme.BlueDeep
+        StatusTone.Neutral -> SurfacePressed to InkMuted
+    }
+    PillBadge(
+        text = text,
+        modifier = modifier,
+        containerColor = colors.first,
+        contentColor = colors.second
+    )
+}
+
+enum class StatusTone {
+    Positive,
+    Warning,
+    Danger,
+    Info,
+    Neutral
+}
+
+@Composable
+fun ProfessionalKpiCard(
+    title: String,
+    value: String,
+    helper: String,
+    modifier: Modifier = Modifier,
+    accentColor: Color = CoralPrimary,
+    badge: String? = null
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+    ) {
+        Column(modifier = Modifier.padding(AppSpacing.md)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(accentColor, CircleShape)
+                )
+                Spacer(modifier = Modifier.width(AppSpacing.xs))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = InkMuted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                badge?.let { StatusBadge(text = it, tone = StatusTone.Info) }
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineMedium,
+                color = InkStrong,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = helper,
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkSubtle,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfessionalActionTile(
+    title: String,
+    message: String,
+    actionLabel: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    accentColor: Color = CoralPrimary
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+    ) {
+        Row(
+            modifier = Modifier.padding(AppSpacing.md),
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(accentColor.copy(alpha = 0.12f), CircleShape)
+                    .border(1.dp, accentColor.copy(alpha = 0.18f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (icon != null) {
+                    Icon(icon, contentDescription = null, tint = accentColor)
+                } else {
+                    Box(modifier = Modifier.size(12.dp).background(accentColor, CircleShape))
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium, color = Ink)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
+            Text(text = actionLabel, style = MaterialTheme.typography.labelLarge, color = accentColor)
+        }
+    }
+}
+
+@Composable
+fun FormSectionCard(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceElevated) {
+        Text(text = title, style = MaterialTheme.typography.titleLarge, color = InkStrong)
+        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        content()
     }
 }
 
@@ -128,7 +357,7 @@ fun PrimaryActionButton(
             containerColor = CoralPrimary,
             contentColor = SurfaceWarm
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(14.dp)
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
@@ -176,7 +405,7 @@ fun EmptyStateCard(
         modifier = modifier,
         actionLabel = actionLabel,
         onActionClick = onActionClick,
-        containerColor = CoralSoft,
+        containerColor = SurfaceElevated,
         badgeLabel = "Empty state"
     )
 }
@@ -216,7 +445,7 @@ fun ErrorStateCard(
         modifier = modifier,
         actionLabel = actionLabel,
         onActionClick = onActionClick,
-        containerColor = CoralSoft,
+        containerColor = SurfaceElevated,
         badgeLabel = "Needs attention"
     )
 }
