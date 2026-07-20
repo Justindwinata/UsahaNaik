@@ -48,6 +48,9 @@ import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummary
 import com.justindwinata.usahanaik.domain.content.ContentPlannerDashboardSummaryMapper
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetrics
 import com.justindwinata.usahanaik.domain.finance.FinancialDashboardMetricsMapper
+import com.justindwinata.usahanaik.domain.model.ContentCalendarSummaryCalculator
+import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummary
+import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummaryMapper
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
 import com.justindwinata.usahanaik.domain.model.BusinessDiagnosis
@@ -814,14 +817,19 @@ fun DashboardScreen(
     dashboardInsightsViewModel: DashboardInsightsViewModel,
     weeklyPlanViewModel: WeeklyPlanViewModel,
     contentPlannerViewModel: ContentPlannerViewModel,
+    contentCalendarViewModel: ContentCalendarViewModel,
+    weeklyRetrospectiveViewModel: WeeklyRetrospectiveViewModel,
     onOpenWeeklyPlan: () -> Unit,
-    onOpenContentPlanner: () -> Unit
+    onOpenContentPlanner: () -> Unit,
+    onOpenRetrospective: () -> Unit
 ) {
     val dashboard = remember(setupDraft) { SampleGrowthRepository().getDashboardPreview(setupDraft) }
     val financialState by financialEntryViewModel.uiState.collectAsState()
     val insightsState by dashboardInsightsViewModel.uiState.collectAsState()
     val weeklyPlanState by weeklyPlanViewModel.uiState.collectAsState()
     val contentPlannerState by contentPlannerViewModel.uiState.collectAsState()
+    val contentCalendarState by contentCalendarViewModel.uiState.collectAsState()
+    val retrospectiveState by weeklyRetrospectiveViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
@@ -834,6 +842,22 @@ fun DashboardScreen(
     }
     val contentSummary = remember(contentPlannerState.savedIdeas) {
         ContentPlannerDashboardSummaryMapper.from(contentPlannerState.savedIdeas)
+    }
+    val calendarSummary = remember(contentCalendarState.schedules) {
+        ContentCalendarSummaryCalculator.summarize(contentCalendarState.schedules)
+    }
+    val continuitySummary = remember(
+        weeklySummary,
+        calendarSummary,
+        retrospectiveState.latestRetrospective,
+        retrospectiveState.progressHistorySummary
+    ) {
+        DashboardContinuitySummaryMapper.from(
+            weeklyPlanSummary = weeklySummary,
+            contentCalendarSummary = calendarSummary,
+            latestRetrospective = retrospectiveState.latestRetrospective,
+            progressHistorySummary = retrospectiveState.progressHistorySummary
+        )
     }
 
     LaunchedEffect(setupDraft?.targetMonthlyRevenue, setupDraft?.targetMonthlyProfit) {
@@ -875,6 +899,13 @@ fun DashboardScreen(
         ContentPlannerDashboardSection(
             summary = contentSummary,
             onOpenContentPlanner = onOpenContentPlanner
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        DashboardContinuitySection(
+            summary = continuitySummary,
+            onOpenWeeklyPlan = onOpenWeeklyPlan,
+            onOpenContentPlanner = onOpenContentPlanner,
+            onOpenRetrospective = onOpenRetrospective
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
@@ -1328,6 +1359,103 @@ private fun ContentPlannerDashboardSection(
         Spacer(modifier = Modifier.height(AppSpacing.md))
         Button(onClick = onOpenContentPlanner, modifier = Modifier.fillMaxWidth()) {
             Text(summary.ctaLabel)
+        }
+    }
+}
+
+@Composable
+private fun DashboardContinuitySection(
+    summary: DashboardContinuitySummary,
+    onOpenWeeklyPlan: () -> Unit,
+    onOpenContentPlanner: () -> Unit,
+    onOpenRetrospective: () -> Unit
+) {
+    SectionHeader(title = "Progress Continuity", actionLabel = if (summary.hasProgressHistory) "Tracking" else "New")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        Text(text = "Weekly completion", style = MaterialTheme.typography.titleMedium)
+        Text(text = summary.taskCompletionLabel, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        LinearProgressIndicator(
+            progress = { summary.taskCompletionProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = summary.milestoneProgressLabel, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        LinearProgressIndicator(
+            progress = { summary.milestoneProgress },
+            modifier = Modifier.fillMaxWidth(),
+            color = CoralPrimary,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenWeeklyPlan, modifier = Modifier.fillMaxWidth()) {
+            Text("Open Weekly Plan")
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+        MetricCard(
+            title = "Planned",
+            value = summary.plannedContentCount.toString(),
+            helper = "Content",
+            modifier = Modifier.weight(1f),
+            containerColor = BlueSoft,
+            accentColor = CoralPrimary
+        )
+        MetricCard(
+            title = "Posted",
+            value = summary.postedOrDoneContentCount.toString(),
+            helper = "Done",
+            modifier = Modifier.weight(1f),
+            containerColor = LavenderSoft,
+            accentColor = GreenPositive
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        Text(text = "Next scheduled content", style = MaterialTheme.typography.titleMedium)
+        Text(text = summary.nextScheduledContent, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenContentPlanner, modifier = Modifier.fillMaxWidth()) {
+            Text("Open Content Planner")
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+        Text(text = summary.latestRetrospectiveLabel, style = MaterialTheme.typography.titleMedium)
+        Text(text = summary.latestRetrospectiveTakeaway, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(onClick = onOpenRetrospective, modifier = Modifier.fillMaxWidth()) {
+            Text("Generate / View Retrospective")
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        Text(text = "Progress trend", style = MaterialTheme.typography.titleMedium)
+        if (summary.trendPoints.isEmpty()) {
+            Text(
+                text = "Save weekly snapshots to see trend history here.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        } else {
+            summary.trendPoints.forEach { point ->
+                Text(text = point.label, style = MaterialTheme.typography.labelLarge)
+                LinearProgressIndicator(
+                    progress = { point.taskCompletionRate },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = GreenPositive,
+                    trackColor = CreamBackground
+                )
+                Text(
+                    text = "Health ${point.businessHealthScore}/100",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkMuted
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+            }
         }
     }
 }

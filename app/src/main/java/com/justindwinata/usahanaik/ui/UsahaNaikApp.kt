@@ -209,8 +209,11 @@ fun UsahaNaikApp() {
                         dashboardInsightsViewModel = dashboardInsightsViewModel,
                         weeklyPlanViewModel = weeklyPlanViewModel,
                         contentPlannerViewModel = contentPlannerViewModel,
+                        contentCalendarViewModel = contentCalendarViewModel,
+                        weeklyRetrospectiveViewModel = weeklyRetrospectiveViewModel,
                         onOpenWeeklyPlan = { navController.navigate(AppRoute.WeeklyPlan.route) },
-                        onOpenContentPlanner = { navController.navigate(AppRoute.ContentIdeas.route) }
+                        onOpenContentPlanner = { navController.navigate(AppRoute.ContentIdeas.route) },
+                        onOpenRetrospective = { navController.navigate(AppRoute.Retrospective.route) }
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {
