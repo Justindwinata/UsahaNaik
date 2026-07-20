@@ -14,9 +14,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         WeeklyGrowthPlanEntity::class,
         WeeklyTaskEntity::class,
         WeeklyMilestoneEntity::class,
-        ContentIdeaEntity::class
+        ContentIdeaEntity::class,
+        ContentCalendarEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
@@ -24,6 +25,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun financialEntryDao(): FinancialEntryDao
     abstract fun weeklyPlanDao(): WeeklyPlanDao
     abstract fun contentIdeaDao(): ContentIdeaDao
+    abstract fun contentCalendarDao(): ContentCalendarDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -140,6 +142,27 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS content_calendar_items (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        contentIdeaId INTEGER NOT NULL,
+                        title TEXT NOT NULL,
+                        platform TEXT NOT NULL,
+                        scheduledDate TEXT NOT NULL,
+                        timeLabel TEXT NOT NULL,
+                        postingNote TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -150,7 +173,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                     UsahaNaikDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                     .also { instance = it }
             }
