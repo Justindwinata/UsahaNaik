@@ -2077,9 +2077,14 @@ fun WeeklyPlanScreen(
     onOpenRetrospective: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalAppStrings.current
 
     ScreenContainer {
-        SectionHeader(title = "Weekly Plan", actionLabel = "Local")
+        ScreenHeroHeader(
+            title = strings.plan,
+            subtitle = "Rencana mingguan berbasis profil, diagnosis, dan catatan lokal agar aksi bisnis lebih fokus.",
+            badge = "Local weekly coach"
+        )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         when {
             uiState.isLoading -> WeeklyPlanLoadingCard()
@@ -2098,7 +2103,10 @@ fun WeeklyPlanScreen(
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-            Text(text = "Weekly Retrospective", style = MaterialTheme.typography.titleMedium)
+            ProfessionalSectionHeader(
+                title = "Weekly Retrospective",
+                subtitle = "Review task, finance, milestone, and content progress before planning next week."
+            )
             Text(
                 text = "Review this week's task, finance, milestone, and content progress. Evaluation is deterministic and saved locally.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -2357,15 +2365,17 @@ fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     ScreenContainer {
-        SectionHeader(title = "Weekly Retrospective", actionLabel = "Local")
-        Text(
-            text = "Generate a deterministic weekly evaluation from saved tasks, milestones, finance, content calendar, and diagnosis signals.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+        ScreenHeroHeader(
+            title = "Weekly Retrospective",
+            subtitle = "Evaluate weekly execution from tasks, milestones, finance, content calendar, and diagnosis signals.",
+            badge = "Rule-based review"
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
-            Text(text = "This week's review", style = MaterialTheme.typography.titleLarge)
+            ProfessionalSectionHeader(
+                title = "This week's review",
+                subtitle = "Generate and save a local retrospective snapshot."
+            )
             Text(
                 text = "Retrospectives are planning summaries, not professional financial advice or guaranteed outcomes.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -2546,13 +2556,13 @@ fun ContentIdeasScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val calendarState by calendarViewModel.uiState.collectAsState()
+    val strings = LocalAppStrings.current
 
     ScreenContainer {
-        SectionHeader(title = "Content Planner", actionLabel = uiState.generationSource.label)
-        Text(
-            text = "Generate content planning suggestions from your saved business profile, selected goal, and platform. Review and adjust every idea before posting.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+        ScreenHeroHeader(
+            title = strings.contentPlanner,
+            subtitle = "Generate, save, schedule, and track content ideas from your local business profile.",
+            badge = uiState.generationSource.label
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         if (!uiState.hasProfile) {
@@ -3662,17 +3672,17 @@ private fun ContentIdeaPreviewCard(idea: ContentIdea) {
 @Composable
 fun BusinessReportScreen(viewModel: BusinessReportViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalAppStrings.current
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
 
     ScreenContainer {
-        SectionHeader(title = "Business Report", actionLabel = "Local data")
-        Text(
-            text = "Ringkasan laporan dari profil bisnis, keuangan, diagnosis, weekly plan, content planner, kalender konten, dan retrospective lokal.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+        ScreenHeroHeader(
+            title = strings.businessReport,
+            subtitle = "Ringkasan KPI, keuangan, eksekusi mingguan, konten, retrospective, dan teks laporan siap ekspor.",
+            badge = "Local report"
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         BusinessReportPeriodSelector(
