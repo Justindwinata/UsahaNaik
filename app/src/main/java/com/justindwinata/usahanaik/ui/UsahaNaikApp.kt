@@ -24,9 +24,12 @@ import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.ai.LocalContentIdeaProvider
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.LocalContentCalendarRepository
 import com.justindwinata.usahanaik.data.repository.LocalContentIdeaRepository
 import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
 import com.justindwinata.usahanaik.data.repository.LocalWeeklyPlanRepository
+import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
+import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModelFactory
 import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
 import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModelFactory
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
@@ -72,6 +75,9 @@ fun UsahaNaikApp() {
         val contentIdeaRepository = remember(database) {
             LocalContentIdeaRepository(database.contentIdeaDao())
         }
+        val contentCalendarRepository = remember(database) {
+            LocalContentCalendarRepository(database.contentCalendarDao())
+        }
         val contentIdeaProvider = remember {
             LocalContentIdeaProvider()
         }
@@ -101,6 +107,9 @@ fun UsahaNaikApp() {
                 contentIdeaRepository = contentIdeaRepository,
                 contentIdeaProvider = contentIdeaProvider
             )
+        )
+        val contentCalendarViewModel: ContentCalendarViewModel = viewModel(
+            factory = ContentCalendarViewModelFactory(contentCalendarRepository)
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -186,7 +195,10 @@ fun UsahaNaikApp() {
                     WeeklyPlanScreen(viewModel = weeklyPlanViewModel)
                 }
                 composable(AppRoute.ContentIdeas.route) {
-                    ContentIdeasScreen(viewModel = contentPlannerViewModel)
+                    ContentIdeasScreen(
+                        viewModel = contentPlannerViewModel,
+                        calendarViewModel = contentCalendarViewModel
+                    )
                 }
                 composable(AppRoute.Settings.route) {
                     SettingsScreen(viewModel = setupViewModel)

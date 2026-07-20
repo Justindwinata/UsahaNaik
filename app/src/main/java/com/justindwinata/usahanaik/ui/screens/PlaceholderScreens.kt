@@ -59,6 +59,8 @@ import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
 import com.justindwinata.usahanaik.domain.model.BusinessTask
 import com.justindwinata.usahanaik.domain.model.ContentGenerationSource
+import com.justindwinata.usahanaik.domain.model.ContentCalendarSchedule
+import com.justindwinata.usahanaik.domain.model.ContentCalendarStatus
 import com.justindwinata.usahanaik.domain.model.ContentGoal
 import com.justindwinata.usahanaik.domain.model.ContentIdea
 import com.justindwinata.usahanaik.domain.model.ContentIdeaFilter
@@ -111,6 +113,8 @@ import com.justindwinata.usahanaik.ui.theme.RoseSoft
 import com.justindwinata.usahanaik.ui.theme.YellowSoft
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
+import com.justindwinata.usahanaik.ui.content.ContentCalendarUiState
+import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
 
 @Composable
 fun WelcomeScreen(
@@ -1910,8 +1914,12 @@ private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
 }
 
 @Composable
-fun ContentIdeasScreen(viewModel: ContentPlannerViewModel) {
+fun ContentIdeasScreen(
+    viewModel: ContentPlannerViewModel,
+    calendarViewModel: ContentCalendarViewModel
+) {
     val uiState by viewModel.uiState.collectAsState()
+    val calendarState by calendarViewModel.uiState.collectAsState()
 
     ScreenContainer {
         SectionHeader(title = "Content Planner", actionLabel = uiState.generationSource.label)
@@ -1945,12 +1953,26 @@ fun ContentIdeasScreen(viewModel: ContentPlannerViewModel) {
             Spacer(modifier = Modifier.height(AppSpacing.lg))
             SavedIdeasSection(
                 uiState = uiState,
+                calendarState = calendarState,
                 onFilterChange = viewModel::updateFilter,
+                onSchedule = calendarViewModel::requestSchedule,
+                onScheduleDateChange = calendarViewModel::updateScheduledDate,
+                onScheduleTimeChange = calendarViewModel::updateTimeLabel,
+                onScheduleNoteChange = calendarViewModel::updatePostingNote,
+                onSchedulePlatformChange = calendarViewModel::updatePlatform,
+                onSaveSchedule = calendarViewModel::saveSchedule,
+                onCancelSchedule = calendarViewModel::cancelSchedule,
                 onFavorite = viewModel::toggleFavorite,
                 onMarkDraft = viewModel::markDraft,
                 onMarkPlanned = viewModel::markPlanned,
                 onMarkDone = viewModel::markDone,
                 onDelete = viewModel::deleteIdea
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            ContentCalendarSection(
+                uiState = calendarState,
+                onStatusChange = calendarViewModel::updateStatus,
+                onDelete = calendarViewModel::deleteSchedule
             )
         }
         uiState.successMessage?.let { message ->
@@ -2106,7 +2128,15 @@ private fun GeneratedIdeasSection(
 @Composable
 private fun SavedIdeasSection(
     uiState: ContentPlannerUiState,
+    calendarState: ContentCalendarUiState,
     onFilterChange: (ContentIdeaFilter) -> Unit,
+    onSchedule: (ContentIdea) -> Unit,
+    onScheduleDateChange: (String) -> Unit,
+    onScheduleTimeChange: (String) -> Unit,
+    onScheduleNoteChange: (String) -> Unit,
+    onSchedulePlatformChange: (ContentPlatform) -> Unit,
+    onSaveSchedule: () -> Unit,
+    onCancelSchedule: () -> Unit,
     onFavorite: (Long) -> Unit,
     onMarkDraft: (Long) -> Unit,
     onMarkPlanned: (Long) -> Unit,
@@ -2125,6 +2155,18 @@ private fun SavedIdeasSection(
         }
     }
     Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (calendarState.form.isActive) {
+        ContentScheduleFormCard(
+            uiState = calendarState,
+            onDateChange = onScheduleDateChange,
+            onTimeChange = onScheduleTimeChange,
+            onNoteChange = onScheduleNoteChange,
+            onPlatformChange = onSchedulePlatformChange,
+            onSave = onSaveSchedule,
+            onCancel = onCancelSchedule
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+    }
     if (uiState.savedIdeas.isEmpty()) {
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
             Text(text = "No saved ideas yet", style = MaterialTheme.typography.titleMedium)
@@ -2140,6 +2182,7 @@ private fun SavedIdeasSection(
                 idea = idea,
                 showPersistenceActions = true,
                 onSave = {},
+                onSchedule = { onSchedule(idea) },
                 onFavorite = { onFavorite(idea.id) },
                 onMarkDraft = { onMarkDraft(idea.id) },
                 onMarkPlanned = { onMarkPlanned(idea.id) },
@@ -2156,6 +2199,7 @@ private fun ContentIdeaPlannerCard(
     idea: ContentIdea,
     showPersistenceActions: Boolean,
     onSave: () -> Unit,
+    onSchedule: () -> Unit = {},
     onFavorite: () -> Unit,
     onMarkDraft: () -> Unit,
     onMarkPlanned: () -> Unit,
@@ -2194,6 +2238,10 @@ private fun ContentIdeaPlannerCard(
                 FilterChip(selected = idea.status == ContentIdeaStatus.Done, onClick = onMarkDone, label = { Text("Done") })
             }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Button(onClick = onSchedule, modifier = Modifier.fillMaxWidth()) {
+                Text("Schedule")
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
             OutlinedButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
                 Text("Delete Idea")
             }
@@ -2210,6 +2258,150 @@ private fun ContentIdeaDetail(label: String, value: String) {
     Text(text = label, style = MaterialTheme.typography.labelMedium, color = CoralPrimary)
     Text(text = value, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
     Spacer(modifier = Modifier.height(AppSpacing.xs))
+}
+
+@Composable
+private fun ContentScheduleFormCard(
+    uiState: ContentCalendarUiState,
+    onDateChange: (String) -> Unit,
+    onTimeChange: (String) -> Unit,
+    onNoteChange: (String) -> Unit,
+    onPlatformChange: (ContentPlatform) -> Unit,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val form = uiState.form
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        PillBadge(text = "Local calendar", containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Schedule content", style = MaterialTheme.typography.titleLarge)
+        Text(text = form.title, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        OutlinedTextField(
+            value = form.scheduledDate,
+            onValueChange = onDateChange,
+            label = { Text("Scheduled date (YYYY-MM-DD)") },
+            isError = form.dateError != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        FieldError(form.dateError)
+        OutlinedTextField(
+            value = form.timeLabel,
+            onValueChange = onTimeChange,
+            label = { Text("Time label optional") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Platform", style = MaterialTheme.typography.labelLarge)
+        ChipFlow {
+            ContentPlatform.entries.forEach { platform ->
+                FilterChip(
+                    selected = form.platform == platform,
+                    onClick = { onPlatformChange(platform) },
+                    label = { Text(platform.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        OutlinedTextField(
+            value = form.postingNote,
+            onValueChange = onNoteChange,
+            label = { Text("Posting note optional") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            Button(
+                onClick = onSave,
+                enabled = form.canSave && !uiState.isSaving,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (uiState.isSaving) "Saving..." else "Save")
+            }
+            OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
+                Text("Cancel")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContentCalendarSection(
+    uiState: ContentCalendarUiState,
+    onStatusChange: (Long, ContentCalendarStatus) -> Unit,
+    onDelete: (Long) -> Unit
+) {
+    SectionHeader(title = "Content Calendar", actionLabel = "${uiState.schedules.size} scheduled")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    uiState.successMessage?.let { message ->
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+    uiState.errorMessage?.let { message ->
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+    if (uiState.upcomingSchedules.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(text = "No scheduled content yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Schedule saved ideas into this local calendar. No Android calendar permission or external calendar sync is used.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
+        uiState.upcomingSchedules.forEach { item ->
+            ContentCalendarItemCard(
+                item = item,
+                onStatusChange = onStatusChange,
+                onDelete = onDelete
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun ContentCalendarItemCard(
+    item: ContentCalendarSchedule,
+    onStatusChange: (Long, ContentCalendarStatus) -> Unit,
+    onDelete: (Long) -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = calendarStatusContainerColor(item.status)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)) {
+            PillBadge(text = item.status.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+            PillBadge(text = item.platform.label, containerColor = CreamBackground, contentColor = GreenPositive)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = item.title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = listOf(item.scheduledDate, item.timeLabel).filter { it.isNotBlank() }.joinToString(" - "),
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        if (item.postingNote.isNotBlank()) {
+            Text(text = item.postingNote, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ChipFlow {
+            ContentCalendarStatus.entries.forEach { status ->
+                FilterChip(
+                    selected = item.status == status,
+                    onClick = { onStatusChange(item.id, status) },
+                    label = { Text(status.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        OutlinedButton(onClick = { onDelete(item.id) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Delete Schedule")
+        }
+    }
 }
 
 @Composable
@@ -2242,6 +2434,13 @@ private fun contentIdeaContainerColor(source: ContentGenerationSource) = when (s
     ContentGenerationSource.Local -> GreenSoft
     ContentGenerationSource.Ai -> LavenderSoft
     ContentGenerationSource.Fallback -> YellowSoft
+}
+
+private fun calendarStatusContainerColor(status: ContentCalendarStatus) = when (status) {
+    ContentCalendarStatus.Planned -> BlueSoft
+    ContentCalendarStatus.Posted -> GreenSoft
+    ContentCalendarStatus.Skipped -> RoseSoft
+    ContentCalendarStatus.Done -> LavenderSoft
 }
 
 @Composable
