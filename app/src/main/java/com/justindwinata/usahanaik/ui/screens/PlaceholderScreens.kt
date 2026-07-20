@@ -1619,6 +1619,16 @@ private fun ReminderDashboardSection(uiState: ReminderUiState) {
             style = MaterialTheme.typography.bodySmall,
             color = InkMuted
         )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = if (uiState.permissionState == ReminderPermissionState.Granted || uiState.permissionState == ReminderPermissionState.NotRequired) {
+                "System notification work is scheduled approximately by Android."
+            } else {
+                "In-app fallback is active until notifications are enabled."
+            },
+            style = MaterialTheme.typography.labelLarge,
+            color = CoralPrimary
+        )
     }
 }
 
@@ -3273,6 +3283,7 @@ private fun ReminderSettingsSection(
             uiState.reminders.forEach { reminder ->
                 ReminderListItem(
                     reminder = reminder,
+                    permissionState = uiState.permissionState,
                     onEdit = onEdit,
                     onEnable = onEnable,
                     onPause = onPause,
@@ -3295,6 +3306,7 @@ private fun ReminderSettingsSection(
 @Composable
 private fun ReminderListItem(
     reminder: BusinessReminder,
+    permissionState: ReminderPermissionState,
     onEdit: (BusinessReminder) -> Unit,
     onEnable: (Long) -> Unit,
     onPause: (Long) -> Unit,
@@ -3317,6 +3329,17 @@ private fun ReminderListItem(
         Text(text = reminder.title, style = MaterialTheme.typography.titleMedium)
         Text(text = reminder.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
         Text(text = reminder.scheduleLabel, style = MaterialTheme.typography.labelLarge, color = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = when {
+                reminder.status != ReminderStatus.Active -> "System alert: not scheduled while reminder is ${reminder.status.label.lowercase()}."
+                permissionState == ReminderPermissionState.Granted || permissionState == ReminderPermissionState.NotRequired ->
+                    "System alert: approximate Android notification scheduling is available."
+                else -> "System alert: in-app fallback only until notifications are enabled."
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             OutlinedButton(onClick = { onEdit(reminder) }, modifier = Modifier.weight(1f)) {
