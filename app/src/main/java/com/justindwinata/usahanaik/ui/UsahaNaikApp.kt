@@ -206,7 +206,7 @@ fun UsahaNaikApp() {
                                         restoreState = true
                                     }
                                 },
-                                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                                icon = { Icon(tab.icon, contentDescription = "Open ${tab.label}") },
                                 label = { Text(tab.label) },
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = SurfaceWarm,
@@ -249,6 +249,19 @@ fun UsahaNaikApp() {
                     )
                 }
                 composable(AppRoute.Dashboard.route) {
+                    LaunchedEffect(Unit) {
+                        setupViewModel.loadSavedProfile()
+                        financialEntryViewModel.refresh(
+                            targetMonthlyRevenue = setupState.savedProfile?.draft?.targetMonthlyRevenue,
+                            targetMonthlyProfit = setupState.savedProfile?.draft?.targetMonthlyProfit
+                        )
+                        dashboardInsightsViewModel.refresh()
+                        weeklyPlanViewModel.loadActivePlan()
+                        contentPlannerViewModel.load()
+                        contentCalendarViewModel.loadSchedules()
+                        weeklyRetrospectiveViewModel.load()
+                        businessReportViewModel.refresh()
+                    }
                     DashboardScreen(
                         setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid },
                         financialEntryViewModel = financialEntryViewModel,
@@ -265,21 +278,34 @@ fun UsahaNaikApp() {
                     )
                 }
                 composable(AppRoute.WeeklyPlan.route) {
+                    LaunchedEffect(Unit) {
+                        weeklyPlanViewModel.loadActivePlan()
+                    }
                     WeeklyPlanScreen(
                         viewModel = weeklyPlanViewModel,
                         onOpenRetrospective = { navController.navigate(AppRoute.Retrospective.route) }
                     )
                 }
                 composable(AppRoute.ContentIdeas.route) {
+                    LaunchedEffect(Unit) {
+                        contentPlannerViewModel.load()
+                        contentCalendarViewModel.loadSchedules()
+                    }
                     ContentIdeasScreen(
                         viewModel = contentPlannerViewModel,
                         calendarViewModel = contentCalendarViewModel
                     )
                 }
                 composable(AppRoute.Retrospective.route) {
+                    LaunchedEffect(Unit) {
+                        weeklyRetrospectiveViewModel.load()
+                    }
                     WeeklyRetrospectiveScreen(viewModel = weeklyRetrospectiveViewModel)
                 }
                 composable(AppRoute.BusinessReport.route) {
+                    LaunchedEffect(Unit) {
+                        businessReportViewModel.refresh()
+                    }
                     BusinessReportScreen(viewModel = businessReportViewModel)
                 }
                 composable(AppRoute.Settings.route) {
