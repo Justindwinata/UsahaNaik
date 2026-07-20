@@ -31,6 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,9 +52,9 @@ fun UsahaNaikCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -74,7 +76,7 @@ fun SectionHeader(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
         if (actionLabel != null) {
@@ -114,10 +116,13 @@ fun PillBadge(
 fun PrimaryActionButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentDescription: String = text
 ) {
     Button(
-        modifier = modifier.height(52.dp),
+        modifier = modifier
+            .height(52.dp)
+            .semantics { this.contentDescription = contentDescription },
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = CoralPrimary,
@@ -127,6 +132,113 @@ fun PrimaryActionButton(
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
+}
+
+@Composable
+fun DemoStateCard(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null,
+    containerColor: Color = SurfaceWarm,
+    badgeLabel: String? = null
+) {
+    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = containerColor) {
+        badgeLabel?.let {
+            PillBadge(text = it)
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        if (actionLabel != null && onActionClick != null) {
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            PrimaryActionButton(
+                text = actionLabel,
+                onClick = onActionClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptyStateCard(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null
+) {
+    DemoStateCard(
+        title = title,
+        message = message,
+        modifier = modifier,
+        actionLabel = actionLabel,
+        onActionClick = onActionClick,
+        containerColor = CoralSoft,
+        badgeLabel = "Empty state"
+    )
+}
+
+@Composable
+fun LoadingStateCard(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceWarm) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(28.dp),
+                color = CoralPrimary,
+                strokeWidth = 3.dp
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorStateCard(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null
+) {
+    DemoStateCard(
+        title = title,
+        message = message,
+        modifier = modifier,
+        actionLabel = actionLabel,
+        onActionClick = onActionClick,
+        containerColor = CoralSoft,
+        badgeLabel = "Needs attention"
+    )
+}
+
+@Composable
+fun CtaCard(
+    title: String,
+    message: String,
+    actionLabel: String,
+    onActionClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = SurfaceWarm
+) {
+    DemoStateCard(
+        title = title,
+        message = message,
+        modifier = modifier,
+        actionLabel = actionLabel,
+        onActionClick = onActionClick,
+        containerColor = containerColor,
+        badgeLabel = "Next action"
+    )
 }
 
 @Composable
