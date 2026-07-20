@@ -57,6 +57,10 @@ import com.justindwinata.usahanaik.domain.model.BusinessDiagnosis
 import com.justindwinata.usahanaik.domain.model.BusinessInsight
 import com.justindwinata.usahanaik.domain.model.BusinessMilestone
 import com.justindwinata.usahanaik.domain.model.BusinessProfile
+import com.justindwinata.usahanaik.domain.model.BusinessReport
+import com.justindwinata.usahanaik.domain.model.BusinessReportKpi
+import com.justindwinata.usahanaik.domain.model.BusinessReportPeriod
+import com.justindwinata.usahanaik.domain.model.BusinessReportSnapshot
 import com.justindwinata.usahanaik.domain.model.BusinessRiskSignal
 import com.justindwinata.usahanaik.domain.model.BusinessSetupDraft
 import com.justindwinata.usahanaik.domain.model.BusinessStage
@@ -79,6 +83,10 @@ import com.justindwinata.usahanaik.domain.model.StockIssue
 import com.justindwinata.usahanaik.domain.model.FinancialEntry
 import com.justindwinata.usahanaik.domain.model.FinancialEntryType
 import com.justindwinata.usahanaik.domain.model.InsightSeverity
+import com.justindwinata.usahanaik.domain.model.ReportChartData
+import com.justindwinata.usahanaik.domain.model.ReportExpenseBreakdownItem
+import com.justindwinata.usahanaik.domain.model.ReportInsight
+import com.justindwinata.usahanaik.domain.model.ReportKpiStatus
 import com.justindwinata.usahanaik.domain.model.WeeklyGrowthPlan
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressHistorySummary
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressSnapshot
@@ -122,6 +130,10 @@ import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
 import com.justindwinata.usahanaik.ui.content.ContentCalendarUiState
 import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
+import com.justindwinata.usahanaik.ui.report.BusinessReportUiState
+import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun WelcomeScreen(
@@ -3003,4 +3015,453 @@ private fun ContentIdeaPreviewCard(idea: ContentIdea) {
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Text(text = "CTA: ${idea.cta}", style = MaterialTheme.typography.labelLarge, color = CoralPrimary)
     }
+}
+
+@Composable
+fun BusinessReportScreen(viewModel: BusinessReportViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
+    ScreenContainer {
+        SectionHeader(title = "Business Report", actionLabel = "Local data")
+        Text(
+            text = "Ringkasan laporan dari profil bisnis, keuangan, diagnosis, weekly plan, content planner, kalender konten, dan retrospective lokal.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        BusinessReportPeriodSelector(
+            selectedPeriod = uiState.selectedPeriod,
+            onPeriodSelected = viewModel::selectPeriod
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        when {
+            uiState.isLoading -> BusinessReportLoadingCard()
+            uiState.report == null -> BusinessReportEmptyCard("Complete business setup first.")
+            else -> BusinessReportContent(
+                uiState = uiState,
+                onSaveSnapshot = viewModel::saveCurrentSnapshot
+            )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun BusinessReportPeriodSelector(
+    selectedPeriod: BusinessReportPeriod,
+    onPeriodSelected: (BusinessReportPeriod) -> Unit
+) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+        BusinessReportPeriod.entries.forEach { period ->
+            FilterChip(
+                selected = selectedPeriod == period,
+                onClick = { onPeriodSelected(period) },
+                label = { Text(period.label) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun BusinessReportLoadingCard() {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        Text(text = "Generating report...", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "UsahaNaik is combining local finance, plan, content, calendar, and retrospective data.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun BusinessReportEmptyCard(message: String) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        Text(text = message, style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Record income, expenses, weekly tasks, and content activity to make this report more complete.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun BusinessReportContent(
+    uiState: BusinessReportUiState,
+    onSaveSnapshot: () -> Unit
+) {
+    val report = uiState.report ?: return
+    BusinessReportHeader(report = report)
+    uiState.emptyStateMessage?.let { message ->
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        BusinessReportEmptyCard(message = message)
+    }
+    uiState.errorMessage?.let { message ->
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+            Text(text = "Report needs attention", style = MaterialTheme.typography.titleMedium)
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+        }
+    }
+    uiState.successMessage?.let { message ->
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+            Text(text = message, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "This snapshot is saved locally on this device.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    BusinessReportKpiGrid(kpis = report.kpis)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    FinancialReportSection(report = report)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    GrowthExecutionReportSection(report = report)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    DiagnosisReportSection(report = report)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    ContentPerformanceReportSection(report = report)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    RetrospectiveReportSection(report = report)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    ExportReadyReportSection(
+        report = report,
+        isSavingSnapshot = uiState.isSavingSnapshot,
+        onSaveSnapshot = onSaveSnapshot
+    )
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    ReportSnapshotHistorySection(snapshots = uiState.snapshots)
+}
+
+@Composable
+private fun BusinessReportHeader(report: BusinessReport) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        PillBadge(text = report.period.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = report.businessName, style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "${report.categoryName} - generated ${report.generatedAt}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = "This report is generated from local app data and is not an official accounting or tax document.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun BusinessReportKpiGrid(kpis: List<BusinessReportKpi>) {
+    SectionHeader(title = "KPI Overview")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    kpis.chunked(2).forEach { rowItems ->
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            rowItems.forEach { kpi ->
+                MetricCard(
+                    title = kpi.label,
+                    value = kpi.value,
+                    helper = kpi.helper,
+                    modifier = Modifier.weight(1f),
+                    containerColor = reportKpiContainerColor(kpi.status),
+                    accentColor = if (kpi.status == ReportKpiStatus.Positive) GreenPositive else CoralPrimary
+                )
+            }
+            if (rowItems.size == 1) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+@Composable
+private fun FinancialReportSection(report: BusinessReport) {
+    SectionHeader(title = "Financial Summary", actionLabel = "Estimated")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        Text(text = "Revenue vs expenses", style = MaterialTheme.typography.titleMedium)
+        Text(text = report.financialSummary.cautionMessage, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        ReportRevenueExpenseBars(chartData = report.revenueExpenseChart)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = "Largest expense: ${report.financialSummary.largestExpenseCategory}",
+            style = MaterialTheme.typography.labelLarge,
+            color = CoralPrimary
+        )
+        Text(
+            text = "Profit margin: ${report.financialSummary.profitMarginPercent}%",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    ExpenseBreakdownBars(items = report.expenseBreakdown)
+}
+
+@Composable
+private fun ReportRevenueExpenseBars(chartData: ReportChartData) {
+    if (chartData.points.isEmpty()) {
+        Text(
+            text = "No financial entries in this period yet.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        return
+    }
+    val maxValue = chartData.points.maxOf { maxOf(it.primaryValue, it.secondaryValue) }.coerceAtLeast(1L)
+    chartData.points.forEach { point ->
+        Text(text = point.label, style = MaterialTheme.typography.labelMedium)
+        LinearProgressIndicator(
+            progress = { (point.primaryValue.toFloat() / maxValue.toFloat()).coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        LinearProgressIndicator(
+            progress = { (point.secondaryValue.toFloat() / maxValue.toFloat()).coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = CoralPrimary,
+            trackColor = CreamBackground
+        )
+        Text(
+            text = "Revenue ${formatReportCurrency(point.primaryValue)} - expense ${formatReportCurrency(point.secondaryValue)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+        PillBadge("Revenue", containerColor = CreamBackground, contentColor = GreenPositive)
+        PillBadge("Expense", containerColor = CreamBackground, contentColor = CoralPrimary)
+    }
+}
+
+@Composable
+private fun ExpenseBreakdownBars(items: List<ReportExpenseBreakdownItem>) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        Text(text = "Expense breakdown", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        if (items.isEmpty()) {
+            Text(text = "No expense breakdown yet.", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        } else {
+            items.take(5).forEach { item ->
+                Text(text = "${item.category} - ${formatReportCurrency(item.amount)}", style = MaterialTheme.typography.labelLarge)
+                LinearProgressIndicator(
+                    progress = { item.percentage / 100f },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = CoralPrimary,
+                    trackColor = CreamBackground
+                )
+                Text(text = "${item.percentage}% of period expenses", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+            }
+        }
+    }
+}
+
+@Composable
+private fun GrowthExecutionReportSection(report: BusinessReport) {
+    SectionHeader(title = "Growth Progress")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+        Text(text = report.weeklyExecution.focusTitle, style = MaterialTheme.typography.titleLarge)
+        Text(text = "Next action: ${report.weeklyExecution.nextTaskTitle}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = "Tasks: ${report.weeklyExecution.completedTasks}/${report.weeklyExecution.totalTasks}",
+            style = MaterialTheme.typography.labelLarge
+        )
+        LinearProgressIndicator(
+            progress = { report.weeklyExecution.taskCompletionRate.coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Milestone progress", style = MaterialTheme.typography.labelLarge)
+        LinearProgressIndicator(
+            progress = { report.weeklyExecution.milestoneProgress.coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = CoralPrimary,
+            trackColor = CreamBackground
+        )
+    }
+}
+
+@Composable
+private fun DiagnosisReportSection(report: BusinessReport) {
+    SectionHeader(title = "Diagnosis Summary", actionLabel = report.diagnosisSummary.statusLabel)
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        Text(
+            text = "${report.diagnosisSummary.healthScore}/100",
+            style = MaterialTheme.typography.headlineMedium,
+            color = CoralPrimary,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Warnings: ${report.diagnosisSummary.warningCount} - critical: ${report.diagnosisSummary.criticalCount}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        report.diagnosisSummary.topInsights.forEach { insight ->
+            Text(text = "- $insight", style = MaterialTheme.typography.bodyMedium)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = "Priority actions", style = MaterialTheme.typography.titleMedium)
+        report.diagnosisSummary.priorityActions.forEach { action ->
+            Text(text = "- $action", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    report.insights.take(3).forEach { insight ->
+        ReportInsightCard(insight = insight)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    }
+}
+
+@Composable
+private fun ReportInsightCard(insight: ReportInsight) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = insightContainerColor(insight.severity)) {
+        InsightSeverityBadge(severity = insight.severity)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = insight.title, style = MaterialTheme.typography.titleMedium)
+        Text(text = insight.message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+    }
+}
+
+@Composable
+private fun ContentPerformanceReportSection(report: BusinessReport) {
+    SectionHeader(title = "Content Performance")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Saved",
+                value = report.contentPerformance.savedIdeasCount.toString(),
+                helper = "Ideas",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+            MetricCard(
+                title = "Planned",
+                value = report.contentPerformance.plannedIdeasCount.toString(),
+                helper = "Ideas",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = "Posted/done scheduled content: ${report.contentPerformance.postedOrDoneContentCount}/${report.contentPerformance.scheduledContentCount}",
+            style = MaterialTheme.typography.labelLarge
+        )
+        LinearProgressIndicator(
+            progress = { report.contentPerformance.executionRate.coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth(),
+            color = GreenPositive,
+            trackColor = CreamBackground
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Next scheduled: ${report.contentPerformance.nextScheduledContent}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Text(text = "Skipped: ${report.contentPerformance.skippedContentCount}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+    }
+}
+
+@Composable
+private fun RetrospectiveReportSection(report: BusinessReport) {
+    SectionHeader(title = "Retrospective Highlights")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
+        PillBadge(text = report.retrospectiveSummary.weekLabel, containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = report.retrospectiveSummary.keyTakeaway, style = MaterialTheme.typography.titleLarge)
+        Text(text = "Improved: ${report.retrospectiveSummary.whatImproved}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Text(text = "Needs attention: ${report.retrospectiveSummary.needsAttention}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Next week: ${report.retrospectiveSummary.nextWeekSuggestion}", style = MaterialTheme.typography.labelLarge, color = CoralPrimary)
+    }
+}
+
+@Composable
+private fun ExportReadyReportSection(
+    report: BusinessReport,
+    isSavingSnapshot: Boolean,
+    onSaveSnapshot: () -> Unit
+) {
+    SectionHeader(title = "Export-Ready Summary", actionLabel = "Text")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
+        Text(text = report.exportReadyReport.title, style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = report.exportReadyReport.body, style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = report.exportReadyReport.disclaimer, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Button(
+            onClick = onSaveSnapshot,
+            enabled = !isSavingSnapshot,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (isSavingSnapshot) "Saving..." else "Save Local Snapshot")
+        }
+    }
+}
+
+@Composable
+private fun ReportSnapshotHistorySection(snapshots: List<BusinessReportSnapshot>) {
+    SectionHeader(title = "Saved Report Snapshots", actionLabel = snapshots.size.toString())
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    if (snapshots.isEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
+            Text(text = "No saved snapshots yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "Save a snapshot after generating a report to keep a local history of report summaries.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+        }
+    } else {
+        snapshots.take(5).forEach { snapshot ->
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CreamBackground) {
+                Text(text = snapshot.businessName, style = MaterialTheme.typography.titleMedium)
+                Text(text = "${snapshot.period.label} - ${snapshot.generatedAt}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(
+                    text = "Profit ${formatReportCurrency(snapshot.estimatedProfit)} - health ${snapshot.healthScore}/100",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        }
+    }
+}
+
+private fun reportKpiContainerColor(status: ReportKpiStatus) = when (status) {
+    ReportKpiStatus.Positive -> GreenSoft
+    ReportKpiStatus.Warning -> RoseSoft
+    ReportKpiStatus.Neutral -> BlueSoft
+}
+
+private fun formatReportCurrency(value: Long): String {
+    val formatter = NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply {
+        maximumFractionDigits = 0
+    }
+    return formatter.format(value)
 }

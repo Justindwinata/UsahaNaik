@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.ai.LocalContentIdeaProvider
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
+import com.justindwinata.usahanaik.data.repository.LocalBusinessReportSnapshotRepository
 import com.justindwinata.usahanaik.data.repository.LocalContentCalendarRepository
 import com.justindwinata.usahanaik.data.repository.LocalContentIdeaRepository
 import com.justindwinata.usahanaik.data.repository.LocalFinancialEntryRepository
@@ -43,6 +44,9 @@ import com.justindwinata.usahanaik.ui.navigation.bottomTabs
 import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModelFactory
+import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
+import com.justindwinata.usahanaik.ui.report.BusinessReportViewModelFactory
+import com.justindwinata.usahanaik.ui.screens.BusinessReportScreen
 import com.justindwinata.usahanaik.ui.screens.BusinessSetupScreen
 import com.justindwinata.usahanaik.ui.screens.CategorySelectionScreen
 import com.justindwinata.usahanaik.ui.screens.ContentIdeasScreen
@@ -89,6 +93,9 @@ fun UsahaNaikApp() {
         val retrospectiveRepository = remember(database) {
             LocalWeeklyRetrospectiveRepository(database.weeklyRetrospectiveDao())
         }
+        val reportSnapshotRepository = remember(database) {
+            LocalBusinessReportSnapshotRepository(database.businessReportSnapshotDao())
+        }
         val contentIdeaProvider = remember {
             LocalContentIdeaProvider()
         }
@@ -131,6 +138,18 @@ fun UsahaNaikApp() {
                 contentCalendarRepository = contentCalendarRepository,
                 progressHistoryRepository = progressHistoryRepository,
                 retrospectiveRepository = retrospectiveRepository
+            )
+        )
+        val businessReportViewModel: BusinessReportViewModel = viewModel(
+            factory = BusinessReportViewModelFactory(
+                businessProfileRepository = businessProfileRepository,
+                financialEntryRepository = financialEntryRepository,
+                weeklyPlanRepository = weeklyPlanRepository,
+                contentIdeaRepository = contentIdeaRepository,
+                contentCalendarRepository = contentCalendarRepository,
+                weeklyProgressHistoryRepository = progressHistoryRepository,
+                weeklyRetrospectiveRepository = retrospectiveRepository,
+                snapshotRepository = reportSnapshotRepository
             )
         )
         val setupState by setupViewModel.uiState.collectAsState()
@@ -230,6 +249,9 @@ fun UsahaNaikApp() {
                 }
                 composable(AppRoute.Retrospective.route) {
                     WeeklyRetrospectiveScreen(viewModel = weeklyRetrospectiveViewModel)
+                }
+                composable(AppRoute.BusinessReport.route) {
+                    BusinessReportScreen(viewModel = businessReportViewModel)
                 }
                 composable(AppRoute.Settings.route) {
                     SettingsScreen(viewModel = setupViewModel)
