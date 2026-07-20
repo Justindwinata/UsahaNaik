@@ -118,14 +118,30 @@ Completed scope:
 - Add dashboard Business Report summary card and CTA.
 - Keep PDF export, cloud sync, and official accounting/tax claims deferred.
 
-## UN-0010 - Notifications
+## UN-0010 - UI Polish, Demo Mode, QA Stabilization, And Portfolio Showcase
+
+Polish the app into a portfolio-ready Android demo.
+
+Completed scope:
+
+- Add UX polish and demo readiness plan.
+- Add shared empty, loading, error, and CTA UI components.
+- Polish Dashboard and Business Report presentation.
+- Polish Weekly Plan, Content Planner, Content Calendar, and Retrospective empty/error states.
+- Add local Demo Mode for Dapur Rasa Nusantara.
+- Seed profile, finance, weekly plan, content ideas, calendar, progress, retrospective, and report snapshot sample data.
+- Add Settings/Profile controls for loading and clearing demo data with confirmations.
+- Harden route refresh behavior for demo presentation.
+- Add portfolio documentation, demo script, QA checklist, and screenshot plan.
+
+## UN-0011 - Notifications
 
 Add optional local reminders for sales tracking, weekly reviews, content planning, and retrospective follow-up.
 
-## UN-0011 - Export And Reports
+## UN-0012 - Export And Reports
 
 Add PDF export or platform share flows for owner review after the report dashboard is stable.
 
-## UN-0012 - Portfolio Polish
+## UN-0013 - Portfolio Polish
 
 Improve animations, accessibility, UI tests, screenshots, README assets, and release-readiness documentation.

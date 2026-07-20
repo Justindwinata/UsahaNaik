@@ -58,7 +58,9 @@ The app is not professional financial advice and does not guarantee profit incre
 29. User reviews KPI cards, simple visual summaries, financial summary, diagnosis summary, weekly execution, content performance, and retrospective highlights.
 30. User reviews export-ready report text and can save a local report snapshot.
 31. User sees a compact Business Report card on the dashboard.
-32. User can delete local profile data from Settings/Profile.
+32. User can load demo data from Settings/Profile for portfolio presentation.
+33. User can clear demo data from Settings/Profile after confirmation.
+34. User can delete local profile data from Settings/Profile.
 
 ## Business Categories
 
@@ -246,6 +248,22 @@ Report sections include:
 - Export-ready text report preview.
 
 Generated reports are local planning summaries. They are not official accounting reports, tax documents, audited statements, or professional financial advice. UN-0009 does not implement PDF export.
+
+## Demo Mode And Portfolio Readiness
+
+UN-0010 adds local Demo Mode so the app can be presented quickly without manual data entry.
+
+Demo Mode:
+
+- Is accessed from Settings/Profile.
+- Shows a confirmation before replacing local app data.
+- Loads the sample Food & Beverage business `Dapur Rasa Nusantara`.
+- Populates business profile, financial entries, weekly plan, content ideas, content schedules, progress snapshot, retrospective, and report snapshot.
+- Can be cleared from Settings/Profile.
+
+Demo data is sample local data for portfolio presentation. It does not represent real business results, guaranteed sales growth, guaranteed profit increase, or professional financial advice.
+
+UN-0010 also improves shared empty/loading/error states, dashboard/report presentation, planning/content/retrospective workflows, navigation refresh behavior, and portfolio documentation.
 
 Dashboard continuity:
 

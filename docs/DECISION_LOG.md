@@ -221,3 +221,25 @@ Generated report snapshots are saved in Room version 8 as local history. The sna
 ### Safe Report Copy
 
 Export-ready report text includes a disclaimer and avoids guaranteed profit, tax accuracy, accounting accuracy, and professional financial advice claims.
+
+## UN-0010 Decisions
+
+### Demo Mode Before Notifications
+
+UN-0010 prioritizes demo readiness over reminders because the project needs to be easy to present quickly. Notifications remain deferred until core flows are stable and visually polished.
+
+### Demo Data Uses Existing Repositories
+
+The demo seeder writes through existing repository interfaces and does not add a new Room schema version. This keeps database risk low and makes the demo dataset testable.
+
+### Demo Data Replaces Local App Data With Confirmation
+
+Loading demo data clears current local app data after a confirmation dialog. The copy explicitly warns that local data may be replaced.
+
+### Shared State Components
+
+Empty, loading, error, and CTA states are centralized in shared UI components so major screens feel consistent and easier to scan during a demo.
+
+### No Fake Screenshots
+
+Documentation includes a screenshot plan instead of claiming screenshots exist. Screenshots should only be committed after capture from an emulator or device.

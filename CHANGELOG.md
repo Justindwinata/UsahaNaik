@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.0.0 - UN-0010
+
+- Added UX polish and demo readiness plan.
+- Added shared empty, loading, error, and CTA state components.
+- Polished Dashboard command-center framing and Business Report state handling.
+- Polished Weekly Plan, Content Planner, Content Calendar, and Retrospective empty/error states.
+- Added local Demo Mode with Settings/Profile controls, confirmation dialogs, and success/error feedback.
+- Added realistic Food & Beverage demo data for `Dapur Rasa Nusantara`.
+- Demo data includes business profile, financial entries, weekly plan, content ideas, content schedules, progress snapshot, retrospective, and report snapshot.
+- Added route-entry refresh hooks so seeded local data is visible when users open Dashboard, Weekly Plan, Content Planner, Retrospective, and Business Report.
+- Improved bottom navigation accessibility descriptions.
+- Added portfolio documentation: demo script, QA checklist, screenshot plan, portfolio showcase, and UX polish plan.
+- Added tests for demo data seeding, duplicate prevention, and clearing behavior.
+
+### Known Limitations
+
+- Demo data is local sample data only.
+- Local persistence only.
+- No cloud sync.
+- No authentication.
+- No real AI API integration yet.
+- AI provider remains architecture/fallback only.
+- No Android notifications/reminders yet.
+- No PDF export yet.
+- Reports are not official accounting/tax documents.
+- Not professional financial advice.
+- No guaranteed profit increase.
+- Screenshots are not committed unless captured separately.
+
 ## 0.9.0 - UN-0009
 
 - Added business report domain models for report periods, KPI cards, chart data, financial summaries, weekly execution, content performance, diagnosis summaries, retrospective highlights, export-ready text, and report snapshots.

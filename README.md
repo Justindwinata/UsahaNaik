@@ -1,8 +1,23 @@
 # UsahaNaik
 
-UsahaNaik is an Android portfolio project for Indonesian UMKM owners. The app is planned as an AI-assisted business growth planner that helps users structure business data, review financial signals, follow weekly action plans, monitor milestones, and preview creative content ideas.
+Local-first Android business growth planner for Indonesian UMKM owners.
+
+UsahaNaik is an Android portfolio project that helps users structure business data, track simple finance, review rule-based insights, follow weekly action plans, plan content, schedule content locally, generate retrospectives, and review business reports.
 
 The app does not claim guaranteed profit, guaranteed business success, or professional financial advice.
+
+## Key Features
+
+- Interactive business setup with category-driven hints.
+- Local Room persistence for one active business profile.
+- Simple income and expense tracking with estimated financial summaries.
+- Rule-based business diagnosis and business health score.
+- Weekly growth plan, task completion, challenge, and milestone tracking.
+- Content planner with deterministic local content ideas and optional AI-ready fallback architecture.
+- Local content calendar with planned, posted, skipped, and done status.
+- Weekly progress snapshots and deterministic retrospectives.
+- Business Report dashboard with KPI cards, simple Compose visual summaries, export-ready text, and local report snapshots.
+- Demo Mode for portfolio presentation using sample UMKM data.
 
 ## Target Users
 
@@ -14,7 +29,22 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0009 adds a Business Report dashboard that combines local profile, finance, diagnosis, weekly plan, content planner, content calendar, progress history, and retrospective data into KPI cards, simple visual summaries, export-ready text, local report snapshots, and a dashboard report CTA.
+UN-0010 polishes the app for portfolio presentation with shared state components, dashboard/report polish, planning/content/retrospective polish, demo data mode, navigation refresh hardening, accessibility labels, and portfolio documentation.
+
+Demo Mode sample business:
+
+- Business: Dapur Rasa Nusantara.
+- Category: Food & Beverage.
+- Includes sample profile, finance entries, weekly plan, content ideas, content calendar schedules, progress snapshot, retrospective, and report snapshot.
+
+To load demo data in the app:
+
+1. Open `Profile`.
+2. Tap `Load Demo Data`.
+3. Confirm that local app data may be replaced.
+4. Return to Dashboard, Weekly Plan, Content Planner, Retrospective, or Business Report.
+
+Screenshot files are not committed yet. See [Screenshot Plan](docs/SCREENSHOT_PLAN.md) for the capture checklist.
 
 Implemented UN-0001 screens:
 
@@ -133,6 +163,18 @@ Implemented UN-0009 foundation:
 - Dashboard Business Report card with estimated profit, health score, task completion, content execution, and CTA.
 - Tests cover report models, generator period filtering, export renderer safety, snapshot persistence, ViewModel state, and dashboard summary mapping.
 
+Implemented UN-0010 foundation:
+
+- UX polish plan and QA risk audit.
+- Shared empty, loading, error, and CTA state components.
+- Dashboard command-center framing and report state polish.
+- Cleaner Weekly Plan, Content Planner, Content Calendar, and Retrospective empty/error states.
+- Local Demo Mode with confirmation dialogs in Settings/Profile.
+- Demo data seeder for a realistic Food & Beverage UMKM sample.
+- Route-entry refresh hooks so demo data appears when opening core screens.
+- Bottom navigation accessibility descriptions.
+- Portfolio documentation, demo script, QA checklist, screenshot plan, and showcase summary.
+
 ## Tech Stack
 
 - Kotlin
@@ -181,6 +223,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 - Business reports are generated from local app data only.
 - Business report snapshots are saved locally.
 - Charts are simple Compose visual summaries.
+- Demo data is sample local data for presentation only.
 - No PDF export yet.
 - AI provider architecture is present, but remote AI generation is not implemented in this milestone.
 - No hardcoded API keys.
@@ -194,7 +237,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0010, optional local reminders for sales tracking, weekly reviews, content planning, retrospective follow-up, and report review.
+Next recommended milestone: UN-0011, optional local reminders for sales tracking, weekly reviews, content planning, retrospective follow-up, and report review.
 
 ## Documentation
 
@@ -203,3 +246,7 @@ Next recommended milestone: UN-0010, optional local reminders for sales tracking
 - [Roadmap](docs/ROADMAP.md)
 - [Decision Log](docs/DECISION_LOG.md)
 - [UI Reference Analysis](docs/UI_REFERENCE_ANALYSIS.md)
+- [Demo Script](docs/DEMO_SCRIPT.md)
+- [QA Checklist](docs/QA_CHECKLIST.md)
+- [Screenshot Plan](docs/SCREENSHOT_PLAN.md)
+- [Portfolio Showcase](docs/PORTFOLIO_SHOWCASE.md)

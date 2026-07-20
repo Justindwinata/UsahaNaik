@@ -4,7 +4,7 @@
 
 UsahaNaik is an Android app built with Kotlin, Jetpack Compose, Material Design 3, Navigation Compose, ViewModel-ready state boundaries, repository pattern-ready data access, and local-first planning.
 
-UN-0009 adds a Business Report dashboard, deterministic report aggregation, export-ready text summaries, local report snapshots, and a dashboard report summary card. Real PDF export, remote AI integration, cloud sync, external calendar integration, notifications, and production diagnosis refinement remain planned for later contracts.
+UN-0010 adds portfolio polish, shared state UI components, local Demo Mode, route refresh hardening, accessibility labels, and portfolio documentation. Real PDF export, remote AI integration, cloud sync, external calendar integration, notifications, and production diagnosis refinement remain planned for later contracts.
 
 ## UI Layer
 
@@ -33,6 +33,8 @@ The UI layer uses Jetpack Compose screens and reusable design components:
 - `BusinessReportViewModel` loads local repositories, generates period-based reports, exposes export-ready text, and saves local report snapshots.
 - Business Report UI renders KPI cards, simple visual summaries, finance, growth, diagnosis, content, retrospective, export-ready text, and snapshot history sections.
 - Dashboard shows a compact Business Report card and CTA.
+- Settings/Profile exposes Demo Mode controls for loading and clearing local sample data with confirmation dialogs.
+- Shared UI components include reusable empty, loading, error, and CTA state cards.
 - Settings/Profile can show and delete the saved local business profile.
 - Settings/Profile shows the current local-only AI provider mode and documents future API key safety rules.
 
@@ -65,6 +67,7 @@ The domain layer contains plain Kotlin models for:
 - `BusinessReportGenerator` for deterministic period-based aggregation across local app data.
 - `ExportReadyReportRenderer` for markdown-like copy/share-ready report text with safety disclaimers.
 - Business report dashboard summary mapping.
+- Demo data seeding model for local portfolio presentation.
 - Business dashboard preview.
 - Financial summary, expense breakdown, and trend points.
 - Milestones, tasks, product performance, and recommendations.
@@ -117,6 +120,7 @@ The data layer uses local sample and Room-backed repositories:
 - `LocalBusinessReportSnapshotRepository`
 - `BusinessReportSnapshotDao`
 - `BusinessReportSnapshotEntity`
+- `DemoDataSeeder`
 
 Room stores one active business profile in `usahanaik.db`, table `business_profiles`, simple local financial records in `financial_entries`, one active weekly plan across `weekly_growth_plans`, `weekly_tasks`, and `weekly_milestones`, saved content ideas in `content_ideas`, local content schedules in `content_calendar_items`, weekly progress snapshots in `weekly_progress_snapshots`, weekly retrospectives in `weekly_retrospectives`, and saved report snapshots in `business_report_snapshots`. Multi-business support is deferred.
 
@@ -131,6 +135,8 @@ UN-0007 updates Room to version 4 with an additive `content_ideas` table. Genera
 UN-0008 updates Room to version 7 through additive migrations. Version 5 adds `content_calendar_items`, version 6 adds `weekly_progress_snapshots`, and version 7 adds `weekly_retrospectives`.
 
 UN-0009 updates Room to version 8 with an additive `business_report_snapshots` table. Report snapshots store period, business name, generated date, headline summary, export-ready text, health score, revenue, expenses, estimated profit, task completion rate, content execution rate, and metadata timestamps.
+
+UN-0010 does not change the Room schema. Demo Mode uses existing repositories and tables to insert a sample dataset after confirmation.
 
 Planned data direction:
 
@@ -192,5 +198,6 @@ Current local-first behavior:
 - Dashboard can show continuity cards from weekly plan, calendar, retrospective, and snapshot history state.
 - Business reports can be generated from local data, previewed in the app, and saved as local snapshots.
 - Dashboard can show a compact Business Report summary.
+- Demo data can be loaded and cleared locally from Settings/Profile.
 - Settings/Profile can delete the saved local profile.
 - No authentication or cloud sync is used.
