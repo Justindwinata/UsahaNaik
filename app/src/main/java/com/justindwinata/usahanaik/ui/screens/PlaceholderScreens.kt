@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
@@ -114,6 +115,7 @@ import com.justindwinata.usahanaik.ui.content.ContentPlannerUiState
 import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsUiState
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
+import com.justindwinata.usahanaik.ui.demo.DemoDataViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryUiState
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
@@ -2860,9 +2862,21 @@ private fun calendarStatusContainerColor(status: ContentCalendarStatus) = when (
 }
 
 @Composable
-fun SettingsScreen(viewModel: BusinessSetupViewModel) {
+fun SettingsScreen(
+    viewModel: BusinessSetupViewModel,
+    demoDataViewModel: DemoDataViewModel
+) {
     val uiState by viewModel.uiState.collectAsState()
+    val demoState by demoDataViewModel.uiState.collectAsState()
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showLoadDemoConfirmation by remember { mutableStateOf(false) }
+    var showClearDemoConfirmation by remember { mutableStateOf(false) }
+
+    LaunchedEffect(demoState.successMessage) {
+        if (demoState.successMessage != null) {
+            viewModel.loadSavedProfile()
+        }
+    }
 
     ScreenContainer {
         SectionHeader(title = "Profile")
@@ -2873,6 +2887,26 @@ fun SettingsScreen(viewModel: BusinessSetupViewModel) {
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         AiProviderSettingsSection()
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        DemoDataSettingsSection(
+            isLoading = demoState.isLoadingDemoData,
+            isClearing = demoState.isClearingDemoData,
+            lastResult = demoState.lastResult?.let {
+                "${it.financialEntryCount} finance entries, ${it.weeklyTaskCount} weekly tasks, ${it.contentIdeaCount} content ideas, ${it.scheduledContentCount} schedules"
+            },
+            onRequestLoad = { showLoadDemoConfirmation = true },
+            onRequestClear = { showClearDemoConfirmation = true }
+        )
+        demoState.successMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            UsahaNaikCard(containerColor = GreenSoft) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            }
+        }
+        demoState.errorMessage?.let { message ->
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            ErrorStateCard(title = "Demo data needs attention", message = message)
+        }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         if (uiState.savedProfile == null) {
             UsahaNaikCard(containerColor = YellowSoft) {
@@ -2953,6 +2987,52 @@ fun SettingsScreen(viewModel: BusinessSetupViewModel) {
             )
         }
     }
+
+    if (showLoadDemoConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showLoadDemoConfirmation = false },
+            title = { Text("Load demo data?") },
+            text = {
+                Text("Loading demo data may replace current local app data on this device. Demo data is sample data for portfolio presentation.")
+            },
+            confirmButton = {
+                Button(onClick = {
+                    demoDataViewModel.loadDemoData()
+                    showLoadDemoConfirmation = false
+                }) {
+                    Text("Load Demo Data")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showLoadDemoConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showClearDemoConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showClearDemoConfirmation = false },
+            title = { Text("Clear demo data?") },
+            text = {
+                Text("This removes the local demo dataset and local profile/report demo state from this device.")
+            },
+            confirmButton = {
+                Button(onClick = {
+                    demoDataViewModel.clearDemoData()
+                    showClearDemoConfirmation = false
+                }) {
+                    Text("Clear Demo Data")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showClearDemoConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -2969,6 +3049,53 @@ private fun AiProviderSettingsSection() {
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Text(
             text = "If API key settings are added later, keys must be user-provided, masked in UI, stored only on this device, and never logged.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
+    }
+}
+
+@Composable
+private fun DemoDataSettingsSection(
+    isLoading: Boolean,
+    isClearing: Boolean,
+    lastResult: String?,
+    onRequestLoad: () -> Unit,
+    onRequestClear: () -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+        PillBadge(text = "Demo mode", containerColor = CreamBackground, contentColor = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Portfolio demo data", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Load realistic sample data for Dapur Rasa Nusantara so Dashboard, Weekly Plan, Content Planner, Retrospective, and Business Report can be explored quickly.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        lastResult?.let {
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Last loaded: $it", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            Button(
+                onClick = onRequestLoad,
+                enabled = !isLoading && !isClearing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (isLoading) "Loading..." else "Load Demo Data")
+            }
+            OutlinedButton(
+                onClick = onRequestClear,
+                enabled = !isLoading && !isClearing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (isClearing) "Clearing..." else "Clear Demo Data")
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = "Demo data is sample local data only. It does not represent guaranteed business performance.",
             style = MaterialTheme.typography.bodySmall,
             color = InkMuted
         )

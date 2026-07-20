@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.ai.LocalContentIdeaProvider
+import com.justindwinata.usahanaik.data.demo.DemoDataSeeder
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
 import com.justindwinata.usahanaik.data.repository.LocalBusinessReportSnapshotRepository
@@ -37,6 +38,8 @@ import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModel
 import com.justindwinata.usahanaik.ui.content.ContentPlannerViewModelFactory
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModel
 import com.justindwinata.usahanaik.ui.dashboard.DashboardInsightsViewModelFactory
+import com.justindwinata.usahanaik.ui.demo.DemoDataViewModel
+import com.justindwinata.usahanaik.ui.demo.DemoDataViewModelFactory
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModel
 import com.justindwinata.usahanaik.ui.finance.FinancialEntryViewModelFactory
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
@@ -99,6 +102,27 @@ fun UsahaNaikApp() {
         val contentIdeaProvider = remember {
             LocalContentIdeaProvider()
         }
+        val demoDataSeeder = remember(
+            businessProfileRepository,
+            financialEntryRepository,
+            weeklyPlanRepository,
+            contentIdeaRepository,
+            contentCalendarRepository,
+            progressHistoryRepository,
+            retrospectiveRepository,
+            reportSnapshotRepository
+        ) {
+            DemoDataSeeder(
+                businessProfileRepository = businessProfileRepository,
+                financialEntryRepository = financialEntryRepository,
+                weeklyPlanRepository = weeklyPlanRepository,
+                contentIdeaRepository = contentIdeaRepository,
+                contentCalendarRepository = contentCalendarRepository,
+                progressHistoryRepository = progressHistoryRepository,
+                retrospectiveRepository = retrospectiveRepository,
+                reportSnapshotRepository = reportSnapshotRepository
+            )
+        }
         val navController = rememberNavController()
         val setupViewModel: BusinessSetupViewModel = viewModel(
             factory = BusinessSetupViewModelFactory(businessProfileRepository)
@@ -151,6 +175,9 @@ fun UsahaNaikApp() {
                 weeklyRetrospectiveRepository = retrospectiveRepository,
                 snapshotRepository = reportSnapshotRepository
             )
+        )
+        val demoDataViewModel: DemoDataViewModel = viewModel(
+            factory = DemoDataViewModelFactory(demoDataSeeder)
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -256,7 +283,10 @@ fun UsahaNaikApp() {
                     BusinessReportScreen(viewModel = businessReportViewModel)
                 }
                 composable(AppRoute.Settings.route) {
-                    SettingsScreen(viewModel = setupViewModel)
+                    SettingsScreen(
+                        viewModel = setupViewModel,
+                        demoDataViewModel = demoDataViewModel
+                    )
                 }
             }
         }
