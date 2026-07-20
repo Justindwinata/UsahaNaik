@@ -16,9 +16,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         WeeklyMilestoneEntity::class,
         ContentIdeaEntity::class,
         ContentCalendarEntity::class,
-        WeeklyProgressSnapshotEntity::class
+        WeeklyProgressSnapshotEntity::class,
+        WeeklyRetrospectiveEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class UsahaNaikDatabase : RoomDatabase() {
@@ -28,6 +29,7 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
     abstract fun contentIdeaDao(): ContentIdeaDao
     abstract fun contentCalendarDao(): ContentCalendarDao
     abstract fun weeklyProgressSnapshotDao(): WeeklyProgressSnapshotDao
+    abstract fun weeklyRetrospectiveDao(): WeeklyRetrospectiveDao
 
     companion object {
         private const val DATABASE_NAME = "usahanaik.db"
@@ -196,6 +198,27 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS weekly_retrospectives (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        weekLabel TEXT NOT NULL,
+                        generatedDate TEXT NOT NULL,
+                        summaryTitle TEXT NOT NULL,
+                        sections TEXT NOT NULL,
+                        nextWeekFocus TEXT NOT NULL,
+                        nextWeekReason TEXT NOT NULL,
+                        nextWeekRecommendedAction TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         @Volatile
         private var instance: UsahaNaikDatabase? = null
 
@@ -211,7 +234,8 @@ abstract class UsahaNaikDatabase : RoomDatabase() {
                         MIGRATION_2_3,
                         MIGRATION_3_4,
                         MIGRATION_4_5,
-                        MIGRATION_5_6
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
                     )
                     .build()
                     .also { instance = it }
