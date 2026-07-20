@@ -88,6 +88,11 @@ import com.justindwinata.usahanaik.domain.model.ReportChartData
 import com.justindwinata.usahanaik.domain.model.ReportExpenseBreakdownItem
 import com.justindwinata.usahanaik.domain.model.ReportInsight
 import com.justindwinata.usahanaik.domain.model.ReportKpiStatus
+import com.justindwinata.usahanaik.domain.model.BusinessReminder
+import com.justindwinata.usahanaik.domain.model.ReminderFrequency
+import com.justindwinata.usahanaik.domain.model.ReminderPermissionState
+import com.justindwinata.usahanaik.domain.model.ReminderStatus
+import com.justindwinata.usahanaik.domain.model.ReminderType
 import com.justindwinata.usahanaik.domain.model.WeeklyGrowthPlan
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressHistorySummary
 import com.justindwinata.usahanaik.domain.model.WeeklyProgressSnapshot
@@ -139,6 +144,8 @@ import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
 import com.justindwinata.usahanaik.ui.report.BusinessReportUiState
 import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
+import com.justindwinata.usahanaik.ui.reminder.ReminderUiState
+import com.justindwinata.usahanaik.ui.reminder.ReminderViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -839,6 +846,7 @@ fun DashboardScreen(
     contentCalendarViewModel: ContentCalendarViewModel,
     weeklyRetrospectiveViewModel: WeeklyRetrospectiveViewModel,
     businessReportViewModel: BusinessReportViewModel,
+    reminderViewModel: ReminderViewModel,
     onOpenWeeklyPlan: () -> Unit,
     onOpenContentPlanner: () -> Unit,
     onOpenRetrospective: () -> Unit,
@@ -852,6 +860,7 @@ fun DashboardScreen(
     val contentCalendarState by contentCalendarViewModel.uiState.collectAsState()
     val retrospectiveState by weeklyRetrospectiveViewModel.uiState.collectAsState()
     val reportState by businessReportViewModel.uiState.collectAsState()
+    val reminderState by reminderViewModel.uiState.collectAsState()
     val financialMetrics = remember(financialState.summary, dashboard) {
         FinancialDashboardMetricsMapper.from(
             summary = financialState.summary,
@@ -956,6 +965,8 @@ fun DashboardScreen(
             summary = reportSummary,
             onOpenBusinessReport = onOpenBusinessReport
         )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        ReminderDashboardSection(uiState = reminderState)
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             MetricCard(
@@ -1559,6 +1570,51 @@ private fun BusinessReportDashboardSection(
         Button(onClick = onOpenBusinessReport, modifier = Modifier.fillMaxWidth()) {
             Text("Open Business Report")
         }
+    }
+}
+
+@Composable
+private fun ReminderDashboardSection(uiState: ReminderUiState) {
+    SectionHeader(title = "Local Reminders", actionLabel = if (uiState.summary.hasActiveReminders) "Active" else "Optional")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = if (uiState.summary.hasActiveReminders) BlueSoft else YellowSoft
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            MetricCard(
+                title = "Active",
+                value = uiState.summary.activeCount.toString(),
+                helper = "Reminders",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = GreenPositive
+            )
+            MetricCard(
+                title = "Paused",
+                value = uiState.summary.pausedCount.toString(),
+                helper = "Optional",
+                modifier = Modifier.weight(1f),
+                containerColor = CreamBackground,
+                accentColor = CoralPrimary
+            )
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = "Next reminder", style = MaterialTheme.typography.labelLarge, color = InkMuted)
+        Text(text = uiState.summary.nextReminderTitle, style = MaterialTheme.typography.titleMedium)
+        Text(text = uiState.summary.nextReminderTimeLabel, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        PillBadge(
+            text = "Notification status: ${uiState.permissionState.label}",
+            containerColor = CreamBackground,
+            contentColor = if (uiState.permissionState == ReminderPermissionState.Granted) GreenPositive else CoralPrimary
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = "Manage reminder settings from Profile. If notification permission is unavailable, reminders still appear in app.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
     }
 }
 
@@ -2864,10 +2920,12 @@ private fun calendarStatusContainerColor(status: ContentCalendarStatus) = when (
 @Composable
 fun SettingsScreen(
     viewModel: BusinessSetupViewModel,
-    demoDataViewModel: DemoDataViewModel
+    demoDataViewModel: DemoDataViewModel,
+    reminderViewModel: ReminderViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val demoState by demoDataViewModel.uiState.collectAsState()
+    val reminderState by reminderViewModel.uiState.collectAsState()
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showLoadDemoConfirmation by remember { mutableStateOf(false) }
     var showClearDemoConfirmation by remember { mutableStateOf(false) }
@@ -2887,6 +2945,24 @@ fun SettingsScreen(
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         AiProviderSettingsSection()
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        ReminderSettingsSection(
+            uiState = reminderState,
+            onTypeChange = reminderViewModel::updateType,
+            onTitleChange = reminderViewModel::updateTitle,
+            onDescriptionChange = reminderViewModel::updateDescription,
+            onFrequencyChange = reminderViewModel::updateFrequency,
+            onScheduledDayChange = reminderViewModel::updateScheduledDay,
+            onScheduledDateChange = reminderViewModel::updateScheduledDate,
+            onTimeLabelChange = reminderViewModel::updateTimeLabel,
+            onEnabledChange = reminderViewModel::updateEnabled,
+            onSave = reminderViewModel::saveReminder,
+            onResetForm = reminderViewModel::resetForm,
+            onEdit = reminderViewModel::editReminder,
+            onEnable = reminderViewModel::enableReminder,
+            onPause = reminderViewModel::pauseReminder,
+            onDelete = reminderViewModel::deleteReminder
+        )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         DemoDataSettingsSection(
             isLoading = demoState.isLoadingDemoData,
@@ -3032,6 +3108,200 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun ReminderSettingsSection(
+    uiState: ReminderUiState,
+    onTypeChange: (ReminderType) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onFrequencyChange: (ReminderFrequency) -> Unit,
+    onScheduledDayChange: (String) -> Unit,
+    onScheduledDateChange: (String) -> Unit,
+    onTimeLabelChange: (String) -> Unit,
+    onEnabledChange: (Boolean) -> Unit,
+    onSave: () -> Unit,
+    onResetForm: () -> Unit,
+    onEdit: (BusinessReminder) -> Unit,
+    onEnable: (Long) -> Unit,
+    onPause: (Long) -> Unit,
+    onDelete: (Long) -> Unit
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+        PillBadge(text = "Local reminders", containerColor = CreamBackground, contentColor = GreenPositive)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Business routine reminders", style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = "Reminders are saved locally. If notification permission is unavailable, they still appear in Dashboard and Profile.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        PillBadge(
+            text = "Permission: ${uiState.permissionState.label}",
+            containerColor = CreamBackground,
+            contentColor = if (uiState.permissionState == ReminderPermissionState.Granted) GreenPositive else CoralPrimary
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(text = "Create reminder", style = MaterialTheme.typography.titleSmall)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            ReminderType.entries.forEach { type ->
+                FilterChip(
+                    selected = uiState.form.type == type,
+                    onClick = { onTypeChange(type) },
+                    label = { Text(type.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        OutlinedTextField(
+            value = uiState.form.title,
+            onValueChange = onTitleChange,
+            label = { Text("Reminder title") },
+            isError = uiState.visibleTitleError() != null,
+            supportingText = { uiState.visibleTitleError()?.let { Text(it) } },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = uiState.form.description,
+            onValueChange = onDescriptionChange,
+            label = { Text("Description") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Frequency", style = MaterialTheme.typography.labelLarge, color = InkMuted)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            ReminderFrequency.entries.forEach { frequency ->
+                FilterChip(
+                    selected = uiState.form.frequency == frequency,
+                    onClick = { onFrequencyChange(frequency) },
+                    label = { Text(frequency.label) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            OutlinedTextField(
+                value = uiState.form.scheduledDay,
+                onValueChange = onScheduledDayChange,
+                label = { Text("Day label") },
+                placeholder = { Text("Monday") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = uiState.form.timeLabel,
+                onValueChange = onTimeLabelChange,
+                label = { Text("Time") },
+                placeholder = { Text("20:00") },
+                isError = uiState.visibleTimeError() != null,
+                supportingText = { uiState.visibleTimeError()?.let { Text(it) } },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        OutlinedTextField(
+            value = uiState.form.scheduledDate,
+            onValueChange = onScheduledDateChange,
+            label = { Text("Date for one-time reminders") },
+            placeholder = { Text("2026-07-21") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = uiState.form.enabled, onCheckedChange = onEnabledChange)
+            Text(text = if (uiState.form.enabled) "Reminder active" else "Reminder paused")
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            Button(onClick = onSave, enabled = !uiState.isSaving, modifier = Modifier.weight(1f)) {
+                Text(if (uiState.isSaving) "Saving..." else if (uiState.form.editingReminderId == null) "Save Reminder" else "Update Reminder")
+            }
+            OutlinedButton(onClick = onResetForm, modifier = Modifier.weight(1f)) {
+                Text("Reset Form")
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    when {
+        uiState.isLoading -> LoadingStateCard(
+            title = "Loading reminders...",
+            message = "Checking local reminder settings."
+        )
+        uiState.reminders.isEmpty() -> EmptyStateCard(
+            title = "No reminders yet",
+            message = "Create a daily finance, weekly plan, content, retrospective, or report reminder.",
+            actionLabel = "Use Form Above",
+            onActionClick = {}
+        )
+        else -> {
+            SectionHeader(title = "Saved Reminders", actionLabel = "${uiState.summary.activeCount} active")
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            uiState.reminders.forEach { reminder ->
+                ReminderListItem(
+                    reminder = reminder,
+                    onEdit = onEdit,
+                    onEnable = onEnable,
+                    onPause = onPause,
+                    onDelete = onDelete
+                )
+                Spacer(modifier = Modifier.height(AppSpacing.sm))
+            }
+        }
+    }
+    uiState.successMessage?.let { message ->
+        UsahaNaikCard(containerColor = BlueSoft) {
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        }
+    }
+    uiState.errorMessage?.let { message ->
+        ErrorStateCard(title = "Reminder needs attention", message = message)
+    }
+}
+
+@Composable
+private fun ReminderListItem(
+    reminder: BusinessReminder,
+    onEdit: (BusinessReminder) -> Unit,
+    onEnable: (Long) -> Unit,
+    onPause: (Long) -> Unit,
+    onDelete: (Long) -> Unit
+) {
+    UsahaNaikCard(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = when (reminder.status) {
+            ReminderStatus.Active -> BlueSoft
+            ReminderStatus.Paused -> YellowSoft
+            ReminderStatus.Completed -> GreenSoft
+            ReminderStatus.Disabled -> RoseSoft
+        }
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            PillBadge(text = reminder.type.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+            PillBadge(text = "Status: ${reminder.status.label}", containerColor = CreamBackground, contentColor = InkMuted)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = reminder.title, style = MaterialTheme.typography.titleMedium)
+        Text(text = reminder.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Text(text = reminder.scheduleLabel, style = MaterialTheme.typography.labelLarge, color = CoralPrimary)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+            OutlinedButton(onClick = { onEdit(reminder) }, modifier = Modifier.weight(1f)) {
+                Text("Edit")
+            }
+            if (reminder.status == ReminderStatus.Active) {
+                OutlinedButton(onClick = { onPause(reminder.id) }, modifier = Modifier.weight(1f)) {
+                    Text("Pause")
+                }
+            } else {
+                Button(onClick = { onEnable(reminder.id) }, modifier = Modifier.weight(1f)) {
+                    Text("Enable")
+                }
+            }
+        }
+        OutlinedButton(onClick = { onDelete(reminder.id) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Delete Reminder")
+        }
     }
 }
 

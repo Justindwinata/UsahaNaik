@@ -24,6 +24,10 @@ import androidx.navigation.compose.rememberNavController
 import com.justindwinata.usahanaik.data.ai.LocalContentIdeaProvider
 import com.justindwinata.usahanaik.data.demo.DemoDataSeeder
 import com.justindwinata.usahanaik.data.local.UsahaNaikDatabase
+import com.justindwinata.usahanaik.data.reminder.AndroidReminderPermissionHelper
+import com.justindwinata.usahanaik.data.reminder.AndroidReminderScheduler
+import com.justindwinata.usahanaik.data.reminder.ReminderNotificationManager
+import com.justindwinata.usahanaik.data.repository.LocalBusinessReminderRepository
 import com.justindwinata.usahanaik.data.repository.LocalBusinessProfileRepository
 import com.justindwinata.usahanaik.data.repository.LocalBusinessReportSnapshotRepository
 import com.justindwinata.usahanaik.data.repository.LocalContentCalendarRepository
@@ -49,6 +53,8 @@ import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModelFactory
 import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
 import com.justindwinata.usahanaik.ui.report.BusinessReportViewModelFactory
+import com.justindwinata.usahanaik.ui.reminder.ReminderViewModel
+import com.justindwinata.usahanaik.ui.reminder.ReminderViewModelFactory
 import com.justindwinata.usahanaik.ui.screens.BusinessReportScreen
 import com.justindwinata.usahanaik.ui.screens.BusinessSetupScreen
 import com.justindwinata.usahanaik.ui.screens.CategorySelectionScreen
@@ -98,6 +104,18 @@ fun UsahaNaikApp() {
         }
         val reportSnapshotRepository = remember(database) {
             LocalBusinessReportSnapshotRepository(database.businessReportSnapshotDao())
+        }
+        val reminderRepository = remember(database) {
+            LocalBusinessReminderRepository(database.businessReminderDao())
+        }
+        val reminderPermissionHelper = remember(context) {
+            AndroidReminderPermissionHelper(context)
+        }
+        val reminderScheduler = remember(context, reminderPermissionHelper) {
+            AndroidReminderScheduler(
+                notificationManager = ReminderNotificationManager(context),
+                permissionHelper = reminderPermissionHelper
+            )
         }
         val contentIdeaProvider = remember {
             LocalContentIdeaProvider()
@@ -178,6 +196,13 @@ fun UsahaNaikApp() {
         )
         val demoDataViewModel: DemoDataViewModel = viewModel(
             factory = DemoDataViewModelFactory(demoDataSeeder)
+        )
+        val reminderViewModel: ReminderViewModel = viewModel(
+            factory = ReminderViewModelFactory(
+                repository = reminderRepository,
+                scheduler = reminderScheduler,
+                permissionHelper = reminderPermissionHelper
+            )
         )
         val setupState by setupViewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
@@ -261,6 +286,7 @@ fun UsahaNaikApp() {
                         contentCalendarViewModel.loadSchedules()
                         weeklyRetrospectiveViewModel.load()
                         businessReportViewModel.refresh()
+                        reminderViewModel.loadReminders()
                     }
                     DashboardScreen(
                         setupDraft = setupState.savedProfile?.draft ?: setupState.draft.takeIf { setupState.isValid },
@@ -271,6 +297,7 @@ fun UsahaNaikApp() {
                         contentCalendarViewModel = contentCalendarViewModel,
                         weeklyRetrospectiveViewModel = weeklyRetrospectiveViewModel,
                         businessReportViewModel = businessReportViewModel,
+                        reminderViewModel = reminderViewModel,
                         onOpenWeeklyPlan = { navController.navigate(AppRoute.WeeklyPlan.route) },
                         onOpenContentPlanner = { navController.navigate(AppRoute.ContentIdeas.route) },
                         onOpenRetrospective = { navController.navigate(AppRoute.Retrospective.route) },
@@ -309,9 +336,13 @@ fun UsahaNaikApp() {
                     BusinessReportScreen(viewModel = businessReportViewModel)
                 }
                 composable(AppRoute.Settings.route) {
+                    LaunchedEffect(Unit) {
+                        reminderViewModel.loadReminders()
+                    }
                     SettingsScreen(
                         viewModel = setupViewModel,
-                        demoDataViewModel = demoDataViewModel
+                        demoDataViewModel = demoDataViewModel,
+                        reminderViewModel = reminderViewModel
                     )
                 }
             }
