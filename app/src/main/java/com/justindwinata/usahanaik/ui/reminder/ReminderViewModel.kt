@@ -43,6 +43,17 @@ class ReminderViewModel(
         }
     }
 
+    fun refreshPermissionState() {
+        viewModelScope.launch {
+            val permissionState = permissionHelper.currentState()
+            val reminders = _uiState.value.reminders.ifEmpty { repository.listReminders() }
+            _uiState.value = _uiState.value.copy(
+                permissionState = permissionState,
+                summary = ReminderSummaryCalculator.summarize(reminders, permissionState)
+            )
+        }
+    }
+
     fun updateType(type: ReminderType) {
         val frequency = when (type) {
             ReminderType.DailyFinancialTracking -> ReminderFrequency.Daily
@@ -203,4 +214,3 @@ class ReminderViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
-

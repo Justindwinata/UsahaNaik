@@ -1,5 +1,9 @@
 package com.justindwinata.usahanaik.ui.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -2929,6 +2933,11 @@ fun SettingsScreen(
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     var showLoadDemoConfirmation by remember { mutableStateOf(false) }
     var showClearDemoConfirmation by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        reminderViewModel.refreshPermissionState()
+    }
 
     LaunchedEffect(demoState.successMessage) {
         if (demoState.successMessage != null) {
@@ -2961,7 +2970,14 @@ fun SettingsScreen(
             onEdit = reminderViewModel::editReminder,
             onEnable = reminderViewModel::enableReminder,
             onPause = reminderViewModel::pauseReminder,
-            onDelete = reminderViewModel::deleteReminder
+            onDelete = reminderViewModel::deleteReminder,
+            onRequestNotificationPermission = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    reminderViewModel.refreshPermissionState()
+                }
+            }
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         DemoDataSettingsSection(
@@ -3128,7 +3144,8 @@ private fun ReminderSettingsSection(
     onEdit: (BusinessReminder) -> Unit,
     onEnable: (Long) -> Unit,
     onPause: (Long) -> Unit,
-    onDelete: (Long) -> Unit
+    onDelete: (Long) -> Unit,
+    onRequestNotificationPermission: () -> Unit
 ) {
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
         PillBadge(text = "Local reminders", containerColor = CreamBackground, contentColor = GreenPositive)
@@ -3145,6 +3162,22 @@ private fun ReminderSettingsSection(
             containerColor = CreamBackground,
             contentColor = if (uiState.permissionState == ReminderPermissionState.Granted) GreenPositive else CoralPrimary
         )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = if (uiState.permissionState == ReminderPermissionState.Granted || uiState.permissionState == ReminderPermissionState.NotRequired) {
+                "System notifications can be scheduled approximately. Dashboard and Profile still show in-app reminders."
+            } else {
+                "Enable notifications if you want Android alerts. If you skip this, reminders remain visible inside UsahaNaik."
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted
+        )
+        if (uiState.permissionState == ReminderPermissionState.Denied || uiState.permissionState == ReminderPermissionState.Unknown) {
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Button(onClick = onRequestNotificationPermission, modifier = Modifier.fillMaxWidth()) {
+                Text("Enable Notifications")
+            }
+        }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         Text(text = "Create reminder", style = MaterialTheme.typography.titleSmall)
         Spacer(modifier = Modifier.height(AppSpacing.sm))

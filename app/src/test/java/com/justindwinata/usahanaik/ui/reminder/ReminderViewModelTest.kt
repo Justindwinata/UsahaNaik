@@ -105,6 +105,21 @@ class ReminderViewModelTest {
         assertEquals(listOf(saved.id), scheduler.cancelledIds)
     }
 
+    @Test
+    fun refreshPermissionStateUpdatesSummaryPermission() = runTest {
+        val permissionHelper = FakePermissionHelper(ReminderPermissionState.Denied)
+        val repository = FakeBusinessReminderRepository()
+        val viewModel = ReminderViewModel(repository, FakeReminderScheduler(), permissionHelper)
+        advanceUntilIdle()
+
+        permissionHelper.permissionState = ReminderPermissionState.Granted
+        viewModel.refreshPermissionState()
+        advanceUntilIdle()
+
+        assertEquals(ReminderPermissionState.Granted, viewModel.uiState.value.permissionState)
+        assertEquals(ReminderPermissionState.Granted, viewModel.uiState.value.summary.permissionState)
+    }
+
     private fun sampleReminder(
         title: String = "Record sales",
         status: ReminderStatus = ReminderStatus.Active
@@ -184,7 +199,9 @@ class ReminderViewModelTest {
         }
     }
 
-    private class FakePermissionHelper : ReminderPermissionHelper {
-        override fun currentState(): ReminderPermissionState = ReminderPermissionState.Granted
+    private class FakePermissionHelper(
+        var permissionState: ReminderPermissionState = ReminderPermissionState.Granted
+    ) : ReminderPermissionHelper {
+        override fun currentState(): ReminderPermissionState = permissionState
     }
 }
