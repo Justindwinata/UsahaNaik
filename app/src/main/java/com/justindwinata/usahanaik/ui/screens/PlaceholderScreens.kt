@@ -1925,14 +1925,10 @@ fun WeeklyPlanScreen(
 
 @Composable
 private fun WeeklyPlanLoadingCard() {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-        Text(text = "Loading weekly plan...", style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = "UsahaNaik is checking your saved local plan.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
-    }
+    LoadingStateCard(
+        title = "Loading weekly plan...",
+        message = "UsahaNaik is checking your saved local plan."
+    )
 }
 
 @Composable
@@ -1940,24 +1936,18 @@ private fun WeeklyPlanEmptyState(
     uiState: WeeklyPlanUiState,
     onGenerate: () -> Unit
 ) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-        Text(
-            text = uiState.emptyStateMessage ?: "Generate your first weekly growth plan.",
-            style = MaterialTheme.typography.titleLarge
+    if (uiState.profile == null) {
+        EmptyStateCard(
+            title = uiState.emptyStateMessage ?: "Complete business setup first.",
+            message = "Weekly plans need a saved business profile, goals, and challenges before UsahaNaik can generate useful tasks."
         )
-        Text(
-            text = "Weekly plans are generated with rule-based suggestions from your saved profile, financial data, and diagnosis insights.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+    } else {
+        EmptyStateCard(
+            title = uiState.emptyStateMessage ?: "Generate your first weekly growth plan.",
+            message = "Weekly plans are rule-based suggestions from your saved profile, financial data, and diagnosis insights.",
+            actionLabel = if (uiState.isGenerating) null else "Generate Weekly Growth Plan",
+            onActionClick = if (uiState.isGenerating) null else onGenerate
         )
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        Button(
-            onClick = onGenerate,
-            enabled = !uiState.isGenerating && uiState.profile != null,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (uiState.isGenerating) "Generating..." else "Generate Weekly Growth Plan")
-        }
     }
 }
 
@@ -2197,9 +2187,7 @@ fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
         }
         uiState.errorMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
-            }
+            ErrorStateCard(title = "Retrospective needs attention", message = message)
         }
         uiState.currentSnapshot?.let { snapshot ->
             Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -2208,17 +2196,10 @@ fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         uiState.latestRetrospective?.let { retrospective ->
             WeeklyRetrospectiveCard(retrospective = retrospective)
-        } ?: UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-            Text(
-                text = uiState.emptyStateMessage ?: "No retrospective yet",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "Generate a retrospective after creating a weekly plan, recording finances, and scheduling content.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
-            )
-        }
+        } ?: EmptyStateCard(
+            title = uiState.emptyStateMessage ?: "No retrospective yet",
+            message = "Generate a retrospective after creating a weekly plan, recording finances, and scheduling content."
+        )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         ProgressHistorySection(summary = uiState.progressHistorySummary)
         Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -2374,7 +2355,10 @@ fun ContentIdeasScreen(
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         if (!uiState.hasProfile) {
-            ContentPlannerEmptyState(message = uiState.emptyStateMessage ?: "Complete business setup first.")
+            EmptyStateCard(
+                title = uiState.emptyStateMessage ?: "Complete business setup first.",
+                message = "Content ideas need a saved business profile so suggestions can match category, goals, and challenges."
+            )
         } else {
             ContentGenerationControls(
                 uiState = uiState,
@@ -2427,9 +2411,7 @@ fun ContentIdeasScreen(
         }
         uiState.errorMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
-            }
+            ErrorStateCard(title = "Content planner needs attention", message = message)
         }
     }
 }
@@ -2541,15 +2523,15 @@ private fun GeneratedIdeasSection(
     SectionHeader(title = "Generated Ideas", actionLabel = if (ideas.isEmpty()) "Draft" else "${ideas.size} ideas")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     if (ideas.isEmpty()) {
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-            Text(
-                text = if (isGenerating) "Generating content ideas..." else "Generate your first content ideas based on your business profile.",
-                style = MaterialTheme.typography.titleMedium
+        if (isGenerating) {
+            LoadingStateCard(
+                title = "Generating content ideas...",
+                message = "Ideas include hook, caption draft, CTA, visual suggestion, and safety notes."
             )
-            Text(
-                text = "Ideas include hook, caption draft, CTA, visual suggestion, and safety notes.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
+        } else {
+            EmptyStateCard(
+                title = "Generate your first content ideas.",
+                message = "Use your business profile, selected platform, and content goal to create local deterministic suggestions."
             )
         }
     } else {
@@ -2612,14 +2594,10 @@ private fun SavedIdeasSection(
         Spacer(modifier = Modifier.height(AppSpacing.md))
     }
     if (uiState.savedIdeas.isEmpty()) {
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-            Text(text = "No saved ideas yet", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Save generated ideas to plan, favorite, complete, or delete them locally.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
-            )
-        }
+        EmptyStateCard(
+            title = "No saved ideas yet",
+            message = "Save generated ideas to plan, schedule, favorite, complete, or delete them locally."
+        )
     } else {
         uiState.savedIdeas.forEach { idea ->
             ContentIdeaPlannerCard(
@@ -2784,20 +2762,14 @@ private fun ContentCalendarSection(
         Spacer(modifier = Modifier.height(AppSpacing.sm))
     }
     uiState.errorMessage?.let { message ->
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = RoseSoft) {
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
-        }
+        ErrorStateCard(title = "Content calendar needs attention", message = message)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
     }
     if (uiState.upcomingSchedules.isEmpty()) {
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-            Text(text = "No scheduled content yet", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Schedule saved ideas into this local calendar. No Android calendar permission or external calendar sync is used.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
-            )
-        }
+        EmptyStateCard(
+            title = "No scheduled content yet",
+            message = "Schedule saved ideas into this local calendar. No Android calendar permission or external calendar sync is used."
+        )
     } else {
         uiState.upcomingSchedules.forEach { item ->
             ContentCalendarItemCard(
