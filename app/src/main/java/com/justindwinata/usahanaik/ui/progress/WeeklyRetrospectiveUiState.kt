@@ -18,6 +18,12 @@ data class WeeklyRetrospectiveUiState(
     val successMessage: String? = null,
     val errorMessage: String? = null
 ) {
+    val visibleSnapshot: WeeklyProgressSnapshot?
+        get() = currentSnapshot ?: progressHistorySummary.latestSnapshot
+
+    val historyCountLabel: String
+        get() = "${history.size} saved"
+
     val emptyStateMessage: String?
         get() = if (latestRetrospective == null) "Generate this week's retrospective from your saved local progress." else null
 }

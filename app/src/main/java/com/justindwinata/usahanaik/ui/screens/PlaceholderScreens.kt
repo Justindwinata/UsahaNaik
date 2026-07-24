@@ -157,6 +157,7 @@ import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
 import com.justindwinata.usahanaik.ui.content.ContentCalendarUiState
 import com.justindwinata.usahanaik.ui.content.ContentCalendarViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
+import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveUiState
 import com.justindwinata.usahanaik.ui.report.BusinessReportUiState
 import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
 import com.justindwinata.usahanaik.ui.reminder.ReminderUiState
@@ -2366,7 +2367,7 @@ fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
             Spacer(modifier = Modifier.height(AppSpacing.md))
             ErrorStateCard(title = "Retrospective needs attention", message = message)
         }
-        uiState.currentSnapshot?.let { snapshot ->
+        uiState.visibleSnapshot?.let { snapshot ->
             Spacer(modifier = Modifier.height(AppSpacing.lg))
             WeeklyProgressSnapshotCard(snapshot = snapshot)
         }
@@ -2380,7 +2381,7 @@ fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         ProgressHistorySection(summary = uiState.progressHistorySummary)
         Spacer(modifier = Modifier.height(AppSpacing.lg))
-        RetrospectiveHistorySection(history = uiState.history)
+        RetrospectiveHistorySection(uiState = uiState)
     }
 }
 
@@ -2491,8 +2492,9 @@ private fun ProgressHistorySection(summary: WeeklyProgressHistorySummary) {
 }
 
 @Composable
-private fun RetrospectiveHistorySection(history: List<WeeklyRetrospective>) {
-    SectionHeader(title = "Retrospective History", actionLabel = "${history.size} saved")
+private fun RetrospectiveHistorySection(uiState: WeeklyRetrospectiveUiState) {
+    val history = uiState.history.take(3)
+    SectionHeader(title = "Retrospective History", actionLabel = uiState.historyCountLabel)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     if (history.isEmpty()) {
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
