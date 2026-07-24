@@ -38,6 +38,40 @@ class FinancialEntryViewModelTest {
     }
 
     @Test
+    fun rejectsUnsupportedAmountCharacters() = runTest {
+        val repository = FakeFinancialEntryRepository()
+        val viewModel = FinancialEntryViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.updateTitle("Sales")
+        viewModel.updateAmount("100abc")
+        viewModel.saveEntry()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.entries.value.size)
+        assertEquals(
+            "Use numbers, Rp, dots, commas, or Indonesian amount labels only.",
+            viewModel.uiState.value.visibleAmountError()
+        )
+    }
+
+    @Test
+    fun rejectsMalformedDate() = runTest {
+        val repository = FakeFinancialEntryRepository()
+        val viewModel = FinancialEntryViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.updateTitle("Sales")
+        viewModel.updateAmount("100000")
+        viewModel.updateDate("19/07/2026")
+        viewModel.saveEntry()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.entries.value.size)
+        assertEquals("Use date format YYYY-MM-DD.", viewModel.uiState.value.visibleDateError())
+    }
+
+    @Test
     fun savesValidIncomeEntryAndRefreshesSummary() = runTest {
         val repository = FakeFinancialEntryRepository()
         val viewModel = FinancialEntryViewModel(repository)
@@ -52,8 +86,15 @@ class FinancialEntryViewModelTest {
 
         assertEquals(1, repository.entries.value.size)
         assertEquals(1_000_000L, viewModel.uiState.value.summary.totalIncome)
-        assertEquals("Financial entry saved locally.", viewModel.uiState.value.successMessage)
+        assertEquals(
+            "Financial entry saved locally. Dashboard metrics are updated.",
+            viewModel.uiState.value.successMessage
+        )
         assertFalse(viewModel.uiState.value.hasAttemptedSave)
+        assertEquals("", viewModel.uiState.value.form.title)
+        assertEquals("", viewModel.uiState.value.form.amount)
+        assertEquals("Product sales", viewModel.uiState.value.form.category)
+        assertEquals("2026-07-19", viewModel.uiState.value.form.date)
     }
 
     @Test

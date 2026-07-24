@@ -36,7 +36,7 @@ class FinancialEntryViewModel(
 
     fun updateTitle(value: String) = updateForm { copy(title = value) }
 
-    fun updateAmount(value: String) = updateForm { copy(amount = value) }
+    fun updateAmount(value: String) = updateForm { copy(amount = value.take(32)) }
 
     fun updateCategory(value: String) = updateForm { copy(category = value) }
 
@@ -71,10 +71,14 @@ class FinancialEntryViewModel(
                 )
             }.onSuccess {
                 _uiState.value = _uiState.value.copy(
-                    form = FinancialEntryFormState(type = form.type),
+                    form = FinancialEntryFormState(
+                        type = form.type,
+                        category = form.category,
+                        date = form.date
+                    ),
                     isSaving = false,
                     hasAttemptedSave = false,
-                    successMessage = "Financial entry saved locally.",
+                    successMessage = "Financial entry saved locally. Dashboard metrics are updated.",
                     errorMessage = null
                 )
                 refresh()
@@ -143,16 +147,40 @@ class FinancialEntryViewModel(
     }
 
     private fun validate(form: FinancialEntryFormState): FinancialEntryValidationResult {
+        val amountError = when {
+            form.amount.isBlank() -> "Amount is required."
+            !amountUsesSupportedCharacters(form.amount) -> "Use numbers, Rp, dots, commas, or Indonesian amount labels only."
+            FinancialCalculator.parsePositiveAmount(form.amount) == null -> "Amount must be greater than zero."
+            else -> null
+        }
+        val dateError = when {
+            form.date.isBlank() -> "Date is required."
+            !DATE_PATTERN.matches(form.date.trim()) -> "Use date format YYYY-MM-DD."
+            else -> null
+        }
         return FinancialEntryValidationResult(
             titleError = if (form.title.isBlank()) "Title is required." else null,
-            amountError = if (FinancialCalculator.parsePositiveAmount(form.amount) == null) {
-                "Amount must be greater than zero."
-            } else {
-                null
-            },
+            amountError = amountError,
             categoryError = if (form.category.isBlank()) "Choose a category." else null,
-            dateError = if (form.date.isBlank()) "Date is required." else null
+            dateError = dateError
         )
+    }
+
+    private fun amountUsesSupportedCharacters(value: String): Boolean {
+        val normalized = value
+            .trim()
+            .lowercase()
+            .replace("rp", "")
+            .replace("idr", "")
+            .replace("juta", "")
+            .replace("jt", "")
+            .replace("ribu", "")
+            .replace("rb", "")
+        return normalized.all { it.isDigit() || it == '.' || it == ',' || it.isWhitespace() }
+    }
+
+    private companion object {
+        val DATE_PATTERN = Regex("""\d{4}-\d{2}-\d{2}""")
     }
 }
 

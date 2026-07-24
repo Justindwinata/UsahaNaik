@@ -1833,7 +1833,7 @@ private fun FinancialTrackingSection(
             value = uiState.form.amount,
             onValueChange = onAmountChange,
             label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = uiState.visibleAmountError() != null,
             modifier = Modifier.fillMaxWidth()
         )
@@ -1874,11 +1874,14 @@ private fun FinancialTrackingSection(
         }
         uiState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
+                Text(text = "Saved", style = MaterialTheme.typography.labelLarge, color = GreenPositive)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
         }
         uiState.errorMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            ErrorStateCard(title = "Financial tracking needs attention", message = message)
         }
     }
     Spacer(modifier = Modifier.height(AppSpacing.md))
