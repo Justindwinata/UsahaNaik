@@ -3607,7 +3607,8 @@ private fun ScreenContainer(content: @Composable ColumnScope.() -> Unit) {
             .fillMaxSize()
             .background(CreamBackground)
             .verticalScroll(rememberScrollState())
-            .padding(AppSpacing.md),
+            .padding(horizontal = AppSpacing.md)
+            .padding(top = AppSpacing.lg, bottom = AppSpacing.xxl),
         content = content
     )
 }

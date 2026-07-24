@@ -89,7 +89,8 @@ Fresh screenshots should be captured under `docs/evidence/screenshots/un0014/` i
 
 This section should be updated as commits land during UN-0014.
 
-- Pending.
+- Safe-area pass added additional top breathing room and bottom scroll padding for shared screen containers.
+- Auth entry screens now use full-height background and stronger top/bottom padding so first content is less likely to clip.
 
 ## Remaining Manual QA Items
 
