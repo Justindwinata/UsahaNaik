@@ -22,7 +22,7 @@ class DemoDataViewModel(
                 .onSuccess { result ->
                     _uiState.value = DemoDataUiState(
                         lastResult = result,
-                        successMessage = "Demo data loaded. Open Dashboard to explore UsahaNaik."
+                        successMessage = "Demo data loaded locally. Open Dashboard to explore sample UMKM workflows."
                     )
                 }
                 .onFailure { error ->
@@ -38,7 +38,7 @@ class DemoDataViewModel(
             _uiState.value = _uiState.value.copy(isClearingDemoData = true, successMessage = null, errorMessage = null)
             runCatching { demoDataSeeder.clearDemoData() }
                 .onSuccess {
-                    _uiState.value = DemoDataUiState(successMessage = "Demo data cleared from this device.")
+                    _uiState.value = DemoDataUiState(successMessage = "Demo data cleared from this device. Local mode is ready for a fresh setup.")
                 }
                 .onFailure { error ->
                     _uiState.value = DemoDataUiState(

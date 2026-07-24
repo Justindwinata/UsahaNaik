@@ -98,6 +98,7 @@ This section should be updated as commits land during UN-0014.
 - Weekly plan pass added explicit task-toggle feedback, handled missing active-plan updates safely, compacted task cards with status badges, and added task toggle regression tests.
 - Retrospective pass now shows the latest saved progress snapshot after reload, limits visible history to recent items for scanability, and adds UiState mapping tests.
 - Content Planner pass improved save/status/favorite/delete feedback, marks generated ideas as saved after persistence, and extends ViewModel action tests.
+- Profile/reminder/demo pass added reminder time/date validation, surfaced one-time reminder date errors in UI, expanded reminder tests, and clarified demo data load/clear feedback.
 
 ## Remaining Manual QA Items
 

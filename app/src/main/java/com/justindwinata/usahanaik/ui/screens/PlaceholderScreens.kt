@@ -3398,6 +3398,8 @@ private fun ReminderSettingsSection(
             onValueChange = onScheduledDateChange,
             label = { Text("Date for one-time reminders") },
             placeholder = { Text("2026-07-21") },
+            isError = uiState.visibleDateError() != null,
+            supportingText = { uiState.visibleDateError()?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth()
         )
         Row(verticalAlignment = Alignment.CenterVertically) {

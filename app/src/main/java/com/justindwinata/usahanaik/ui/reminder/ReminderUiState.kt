@@ -24,9 +24,10 @@ data class ReminderFormState(
 
 data class ReminderValidationResult(
     val titleError: String? = null,
-    val timeError: String? = null
+    val timeError: String? = null,
+    val dateError: String? = null
 ) {
-    val isValid: Boolean = listOf(titleError, timeError).all { it == null }
+    val isValid: Boolean = listOf(titleError, timeError, dateError).all { it == null }
 }
 
 data class ReminderUiState(
@@ -54,6 +55,8 @@ data class ReminderUiState(
     fun visibleTitleError(): String? = validationResult.titleError.takeIf { hasAttemptedSave }
 
     fun visibleTimeError(): String? = validationResult.timeError.takeIf { hasAttemptedSave }
+
+    fun visibleDateError(): String? = validationResult.dateError.takeIf { hasAttemptedSave }
 }
 
 fun ReminderFormState.toReminder(): BusinessReminder {

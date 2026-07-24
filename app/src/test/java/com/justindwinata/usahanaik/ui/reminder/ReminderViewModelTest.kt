@@ -55,6 +55,35 @@ class ReminderViewModelTest {
     }
 
     @Test
+    fun rejectsMalformedTimeLabel() = runTest {
+        val repository = FakeBusinessReminderRepository()
+        val viewModel = ReminderViewModel(repository, FakeReminderScheduler(), FakePermissionHelper())
+        advanceUntilIdle()
+
+        viewModel.updateTimeLabel("8 malam")
+        viewModel.saveReminder()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.reminders.value.size)
+        assertEquals("Use time format HH:mm, for example 20:00.", viewModel.uiState.value.visibleTimeError())
+    }
+
+    @Test
+    fun rejectsOneTimeReminderWithoutDate() = runTest {
+        val repository = FakeBusinessReminderRepository()
+        val viewModel = ReminderViewModel(repository, FakeReminderScheduler(), FakePermissionHelper())
+        advanceUntilIdle()
+
+        viewModel.updateFrequency(ReminderFrequency.Once)
+        viewModel.updateScheduledDate("")
+        viewModel.saveReminder()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.reminders.value.size)
+        assertEquals("Choose a date for one-time reminders.", viewModel.uiState.value.visibleDateError())
+    }
+
+    @Test
     fun savesActiveReminderAndSchedulesIt() = runTest {
         val repository = FakeBusinessReminderRepository()
         val scheduler = FakeReminderScheduler()

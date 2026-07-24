@@ -197,10 +197,27 @@ class ReminderViewModel(
     }
 
     private fun validate(form: ReminderFormState): ReminderValidationResult {
+        val timeError = when {
+            form.timeLabel.isBlank() -> "Choose a reminder time."
+            !TIME_PATTERN.matches(form.timeLabel.trim()) -> "Use time format HH:mm, for example 20:00."
+            else -> null
+        }
+        val dateError = when {
+            form.frequency != ReminderFrequency.Once -> null
+            form.scheduledDate.isBlank() -> "Choose a date for one-time reminders."
+            !DATE_PATTERN.matches(form.scheduledDate.trim()) -> "Use date format YYYY-MM-DD."
+            else -> null
+        }
         return ReminderValidationResult(
             titleError = if (form.title.isBlank()) "Reminder title is required." else null,
-            timeError = if (form.timeLabel.isBlank()) "Choose a reminder time." else null
+            timeError = timeError,
+            dateError = dateError
         )
+    }
+
+    private companion object {
+        val TIME_PATTERN = Regex("""\d{2}:\d{2}""")
+        val DATE_PATTERN = Regex("""\d{4}-\d{2}-\d{2}""")
     }
 }
 
