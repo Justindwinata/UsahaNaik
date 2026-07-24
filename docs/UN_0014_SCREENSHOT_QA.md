@@ -92,6 +92,7 @@ This section should be updated as commits land during UN-0014.
 - Safe-area pass added additional top breathing room and bottom scroll padding for shared screen containers.
 - Auth entry screens now use full-height background and stronger top/bottom padding so first content is less likely to clip.
 - Design-system pass softened secondary pastel fills, strengthened muted text contrast, reduced default card radius/padding, normalized primary button height, and made badges more compact.
+- Bilingual copy pass localized shared empty/error/preview/action badges, dashboard hero labels, KPI helper text, and core Content Planner section labels.
 
 ## Remaining Manual QA Items
 

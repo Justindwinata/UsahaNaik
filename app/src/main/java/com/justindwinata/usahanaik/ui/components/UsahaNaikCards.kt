@@ -55,6 +55,7 @@ import com.justindwinata.usahanaik.ui.theme.InkSubtle
 import com.justindwinata.usahanaik.ui.theme.SurfaceElevated
 import com.justindwinata.usahanaik.ui.theme.SurfacePressed
 import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
+import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 
 @Composable
 fun UsahaNaikCard(
@@ -401,6 +402,7 @@ fun EmptyStateCard(
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null
 ) {
+    val strings = LocalAppStrings.current
     DemoStateCard(
         title = title,
         message = message,
@@ -408,7 +410,7 @@ fun EmptyStateCard(
         actionLabel = actionLabel,
         onActionClick = onActionClick,
         containerColor = SurfaceElevated,
-        badgeLabel = "Empty state"
+        badgeLabel = strings.emptyState
     )
 }
 
@@ -441,6 +443,7 @@ fun ErrorStateCard(
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null
 ) {
+    val strings = LocalAppStrings.current
     DemoStateCard(
         title = title,
         message = message,
@@ -448,7 +451,7 @@ fun ErrorStateCard(
         actionLabel = actionLabel,
         onActionClick = onActionClick,
         containerColor = SurfaceElevated,
-        badgeLabel = "Needs attention"
+        badgeLabel = strings.needsAttention
     )
 }
 
@@ -461,6 +464,7 @@ fun CtaCard(
     modifier: Modifier = Modifier,
     containerColor: Color = SurfaceWarm
 ) {
+    val strings = LocalAppStrings.current
     DemoStateCard(
         title = title,
         message = message,
@@ -468,7 +472,7 @@ fun CtaCard(
         actionLabel = actionLabel,
         onActionClick = onActionClick,
         containerColor = containerColor,
-        badgeLabel = "Next action"
+        badgeLabel = strings.nextAction
     )
 }
 
@@ -481,6 +485,7 @@ fun MetricCard(
     containerColor: Color = SurfaceWarm,
     accentColor: Color = CoralPrimary
 ) {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = modifier, containerColor = containerColor) {
         Box(
             modifier = Modifier
@@ -528,13 +533,14 @@ fun ProgressScoreCard(
     modifier: Modifier = Modifier,
     containerColor: Color = SurfaceWarm
 ) {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = modifier, containerColor = containerColor) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                PillBadge(text = "Preview")
+                PillBadge(text = strings.preview)
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
                 Text(
                     text = title,

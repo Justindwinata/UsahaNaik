@@ -969,7 +969,7 @@ fun DashboardScreen(
         ScreenHeroHeader(
             title = strings.dashboard,
             subtitle = if (setupDraft == null) {
-                "Complete setup or load demo data to turn this into your business command center."
+                strings.dashboardNoProfileSubtitle
             } else {
                 "${dashboard.summary.businessName} - ${dashboard.summary.categoryName}"
             },
@@ -978,22 +978,22 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
-                PillBadge(text = "Business command center", containerColor = CreamBackground, contentColor = CoralPrimary)
+                PillBadge(text = strings.businessCommandCenter, containerColor = CreamBackground, contentColor = CoralPrimary)
                 StatusBadge(
-                    text = if (setupDraft == null) strings.completeSetup else "Local data active",
+                    text = if (setupDraft == null) strings.completeSetup else strings.localDataActive,
                     tone = if (setupDraft == null) StatusTone.Warning else StatusTone.Positive
                 )
             }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(
-                text = "Pantau kondisi usaha, tindakan mingguan, konten, laporan, pengingat, dan progress dari data lokal.",
+                text = strings.dashboardHeroTitle,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
                 text = if (setupDraft == null) {
-                    "Complete setup or load demo data from Profile to explore the full portfolio experience."
+                    strings.dashboardNoProfileMessage
                 } else {
-                    "Dashboard ini membantu monitoring dan perencanaan. Tidak ada klaim profit pasti."
+                    strings.dashboardReadyMessage
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = InkMuted
@@ -1002,21 +1002,21 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(AppSpacing.md))
         ProfessionalSectionHeader(
             title = strings.financialSummary,
-            subtitle = "KPI utama dari catatan lokal dan baseline setup."
+            subtitle = strings.financialSummarySubtitle
         )
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             ProfessionalKpiCard(
                 title = strings.monthlyRevenue,
                 value = financialMetrics.monthlyRevenue,
-                helper = "Recorded this month",
+                helper = strings.recordedThisMonth,
                 modifier = Modifier.weight(1f),
                 accentColor = GreenPositive
             )
             ProfessionalKpiCard(
                 title = strings.monthlyExpenses,
                 value = financialMetrics.monthlyExpenses,
-                helper = "Recorded this month",
+                helper = strings.recordedThisMonth,
                 modifier = Modifier.weight(1f),
                 accentColor = CoralPrimary
             )
@@ -1026,14 +1026,14 @@ fun DashboardScreen(
             ProfessionalKpiCard(
                 title = strings.estimatedProfit,
                 value = financialMetrics.estimatedProfit,
-                helper = "Income minus expenses",
+                helper = strings.incomeMinusExpenses,
                 modifier = Modifier.weight(1f),
                 accentColor = CoralPrimary
             )
             ProfessionalKpiCard(
                 title = strings.profitMargin,
                 value = financialMetrics.profitMargin,
-                helper = "Estimated margin",
+                helper = strings.estimatedMargin,
                 modifier = Modifier.weight(1f),
                 accentColor = GreenPositive
             )
@@ -1041,7 +1041,7 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         ProfessionalSectionHeader(
             title = strings.quickActions,
-            subtitle = "Start from the action that best matches today's work."
+            subtitle = strings.quickActionsSubtitle
         )
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         ProfessionalActionTile(
@@ -2648,11 +2648,12 @@ private fun ContentGenerationControls(
     onIdeaCountChange: (Int) -> Unit,
     onGenerate: () -> Unit
 ) {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            PillBadge(text = "Local deterministic", containerColor = CreamBackground, contentColor = CoralPrimary)
+            PillBadge(text = strings.localGeneration, containerColor = CreamBackground, contentColor = CoralPrimary)
             if (uiState.usedFallback) {
-                PillBadge(text = "Fallback used", containerColor = CreamBackground, contentColor = GreenPositive)
+                PillBadge(text = strings.fallbackUsed, containerColor = CreamBackground, contentColor = GreenPositive)
             }
         }
         Spacer(modifier = Modifier.height(AppSpacing.sm))
@@ -2731,7 +2732,8 @@ private fun GeneratedIdeasSection(
     isGenerating: Boolean,
     onSave: (ContentIdea) -> Unit
 ) {
-    SectionHeader(title = "Generated Ideas", actionLabel = if (ideas.isEmpty()) "Draft" else "${ideas.size} ideas")
+    val strings = LocalAppStrings.current
+    SectionHeader(title = strings.generatedIdeas, actionLabel = if (ideas.isEmpty()) "Draft" else "${ideas.size} ideas")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     if (ideas.isEmpty()) {
         if (isGenerating) {
@@ -2780,7 +2782,8 @@ private fun SavedIdeasSection(
     onMarkDone: (Long) -> Unit,
     onDelete: (Long) -> Unit
 ) {
-    SectionHeader(title = "Saved Ideas", actionLabel = uiState.filter.label)
+    val strings = LocalAppStrings.current
+    SectionHeader(title = strings.savedIdeas, actionLabel = uiState.filter.label)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     ChipFlow {
         ContentIdeaFilter.entries.forEach { filter ->
@@ -2964,7 +2967,8 @@ private fun ContentCalendarSection(
     onStatusChange: (Long, ContentCalendarStatus) -> Unit,
     onDelete: (Long) -> Unit
 ) {
-    SectionHeader(title = "Content Calendar", actionLabel = "${uiState.schedules.size} scheduled")
+    val strings = LocalAppStrings.current
+    SectionHeader(title = strings.contentCalendar, actionLabel = "${uiState.schedules.size} scheduled")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     uiState.successMessage?.let { message ->
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
