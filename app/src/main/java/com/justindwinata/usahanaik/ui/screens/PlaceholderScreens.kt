@@ -2850,8 +2850,12 @@ private fun ContentIdeaPlannerCard(
                 Text("Delete Idea")
             }
         } else {
-            Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
-                Text("Save Idea")
+            Button(
+                onClick = onSave,
+                enabled = idea.id == 0L,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (idea.id == 0L) "Save Idea" else "Saved locally")
             }
         }
     }

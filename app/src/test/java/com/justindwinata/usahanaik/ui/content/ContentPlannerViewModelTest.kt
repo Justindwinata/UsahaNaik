@@ -109,7 +109,8 @@ class ContentPlannerViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, repository.listIdeas().size)
-        assertEquals("Content idea saved locally.", viewModel.uiState.value.successMessage)
+        assertEquals("Content idea saved locally and added to Saved Ideas.", viewModel.uiState.value.successMessage)
+        assertTrue(viewModel.uiState.value.generatedIdeas.first().id > 0L)
     }
 
     @Test
@@ -126,18 +127,22 @@ class ContentPlannerViewModelTest {
         viewModel.markPlanned(saved.id)
         advanceUntilIdle()
         assertEquals(ContentIdeaStatus.Planned, viewModel.uiState.value.savedIdeas.first().status)
+        assertEquals("Content idea moved to Planned.", viewModel.uiState.value.successMessage)
 
         viewModel.markDone(saved.id)
         advanceUntilIdle()
         assertEquals(ContentIdeaStatus.Done, viewModel.uiState.value.savedIdeas.first().status)
+        assertEquals("Content idea moved to Done.", viewModel.uiState.value.successMessage)
 
         viewModel.toggleFavorite(saved.id)
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value.savedIdeas.first().isFavorite)
+        assertEquals("Content idea marked as favorite.", viewModel.uiState.value.successMessage)
 
         viewModel.deleteIdea(saved.id)
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value.savedIdeas.isEmpty())
+        assertEquals("Content idea deleted locally.", viewModel.uiState.value.successMessage)
     }
 
     @Test

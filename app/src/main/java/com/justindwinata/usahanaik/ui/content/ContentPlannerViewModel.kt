@@ -102,7 +102,8 @@ class ContentPlannerViewModel(
             _uiState.value = _uiState.value.copy(
                 savedIdeas = contentIdeaRepository.listIdeas(_uiState.value.filter),
                 generatedIdeas = _uiState.value.generatedIdeas.map { if (it.title == idea.title) saved else it },
-                successMessage = "Content idea saved locally."
+                successMessage = "Content idea saved locally and added to Saved Ideas.",
+                errorMessage = null
             )
         }
     }
@@ -115,26 +116,36 @@ class ContentPlannerViewModel(
         viewModelScope.launch {
             val idea = contentIdeaRepository.listIdeas().firstOrNull { it.id == id } ?: return@launch
             contentIdeaRepository.updateFavorite(id, !idea.isFavorite)
-            refreshSavedIdeas()
+            refreshSavedIdeas(
+                successMessage = if (idea.isFavorite) {
+                    "Content idea removed from favorites."
+                } else {
+                    "Content idea marked as favorite."
+                }
+            )
         }
     }
 
     fun deleteIdea(id: Long) {
         viewModelScope.launch {
             contentIdeaRepository.deleteIdea(id)
-            refreshSavedIdeas()
+            refreshSavedIdeas(successMessage = "Content idea deleted locally.")
         }
     }
 
     private fun updateStatus(id: Long, status: ContentIdeaStatus) {
         viewModelScope.launch {
             contentIdeaRepository.updateStatus(id, status)
-            refreshSavedIdeas()
+            refreshSavedIdeas(successMessage = "Content idea moved to ${status.label}.")
         }
     }
 
-    private suspend fun refreshSavedIdeas() {
-        _uiState.value = _uiState.value.copy(savedIdeas = contentIdeaRepository.listIdeas(_uiState.value.filter))
+    private suspend fun refreshSavedIdeas(successMessage: String? = null) {
+        _uiState.value = _uiState.value.copy(
+            savedIdeas = contentIdeaRepository.listIdeas(_uiState.value.filter),
+            successMessage = successMessage,
+            errorMessage = null
+        )
     }
 
     private fun updateForm(reducer: ContentGenerationFormState.() -> ContentGenerationFormState) {

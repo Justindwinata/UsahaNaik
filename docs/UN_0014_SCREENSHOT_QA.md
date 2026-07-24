@@ -97,6 +97,7 @@ This section should be updated as commits land during UN-0014.
 - Financial tracking pass hardened amount/date validation, preserved useful category/date defaults after save, improved success/error feedback cards, and added ViewModel regression tests.
 - Weekly plan pass added explicit task-toggle feedback, handled missing active-plan updates safely, compacted task cards with status badges, and added task toggle regression tests.
 - Retrospective pass now shows the latest saved progress snapshot after reload, limits visible history to recent items for scanability, and adds UiState mapping tests.
+- Content Planner pass improved save/status/favorite/delete feedback, marks generated ideas as saved after persistence, and extends ViewModel action tests.
 
 ## Remaining Manual QA Items
 
