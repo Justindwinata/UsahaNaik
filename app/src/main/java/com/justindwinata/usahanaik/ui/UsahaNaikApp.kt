@@ -55,7 +55,8 @@ import com.justindwinata.usahanaik.ui.localization.LocalAppLanguage
 import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 import com.justindwinata.usahanaik.ui.navigation.AppRoute
 import com.justindwinata.usahanaik.ui.navigation.bottomTabs
-import com.justindwinata.usahanaik.ui.navigation.onboardingRoutes
+import com.justindwinata.usahanaik.ui.navigation.localModeDestinationRoute
+import com.justindwinata.usahanaik.ui.navigation.shouldShowBottomBar
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModel
 import com.justindwinata.usahanaik.ui.progress.WeeklyRetrospectiveViewModelFactory
 import com.justindwinata.usahanaik.ui.report.BusinessReportViewModel
@@ -235,7 +236,7 @@ fun UsahaNaikApp() {
         }
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
-        val showBottomBar = currentRoute != null && currentRoute !in onboardingRoutes
+        val showBottomBar = shouldShowBottomBar(currentRoute)
 
         CompositionLocalProvider(
             LocalAppLanguage provides languageState.selectedLanguage,
@@ -430,11 +431,7 @@ private fun localizedBottomTabLabel(
 }
 
 private fun localModeDestination(savedProfile: com.justindwinata.usahanaik.domain.model.BusinessProfile?): String {
-    return if (savedProfile != null) {
-        AppRoute.Dashboard.route
-    } else {
-        AppRoute.CategorySelection.route
-    }
+    return localModeDestinationRoute(hasSavedProfile = savedProfile != null)
 }
 
 private fun androidx.navigation.NavHostController.navigateToLocalMode(

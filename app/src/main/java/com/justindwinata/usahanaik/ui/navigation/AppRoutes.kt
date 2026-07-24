@@ -43,3 +43,15 @@ val onboardingRoutes = setOf(
     AppRoute.CategorySelection.route,
     AppRoute.BusinessSetup.route
 )
+
+fun shouldShowBottomBar(route: String?): Boolean {
+    return route != null && route !in onboardingRoutes
+}
+
+fun localModeDestinationRoute(hasSavedProfile: Boolean): String {
+    return if (hasSavedProfile) {
+        AppRoute.Dashboard.route
+    } else {
+        AppRoute.CategorySelection.route
+    }
+}

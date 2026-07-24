@@ -26,4 +26,22 @@ class AppRoutesTest {
             routes
         )
     }
+
+    @Test
+    fun bottomBarIsHiddenOnlyForAuthAndSetupRoutes() {
+        assertTrue(!shouldShowBottomBar(AppRoute.Welcome.route))
+        assertTrue(!shouldShowBottomBar(AppRoute.Login.route))
+        assertTrue(!shouldShowBottomBar(AppRoute.Register.route))
+        assertTrue(!shouldShowBottomBar(AppRoute.CategorySelection.route))
+        assertTrue(!shouldShowBottomBar(AppRoute.BusinessSetup.route))
+        assertTrue(shouldShowBottomBar(AppRoute.Dashboard.route))
+        assertTrue(shouldShowBottomBar(AppRoute.Retrospective.route))
+        assertTrue(!shouldShowBottomBar(null))
+    }
+
+    @Test
+    fun localModeRoutesToSetupWithoutProfileAndDashboardWithProfile() {
+        assertEquals(AppRoute.CategorySelection.route, localModeDestinationRoute(hasSavedProfile = false))
+        assertEquals(AppRoute.Dashboard.route, localModeDestinationRoute(hasSavedProfile = true))
+    }
 }
