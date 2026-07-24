@@ -81,6 +81,31 @@ class WeeklyPlanViewModelTest {
         val updatedPlan = viewModel.uiState.value.activePlan!!
         assertEquals(WeeklyTaskStatus.Completed, updatedPlan.tasks.first().status)
         assertTrue(updatedPlan.progressSummary.taskProgress > 0f)
+        assertEquals("Task marked complete. Weekly progress updated.", viewModel.uiState.value.successMessage)
+    }
+
+    @Test
+    fun togglesCompletedTaskBackToPendingAndUpdatesProgress() = runTest {
+        val planRepository = FakeWeeklyPlanRepository()
+        val viewModel = WeeklyPlanViewModel(
+            businessProfileRepository = FakeBusinessProfileRepository(sampleProfile()),
+            financialEntryRepository = FakeFinancialEntryRepository(sampleEntries()),
+            weeklyPlanRepository = planRepository
+        )
+        advanceUntilIdle()
+        viewModel.generatePlan()
+        advanceUntilIdle()
+        val firstTaskId = viewModel.uiState.value.activePlan!!.tasks.first().id
+
+        viewModel.toggleTaskCompletion(firstTaskId)
+        advanceUntilIdle()
+        viewModel.toggleTaskCompletion(firstTaskId)
+        advanceUntilIdle()
+
+        val updatedPlan = viewModel.uiState.value.activePlan!!
+        assertEquals(WeeklyTaskStatus.Pending, updatedPlan.tasks.first().status)
+        assertEquals(0f, updatedPlan.progressSummary.taskProgress, 0.001f)
+        assertEquals("Task moved back to pending. Weekly progress updated.", viewModel.uiState.value.successMessage)
     }
 
     @Test

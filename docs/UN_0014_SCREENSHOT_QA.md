@@ -95,6 +95,7 @@ This section should be updated as commits land during UN-0014.
 - Bilingual copy pass localized shared empty/error/preview/action badges, dashboard hero labels, KPI helper text, and core Content Planner section labels.
 - Dashboard hierarchy pass moved business health and diagnosis above quick actions, removed duplicate KPI cards, and consolidated legacy product/action/content previews into one compact business-signals card.
 - Financial tracking pass hardened amount/date validation, preserved useful category/date defaults after save, improved success/error feedback cards, and added ViewModel regression tests.
+- Weekly plan pass added explicit task-toggle feedback, handled missing active-plan updates safely, compacted task cards with status badges, and added task toggle regression tests.
 
 ## Remaining Manual QA Items
 

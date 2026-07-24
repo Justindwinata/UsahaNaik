@@ -118,10 +118,15 @@ class WeeklyPlanViewModel(
         viewModelScope.launch {
             runCatching {
                 weeklyPlanRepository.updateTaskStatus(taskId, nextStatus)
+                    ?: error("Weekly plan is no longer available.")
             }.onSuccess { updatedPlan ->
                 _uiState.value = _uiState.value.copy(
                     activePlan = updatedPlan,
-                    successMessage = null,
+                    successMessage = if (nextStatus == WeeklyTaskStatus.Completed) {
+                        "Task marked complete. Weekly progress updated."
+                    } else {
+                        "Task moved back to pending. Weekly progress updated."
+                    },
                     errorMessage = null
                 )
             }.onFailure { error ->

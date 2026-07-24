@@ -2260,6 +2260,11 @@ private fun WeeklyTaskCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)) {
+                    PillBadge(
+                        text = if (completed) "Done" else "To do",
+                        containerColor = CreamBackground,
+                        contentColor = if (completed) GreenPositive else CoralPrimary
+                    )
                     PillBadge(text = task.difficulty.label, containerColor = CreamBackground, contentColor = CoralPrimary)
                     PillBadge(text = task.estimatedTime.label, containerColor = CreamBackground, contentColor = GreenPositive)
                 }
@@ -2268,7 +2273,6 @@ private fun WeeklyTaskCard(
                 Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
                 Text(text = "Reason: ${task.reason}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
-                Text(text = "Expected outcome: ${task.expectedOutcome}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
             }
         }
     }
