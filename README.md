@@ -32,7 +32,7 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0013-R1 revises the product experience before adding more features. It adds Indonesian/English language selection, persisted language preference, auth-ready login/register placeholder screens, a clearer local-mode entry, a stronger Dashboard command center, Report as a primary bottom-tab workflow, and a more professional shared design system.
+UN-0014 hardens the real emulator UI/UX revision. It improves safe-area spacing, bottom-navigation comfort, shared card density, bilingual copy, Dashboard hierarchy, financial validation, weekly task progress feedback, retrospective state continuity, Content Planner save/status feedback, reminder validation, demo-mode feedback, and route continuity tests.
 
 Demo Mode sample business:
 
@@ -48,6 +48,8 @@ To load demo data in the app:
 4. Return to Dashboard, Weekly Plan, Content Planner, Retrospective, or Business Report.
 
 Screenshot files are not committed yet. See [Screenshot Plan](docs/SCREENSHOT_PLAN.md) for the capture checklist.
+
+UN-0014 manual emulator QA is tracked in [UN-0014 Manual QA Checklist](docs/evidence/UN_0014_MANUAL_QA_CHECKLIST.md). Screenshot evidence should be saved under `docs/evidence/screenshots/un0014/` only when an emulator/device is actually available.
 
 Implemented UN-0001 screens:
 
@@ -211,6 +213,20 @@ Implemented UN-0013-R1 revision:
 - Improved Business Setup, Weekly Plan, Content Planner, Retrospective, Business Report, Profile, and Reminder presentation with stronger headers and grouping.
 - Added Business Report to bottom navigation for a clearer main product flow.
 - Added documentation for UI/UX audit, localization architecture, and auth-ready flow.
+
+Implemented UN-0014 hardening:
+
+- Added screenshot-driven QA audit tracking for emulator findings and fixes.
+- Improved shared safe-area and bottom scroll padding so top content and bottom navigation have more breathing room.
+- Refined shared colors, card density, button height, badge padding, and muted text contrast.
+- Polished bilingual shared labels for empty/error/preview/action badges, Dashboard hero copy, KPI helpers, and Content Planner headings.
+- Reordered Dashboard health and diagnosis before quick actions, removed duplicate KPI cards, and consolidated legacy preview content into compact business signals.
+- Hardened financial entry validation for positive amount, supported amount characters, and `YYYY-MM-DD` dates, with clearer success/error feedback.
+- Added weekly task toggle feedback and compact task status badges.
+- Improved retrospective continuity by showing the latest saved snapshot after reload and limiting visible history to recent items.
+- Improved Content Planner save/status/favorite/delete feedback and disabled repeated save on already saved generated ideas.
+- Hardened reminder time/date validation and clarified local demo data load/clear feedback.
+- Added shared navigation helpers and route tests for bottom-bar visibility and local-mode destination.
 
 ## Tech Stack
 

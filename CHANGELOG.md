@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.4.0 - UN-0014
+
+- Added UN-0014 screenshot QA audit and manual emulator QA checklist.
+- Improved shared safe-area and bottom-scroll padding for status bar and bottom navigation comfort.
+- Refined mobile design system colors, card density, badge padding, button height, and muted text contrast.
+- Polished bilingual product copy for shared state badges, Dashboard hero copy, KPI helpers, and Content Planner section labels.
+- Reworked Dashboard hierarchy so business health and diagnosis appear before quick actions, duplicate KPI cards are removed, and legacy preview sections are consolidated into compact business signals.
+- Hardened financial tracking validation for supported amount characters, positive values, and `YYYY-MM-DD` dates, with clearer save/error feedback and regression tests.
+- Added weekly plan task-toggle success feedback, safer missing-plan handling, compact task status badges, and task toggle regression tests.
+- Improved retrospective continuity by showing the latest saved progress snapshot after reload, limiting visible history, and adding state mapping tests.
+- Hardened Content Planner action feedback for save, status, favorite, and delete flows; saved generated ideas now show a saved state.
+- Hardened reminder validation for `HH:mm` time and one-time reminder dates, surfaced validation in Profile, and clarified demo data feedback.
+- Added shared navigation helpers and route tests for bottom-bar visibility and local-mode destination behavior.
+
+### Known Limitations
+
+- Real authentication is not implemented.
+- No backend server.
+- No cloud sync.
+- No paid AI API and no hardcoded API keys.
+- Content generation remains deterministic/local.
+- Business guidance is planning guidance only.
+- Not professional financial advice.
+- No guaranteed profit increase.
+- Notification alerts depend on Android permission and runtime availability.
+- Emulator screenshots still require an attached emulator/device and are not claimed unless files are captured.
+
 ## 1.3.0-r1 - UN-0013-R1
 
 - Added Indonesian and English language model, copy provider, persisted language preference, composition locals, and language ViewModel.

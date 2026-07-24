@@ -103,14 +103,16 @@ This section should be updated as commits land during UN-0014.
 
 ## Remaining Manual QA Items
 
-- Capture fresh screenshots on Medium Phone emulator.
-- Verify top content is not clipped.
-- Verify bottom navigation does not hide content.
-- Verify language persists after app restart.
-- Verify local-mode auth entry routes.
-- Verify financial entries update dashboard metrics.
-- Verify weekly tasks update progress.
-- Verify retrospective generation/save.
-- Verify content idea generation/save/schedule.
-- Verify reminders can be created, paused, and listed.
-- Verify demo data load and clear flows.
+- Capture fresh screenshots on Medium Phone emulator under `docs/evidence/screenshots/un0014/`.
+- Verify top content is not clipped on a real emulator/device.
+- Verify bottom navigation does not hide content on a real emulator/device.
+- Run the full checklist in `docs/evidence/UN_0014_MANUAL_QA_CHECKLIST.md`.
+- Verify notification delivery only if an emulator/device is attached and notification permission can be granted.
+
+## Final UN-0014 Validation Notes
+
+- Unit tests and debug build validation are required after every commit.
+- Runtime screenshot capture must be done only when `adb devices` shows an attached emulator/device.
+- No emulator screenshot files were captured in this environment unless `docs/evidence/screenshots/un0014/` is populated by a later manual QA run.
+- `adb devices` was checked during UN-0014 final QA; ADB started successfully but listed no attached devices, so fresh screenshots were not captured in this run.
+- Local-first, auth-ready, AI-ready, notification, report, and business guidance copy must remain honest: no real auth, no backend, no cloud sync, no paid AI API, no guaranteed profit increase, and no professional financial advice.
