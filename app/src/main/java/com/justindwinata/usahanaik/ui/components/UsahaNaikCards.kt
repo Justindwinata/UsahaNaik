@@ -1,6 +1,7 @@
 package com.justindwinata.usahanaik.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,12 +64,13 @@ fun UsahaNaikCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, BorderSubtle)
     ) {
         Column(
-            modifier = Modifier.padding(AppSpacing.md),
+            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
             content = content
         )
     }
@@ -189,10 +191,10 @@ fun ProfessionalKpiCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+        border = BorderStroke(1.dp, BorderSubtle)
     ) {
         Column(modifier = Modifier.padding(AppSpacing.md)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -215,7 +217,7 @@ fun ProfessionalKpiCard(
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 color = InkStrong,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -245,10 +247,10 @@ fun ProfessionalActionTile(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+        border = BorderStroke(1.dp, BorderSubtle)
     ) {
         Row(
             modifier = Modifier.padding(AppSpacing.md),
@@ -257,7 +259,7 @@ fun ProfessionalActionTile(
         ) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
+                    .size(38.dp)
                     .background(accentColor.copy(alpha = 0.12f), CircleShape)
                     .border(1.dp, accentColor.copy(alpha = 0.18f), CircleShape),
                 contentAlignment = Alignment.Center
@@ -332,7 +334,7 @@ fun PillBadge(
         shape = RoundedCornerShape(999.dp)
     ) {
         Text(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
             text = text,
             style = MaterialTheme.typography.labelMedium,
             maxLines = 1,
@@ -350,14 +352,14 @@ fun PrimaryActionButton(
 ) {
     Button(
         modifier = modifier
-            .height(52.dp)
+            .height(48.dp)
             .semantics { this.contentDescription = contentDescription },
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = CoralPrimary,
             contentColor = SurfaceWarm
         ),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
