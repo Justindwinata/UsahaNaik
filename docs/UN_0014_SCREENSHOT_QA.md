@@ -93,6 +93,7 @@ This section should be updated as commits land during UN-0014.
 - Auth entry screens now use full-height background and stronger top/bottom padding so first content is less likely to clip.
 - Design-system pass softened secondary pastel fills, strengthened muted text contrast, reduced default card radius/padding, normalized primary button height, and made badges more compact.
 - Bilingual copy pass localized shared empty/error/preview/action badges, dashboard hero labels, KPI helper text, and core Content Planner section labels.
+- Dashboard hierarchy pass moved business health and diagnosis above quick actions, removed duplicate KPI cards, and consolidated legacy product/action/content previews into one compact business-signals card.
 
 ## Remaining Manual QA Items
 

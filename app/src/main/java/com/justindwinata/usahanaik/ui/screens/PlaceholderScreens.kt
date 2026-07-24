@@ -59,6 +59,7 @@ import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummary
 import com.justindwinata.usahanaik.domain.progress.DashboardContinuitySummaryMapper
 import com.justindwinata.usahanaik.domain.model.AvailableTime
 import com.justindwinata.usahanaik.domain.model.BusinessChallenge
+import com.justindwinata.usahanaik.domain.model.BusinessDashboard
 import com.justindwinata.usahanaik.domain.model.BusinessDiagnosis
 import com.justindwinata.usahanaik.domain.model.BusinessInsight
 import com.justindwinata.usahanaik.domain.model.BusinessMilestone
@@ -149,6 +150,7 @@ import com.justindwinata.usahanaik.ui.theme.GreenSoft
 import com.justindwinata.usahanaik.ui.theme.InkMuted
 import com.justindwinata.usahanaik.ui.theme.LavenderSoft
 import com.justindwinata.usahanaik.ui.theme.RoseSoft
+import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
 import com.justindwinata.usahanaik.ui.theme.YellowSoft
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
@@ -1039,6 +1041,15 @@ fun DashboardScreen(
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.lg))
+        ProgressScoreCard(
+            title = strings.businessHealth,
+            score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
+            helper = insightsState.diagnosis?.healthScore?.explanation ?: dashboard.healthScore.explanation,
+            containerColor = LavenderSoft
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        DashboardInsightPanel(uiState = insightsState)
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         ProfessionalSectionHeader(
             title = strings.quickActions,
             subtitle = strings.quickActionsSubtitle
@@ -1068,15 +1079,6 @@ fun DashboardScreen(
             accentColor = LavenderSoft
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
-        ProgressScoreCard(
-            title = strings.businessHealth,
-            score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
-            helper = insightsState.diagnosis?.healthScore?.explanation ?: dashboard.healthScore.explanation,
-            containerColor = LavenderSoft
-        )
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        DashboardInsightPanel(uiState = insightsState)
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
         WeeklyPlanDashboardSection(
             summary = weeklySummary,
             onOpenWeeklyPlan = onOpenWeeklyPlan
@@ -1100,44 +1102,6 @@ fun DashboardScreen(
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         ReminderDashboardSection(uiState = reminderState)
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            MetricCard(
-                title = "Revenue",
-                value = financialMetrics.monthlyRevenue,
-                helper = "Bulan ini",
-                modifier = Modifier.weight(1f),
-                containerColor = GreenSoft,
-                accentColor = GreenPositive
-            )
-            MetricCard(
-                title = "Expenses",
-                value = financialMetrics.monthlyExpenses,
-                helper = "Bulan ini",
-                modifier = Modifier.weight(1f),
-                containerColor = BlueSoft,
-                accentColor = CoralPrimary
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            MetricCard(
-                title = "Profit",
-                value = financialMetrics.estimatedProfit,
-                helper = "Estimasi",
-                modifier = Modifier.weight(1f),
-                containerColor = CoralSoft,
-                accentColor = CoralPrimary
-            )
-            MetricCard(
-                title = "Margin",
-                value = financialMetrics.profitMargin,
-                helper = "Target sehat",
-                modifier = Modifier.weight(1f),
-                containerColor = YellowSoft,
-                accentColor = GreenPositive
-            )
-        }
         Spacer(modifier = Modifier.height(AppSpacing.lg))
         SectionHeader(title = "Revenue vs Expense", actionLabel = "7 titik")
         Spacer(modifier = Modifier.height(AppSpacing.sm))
@@ -1197,45 +1161,40 @@ fun DashboardScreen(
             onCancelDelete = financialEntryViewModel::cancelDelete
         )
         Spacer(modifier = Modifier.height(AppSpacing.lg))
-        SectionHeader(title = "Milestones")
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        dashboard.milestones.forEach { milestone ->
-            MilestoneCard(milestone = milestone)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        DashboardBusinessSignalsSection(dashboard = dashboard)
+    }
+}
+
+@Composable
+private fun DashboardBusinessSignalsSection(dashboard: BusinessDashboard) {
+    SectionHeader(title = "Business Signals", actionLabel = "Compact")
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceWarm) {
+        Text(text = "Product Performance", style = MaterialTheme.typography.titleMedium, color = CoralPrimary)
+        dashboard.productPerformance.take(2).forEach { product ->
+            Text(text = product.name, style = MaterialTheme.typography.labelLarge)
+            Text(
+                text = "${product.signal} - ${product.marginLabel}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
         }
-        SectionHeader(title = "Tasks & Challenges")
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        dashboard.tasks.forEach { task ->
-            TaskChecklistRow(task = task)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = "Recommended Actions", style = MaterialTheme.typography.titleMedium, color = GreenPositive)
+        dashboard.recommendations.take(2).forEach { recommendation ->
+            Text(text = "- $recommendation", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
         }
-        SectionHeader(title = "Product Performance")
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        dashboard.productPerformance.forEach { product ->
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-                Text(text = product.name, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "${product.signal} - ${product.marginLabel}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
-                )
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-        }
-        SectionHeader(title = "Next Actions")
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        dashboard.recommendations.forEach { recommendation ->
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-                Text(text = recommendation, style = MaterialTheme.typography.bodyMedium)
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-        }
-        SectionHeader(title = "Content Ideas Preview")
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        dashboard.contentIdeas.take(2).forEach { idea ->
-            ContentIdeaPreviewCard(idea = idea)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-        }
+        Text(text = "Content Prompt", style = MaterialTheme.typography.titleMedium, color = CoralPrimary)
+        dashboard.contentIdeas.firstOrNull()?.let { idea ->
+            Text(text = idea.title, style = MaterialTheme.typography.labelLarge)
+            Text(text = idea.angle, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        } ?: Text(
+            text = "Generate content ideas to connect the dashboard with your content workflow.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted
+        )
     }
 }
 
