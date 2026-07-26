@@ -37,6 +37,8 @@ class FinancialDashboardMetricsMapperTest {
         assertFalse(metrics.hasEntries)
         assertEquals("Rp8.000.000", metrics.monthlyRevenue)
         assertEquals(fallbackTrend.revenuePoints, metrics.revenueTrendPoints)
+        assertEquals("Setup baseline", metrics.sourceLabel)
+        assertEquals("Add your first income or expense entry.", metrics.actionHint)
         assertEquals("Start recording income and expenses to make your dashboard more accurate.", metrics.reportSummary)
     }
 
@@ -80,5 +82,7 @@ class FinancialDashboardMetricsMapperTest {
         assertEquals("Raw materials", metrics.largestExpenseCategory)
         assertEquals(listOf(12.5f), metrics.revenueTrendPoints)
         assertEquals(listOf(7f), metrics.expenseTrendPoints)
+        assertEquals("Live local entries", metrics.sourceLabel)
+        assertEquals("Keep recording daily transactions for a clearer trend.", metrics.actionHint)
     }
 }

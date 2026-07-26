@@ -16,6 +16,8 @@ data class FinancialDashboardMetrics(
     val targetRevenueProgress: Float,
     val targetProfitProgress: Float,
     val reportSummary: String,
+    val sourceLabel: String,
+    val actionHint: String,
     val hasEntries: Boolean
 )
 
@@ -37,6 +39,8 @@ object FinancialDashboardMetricsMapper {
                 targetRevenueProgress = 0f,
                 targetProfitProgress = 0f,
                 reportSummary = "Start recording income and expenses to make your dashboard more accurate.",
+                sourceLabel = "Setup baseline",
+                actionHint = "Add your first income or expense entry.",
                 hasEntries = false
             )
         }
@@ -62,6 +66,8 @@ object FinancialDashboardMetricsMapper {
             targetRevenueProgress = summary.targetRevenueProgress,
             targetProfitProgress = summary.targetProfitProgress,
             reportSummary = "Based on ${summary.incomeEntryCount} income entries and ${summary.expenseEntryCount} expense entries saved locally.",
+            sourceLabel = "Live local entries",
+            actionHint = "Keep recording daily transactions for a clearer trend.",
             hasEntries = true
         )
     }

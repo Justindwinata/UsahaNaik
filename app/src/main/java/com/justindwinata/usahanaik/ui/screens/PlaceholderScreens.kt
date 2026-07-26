@@ -1731,6 +1731,12 @@ private fun FinancialDashboardMetricsSection(metrics: FinancialDashboardMetrics)
         modifier = Modifier.fillMaxWidth(),
         containerColor = if (metrics.hasEntries) BlueSoft else YellowSoft
     ) {
+        PillBadge(
+            text = metrics.sourceLabel,
+            containerColor = CreamBackground,
+            contentColor = if (metrics.hasEntries) GreenPositive else CoralPrimary
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             TargetProgressBlock(
                 title = "Revenue Target",
@@ -1749,11 +1755,7 @@ private fun FinancialDashboardMetricsSection(metrics: FinancialDashboardMetrics)
             value = if (metrics.hasEntries) metrics.largestExpenseCategory else "-"
         )
         Text(
-            text = if (metrics.hasEntries) {
-                "Dashboard cards use financial entries saved in Room for this month."
-            } else {
-                "Start recording income and expenses to make your dashboard more accurate."
-            },
+            text = metrics.actionHint,
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted
         )
