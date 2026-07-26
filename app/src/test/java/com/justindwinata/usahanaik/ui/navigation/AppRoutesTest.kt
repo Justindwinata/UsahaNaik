@@ -37,6 +37,14 @@ class AppRoutesTest {
         assertTrue(shouldShowBottomBar(AppRoute.Dashboard.route))
         assertTrue(shouldShowBottomBar(AppRoute.Retrospective.route))
         assertTrue(!shouldShowBottomBar(null))
+        assertTrue(!shouldShowBottomBar("unknown_route"))
+    }
+
+    @Test
+    fun mainAppRoutesIncludeBottomTabsAndRetrospectiveOnly() {
+        val expectedRoutes = bottomTabs.map { it.route.route }.toSet() + AppRoute.Retrospective.route
+
+        assertEquals(expectedRoutes, mainAppRoutes)
     }
 
     @Test

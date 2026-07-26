@@ -44,8 +44,10 @@ val onboardingRoutes = setOf(
     AppRoute.BusinessSetup.route
 )
 
+val mainAppRoutes = bottomTabs.map { it.route.route }.toSet() + AppRoute.Retrospective.route
+
 fun shouldShowBottomBar(route: String?): Boolean {
-    return route != null && route !in onboardingRoutes
+    return route != null && route in mainAppRoutes
 }
 
 fun localModeDestinationRoute(hasSavedProfile: Boolean): String {
