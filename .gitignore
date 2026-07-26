@@ -9,6 +9,7 @@
 *.apk
 *.aab
 *.ap_
+dist/*.zip
 *.class
 *.log
 .DS_Store
