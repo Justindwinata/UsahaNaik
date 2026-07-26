@@ -23,6 +23,7 @@ class WeeklyPlanDashboardSummaryMapperTest {
         assertFalse(summary.hasPlan)
         assertEquals("Generate Weekly Plan", summary.ctaLabel)
         assertEquals("No active weekly plan", summary.focusTitle)
+        assertEquals("Generate plan", summary.progressStatusLabel)
     }
 
     @Test
@@ -34,11 +35,28 @@ class WeeklyPlanDashboardSummaryMapperTest {
         assertEquals("1/2 tasks", summary.taskProgressLabel)
         assertEquals("1/2 milestones", summary.milestoneProgressLabel)
         assertEquals("Review expenses", summary.nextTaskTitle)
+        assertEquals("In progress", summary.progressStatusLabel)
         assertEquals(0.5f, summary.taskProgress)
         assertEquals(0.5f, summary.milestoneProgress)
     }
 
-    private fun samplePlan(): WeeklyGrowthPlan {
+    @Test
+    fun mapsCompletedPlanToCompletedProgressStatus() {
+        val summary = WeeklyPlanDashboardSummaryMapper.from(
+            samplePlan(
+                taskStatuses = listOf(WeeklyTaskStatus.Completed, WeeklyTaskStatus.Completed),
+                milestoneStatuses = listOf(MilestoneStatus.Completed, MilestoneStatus.Completed)
+            )
+        )
+
+        assertEquals("Completed", summary.progressStatusLabel)
+        assertEquals("All weekly tasks completed", summary.nextTaskTitle)
+    }
+
+    private fun samplePlan(
+        taskStatuses: List<WeeklyTaskStatus> = listOf(WeeklyTaskStatus.Completed, WeeklyTaskStatus.Pending),
+        milestoneStatuses: List<MilestoneStatus> = listOf(MilestoneStatus.Completed, MilestoneStatus.NotStarted)
+    ): WeeklyGrowthPlan {
         return WeeklyGrowthPlan(
             title = "Weekly Plan",
             generatedDate = "2026-07-19",
@@ -49,13 +67,13 @@ class WeeklyPlanDashboardSummaryMapperTest {
             target = "Complete tasks",
             priorityReason = "Need records",
             tasks = listOf(
-                task("task-1", "Record sales", WeeklyTaskStatus.Completed),
-                task("task-2", "Review expenses", WeeklyTaskStatus.Pending)
+                task("task-1", "Record sales", taskStatuses[0]),
+                task("task-2", "Review expenses", taskStatuses[1])
             ),
             challenge = WeeklyChallenge("Challenge", "Description", listOf("A"), "Target", "Copy"),
             milestones = listOf(
-                BusinessMilestone("milestone-1", "M1", "D", MilestoneStatus.Completed, progressPercentage = 100),
-                BusinessMilestone("milestone-2", "M2", "D", MilestoneStatus.NotStarted, progressPercentage = 0)
+                BusinessMilestone("milestone-1", "M1", "D", milestoneStatuses[0], progressPercentage = 100),
+                BusinessMilestone("milestone-2", "M2", "D", milestoneStatuses[1], progressPercentage = 0)
             ),
             limitationsNote = "Rule-based"
         )

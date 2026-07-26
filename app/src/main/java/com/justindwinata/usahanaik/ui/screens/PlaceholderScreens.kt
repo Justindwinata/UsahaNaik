@@ -1420,7 +1420,7 @@ private fun WeeklyPlanDashboardSection(
     summary: WeeklyPlanDashboardSummary,
     onOpenWeeklyPlan: () -> Unit
 ) {
-    SectionHeader(title = "Weekly Growth Plan", actionLabel = if (summary.hasPlan) "Active" else "Empty")
+    SectionHeader(title = "Weekly Growth Plan", actionLabel = summary.progressStatusLabel)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),
