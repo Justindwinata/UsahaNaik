@@ -264,6 +264,17 @@ ANDROID_HOME=/Users/justindwinata/Library/Android/sdk ./gradlew assembleDebug
 
 If Gradle cannot find the SDK, either open the project in Android Studio or set `ANDROID_HOME` to your local Android SDK path.
 
+## Project ZIP Archive
+
+To create a clean project-only ZIP archive:
+
+```bash
+python3 scripts/build_project_zip.py
+python3 scripts/verify_project_zip.py
+```
+
+The generated archive is saved locally at `dist/UsahaNaik_Project_Source.zip`. It is intentionally not committed.
+
 ## Limitations
 
 - Local persistence only.
@@ -299,7 +310,7 @@ If Gradle cannot find the SDK, either open the project in Android Studio or set 
 
 ## Roadmap
 
-Next recommended milestone: UN-0014, capture emulator screenshots and run device-level UX QA after the bilingual redesign stabilizes.
+Next recommended milestone: capture final emulator screenshots and run device-level portfolio QA with `docs/evidence/FINAL_EMULATOR_QA_CHECKLIST.md`.
 
 ## Documentation
 
@@ -316,3 +327,4 @@ Next recommended milestone: UN-0014, capture emulator screenshots and run device
 - [Notification Architecture](docs/NOTIFICATION_ARCHITECTURE.md)
 - [Screenshot Plan](docs/SCREENSHOT_PLAN.md)
 - [Portfolio Showcase](docs/PORTFOLIO_SHOWCASE.md)
+- [Project ZIP Packaging Guide](docs/PROJECT_ZIP_PACKAGING_GUIDE.md)
