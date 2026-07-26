@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
 import com.justindwinata.usahanaik.ui.theme.BlueSoft
 import com.justindwinata.usahanaik.ui.theme.BorderSubtle
-import com.justindwinata.usahanaik.ui.theme.BorderStrong
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
 import com.justindwinata.usahanaik.ui.theme.GreenPositive
@@ -71,7 +70,7 @@ fun UsahaNaikCard(
         border = BorderStroke(1.dp, BorderSubtle)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
+            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
             content = content
         )
     }
@@ -335,7 +334,7 @@ fun PillBadge(
         shape = RoundedCornerShape(999.dp)
     ) {
         Text(
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             text = text,
             style = MaterialTheme.typography.labelMedium,
             maxLines = 1,
@@ -353,7 +352,7 @@ fun PrimaryActionButton(
 ) {
     Button(
         modifier = modifier
-            .height(48.dp)
+            .height(46.dp)
             .semantics { this.contentDescription = contentDescription },
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
