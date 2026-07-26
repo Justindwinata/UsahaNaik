@@ -69,6 +69,20 @@ class ReminderViewModelTest {
     }
 
     @Test
+    fun rejectsOutOfRangeTimeLabel() = runTest {
+        val repository = FakeBusinessReminderRepository()
+        val viewModel = ReminderViewModel(repository, FakeReminderScheduler(), FakePermissionHelper())
+        advanceUntilIdle()
+
+        viewModel.updateTimeLabel("99:99")
+        viewModel.saveReminder()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.reminders.value.size)
+        assertEquals("Use a valid 24-hour time, for example 20:00.", viewModel.uiState.value.visibleTimeError())
+    }
+
+    @Test
     fun rejectsOneTimeReminderWithoutDate() = runTest {
         val repository = FakeBusinessReminderRepository()
         val viewModel = ReminderViewModel(repository, FakeReminderScheduler(), FakePermissionHelper())

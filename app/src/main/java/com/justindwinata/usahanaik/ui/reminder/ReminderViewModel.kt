@@ -200,6 +200,7 @@ class ReminderViewModel(
         val timeError = when {
             form.timeLabel.isBlank() -> "Choose a reminder time."
             !TIME_PATTERN.matches(form.timeLabel.trim()) -> "Use time format HH:mm, for example 20:00."
+            !form.timeLabel.trim().isValidTimeOfDay() -> "Use a valid 24-hour time, for example 20:00."
             else -> null
         }
         val dateError = when {
@@ -218,6 +219,13 @@ class ReminderViewModel(
     private companion object {
         val TIME_PATTERN = Regex("""\d{2}:\d{2}""")
         val DATE_PATTERN = Regex("""\d{4}-\d{2}-\d{2}""")
+
+        fun String.isValidTimeOfDay(): Boolean {
+            val parts = split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: return false
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: return false
+            return hour in 0..23 && minute in 0..59
+        }
     }
 }
 
