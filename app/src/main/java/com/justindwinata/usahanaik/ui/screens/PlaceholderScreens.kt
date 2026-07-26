@@ -1616,7 +1616,7 @@ private fun BusinessReportDashboardSection(
     summary: BusinessReportDashboardSummary,
     onOpenBusinessReport: () -> Unit
 ) {
-    SectionHeader(title = "Business Report", actionLabel = if (summary.hasReport) summary.periodLabel else "New")
+    SectionHeader(title = "Business Report", actionLabel = summary.statusLabel)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),

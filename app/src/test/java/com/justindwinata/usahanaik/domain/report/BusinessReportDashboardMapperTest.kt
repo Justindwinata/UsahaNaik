@@ -21,6 +21,7 @@ class BusinessReportDashboardMapperTest {
 
         assertFalse(summary.hasReport)
         assertEquals("No report yet", summary.periodLabel)
+        assertEquals("Setup needed", summary.statusLabel)
         assertTrue(summary.helper.contains("Complete business setup"))
     }
 
@@ -33,9 +34,19 @@ class BusinessReportDashboardMapperTest {
         assertEquals("72/100", summary.healthScore)
         assertEquals("50%", summary.taskCompletion)
         assertEquals("40%", summary.contentExecution)
+        assertEquals("Ready", summary.statusLabel)
     }
 
-    private fun sampleReport(): BusinessReport = BusinessReport(
+    @Test
+    fun mapsLimitedDataReportStatus() {
+        val summary = BusinessReportDashboardMapper.from(sampleReport(isLimitedData = true))
+
+        assertTrue(summary.hasReport)
+        assertEquals("Limited data", summary.statusLabel)
+        assertTrue(summary.helper.contains("make this report richer"))
+    }
+
+    private fun sampleReport(isLimitedData: Boolean = false): BusinessReport = BusinessReport(
         period = BusinessReportPeriod.ThisMonth,
         businessName = "Kedai Naik",
         categoryName = "food_beverage",
@@ -88,6 +99,6 @@ class BusinessReportDashboardMapperTest {
         ),
         insights = emptyList(),
         exportReadyReport = ExportReadyReport("UsahaNaik Business Report", "Report body"),
-        isLimitedData = false
+        isLimitedData = isLimitedData
     )
 }

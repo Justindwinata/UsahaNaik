@@ -11,6 +11,7 @@ data class BusinessReportDashboardSummary(
     val healthScore: String,
     val taskCompletion: String,
     val contentExecution: String,
+    val statusLabel: String,
     val helper: String
 )
 
@@ -24,6 +25,7 @@ object BusinessReportDashboardMapper {
                 healthScore = "-",
                 taskCompletion = "-",
                 contentExecution = "-",
+                statusLabel = "Setup needed",
                 helper = "Complete business setup and add activity data to generate a business report."
             )
         }
@@ -35,6 +37,7 @@ object BusinessReportDashboardMapper {
             healthScore = "${report.diagnosisSummary.healthScore}/100",
             taskCompletion = formatPercent(report.weeklyExecution.taskCompletionRate),
             contentExecution = formatPercent(report.contentPerformance.executionRate),
+            statusLabel = if (report.isLimitedData) "Limited data" else "Ready",
             helper = if (report.isLimitedData) {
                 "Add more financial, task, and content activity to make this report richer."
             } else {
