@@ -1460,7 +1460,7 @@ private fun ContentPlannerDashboardSection(
     summary: ContentPlannerDashboardSummary,
     onOpenContentPlanner: () -> Unit
 ) {
-    SectionHeader(title = "Content Planner", actionLabel = if (summary.hasIdeas) "Saved" else "Empty")
+    SectionHeader(title = "Content Planner", actionLabel = summary.statusLabel)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),
@@ -1507,6 +1507,7 @@ private fun ContentPlannerDashboardSection(
         Text(text = "Next idea", style = MaterialTheme.typography.labelLarge, color = InkMuted)
         Text(text = summary.nextIdeaTitle, style = MaterialTheme.typography.titleMedium)
         Text(text = summary.nextIdeaPlatform, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Text(text = summary.nextIdeaHelper, style = MaterialTheme.typography.bodySmall, color = InkMuted)
         Spacer(modifier = Modifier.height(AppSpacing.md))
         Button(onClick = onOpenContentPlanner, modifier = Modifier.fillMaxWidth()) {
             Text(summary.ctaLabel)

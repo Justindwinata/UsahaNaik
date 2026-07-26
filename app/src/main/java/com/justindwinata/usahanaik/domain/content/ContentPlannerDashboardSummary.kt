@@ -10,6 +10,8 @@ data class ContentPlannerDashboardSummary(
     val favoriteCount: Int,
     val nextIdeaTitle: String,
     val nextIdeaPlatform: String,
+    val statusLabel: String,
+    val nextIdeaHelper: String,
     val ctaLabel: String,
     val hasIdeas: Boolean
 )
@@ -27,8 +29,27 @@ object ContentPlannerDashboardSummaryMapper {
             favoriteCount = ideas.count { it.isFavorite },
             nextIdeaTitle = nextIdea?.title ?: "Generate Content Ideas",
             nextIdeaPlatform = nextIdea?.platform?.label ?: "Content Planner",
+            statusLabel = ideas.contentStatusLabel(),
+            nextIdeaHelper = nextIdea?.nextIdeaHelper() ?: "Create ideas from your business profile.",
             ctaLabel = if (ideas.isEmpty()) "Generate Content Ideas" else "Open Content Planner",
             hasIdeas = ideas.isNotEmpty()
         )
+    }
+
+    private fun List<ContentIdea>.contentStatusLabel(): String {
+        return when {
+            isEmpty() -> "Needs ideas"
+            any { it.status == ContentIdeaStatus.Planned } -> "Plan ready"
+            all { it.status == ContentIdeaStatus.Done } -> "Completed"
+            else -> "Drafts saved"
+        }
+    }
+
+    private fun ContentIdea.nextIdeaHelper(): String {
+        return when (status) {
+            ContentIdeaStatus.Planned -> "Ready to schedule or post."
+            ContentIdeaStatus.Done -> "Already marked done."
+            ContentIdeaStatus.Draft -> "Review and mark planned when ready."
+        }
     }
 }

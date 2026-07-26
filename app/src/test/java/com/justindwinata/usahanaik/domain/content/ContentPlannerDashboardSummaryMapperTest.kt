@@ -18,6 +18,8 @@ class ContentPlannerDashboardSummaryMapperTest {
         assertEquals(0, summary.savedCount)
         assertEquals("Generate Content Ideas", summary.ctaLabel)
         assertEquals("Generate Content Ideas", summary.nextIdeaTitle)
+        assertEquals("Needs ideas", summary.statusLabel)
+        assertEquals("Create ideas from your business profile.", summary.nextIdeaHelper)
     }
 
     @Test
@@ -36,7 +38,20 @@ class ContentPlannerDashboardSummaryMapperTest {
         assertEquals(1, summary.doneCount)
         assertEquals(1, summary.favoriteCount)
         assertEquals("Planned promo", summary.nextIdeaTitle)
+        assertEquals("Plan ready", summary.statusLabel)
+        assertEquals("Ready to schedule or post.", summary.nextIdeaHelper)
         assertEquals("Open Content Planner", summary.ctaLabel)
+    }
+
+    @Test
+    fun mapsAllDoneIdeasToCompletedStatus() {
+        val summary = ContentPlannerDashboardSummaryMapper.from(
+            listOf(sampleIdea(title = "Done idea", status = ContentIdeaStatus.Done))
+        )
+
+        assertTrue(summary.hasIdeas)
+        assertEquals("Completed", summary.statusLabel)
+        assertEquals("Already marked done.", summary.nextIdeaHelper)
     }
 
     private fun sampleIdea(
