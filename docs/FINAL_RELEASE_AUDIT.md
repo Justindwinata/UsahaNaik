@@ -13,6 +13,7 @@ This is not a rewrite sprint. Existing Jetpack Compose, Room, local-first archit
 - Existing unit test coverage.
 - User-reported emulator concerns from UN-0014.
 - Local image search found only `UI_Reference.jpg`; no fresh emulator screenshots were available in the workspace.
+- UN-0015 `adb devices` check returned no attached emulator/device, so runtime QA and screenshot capture were not claimed.
 
 ## Remaining UI/UX Risks
 
@@ -37,6 +38,20 @@ This is not a rewrite sprint. Existing Jetpack Compose, Room, local-first archit
 3. Reduce raw/mixed copy and preserve honest local-first limitations.
 4. Add focused tests for final workflow helpers and state mappers.
 5. Update final documentation, QA checklist, and portfolio presentation notes.
+
+## UN-0015 Completed Fixes
+
+- Added safer global content spacing around the app Scaffold and bottom navigation.
+- Reduced shared component density for cards, buttons, badges, and key typography.
+- Added bilingual copy keys for local mode, local reminders, rule-based diagnosis, local-only AI provider copy, and demo mode labels.
+- Added Dashboard financial source labels that distinguish setup baseline from live local entries.
+- Replaced a static financial form date with an injectable current-date default.
+- Added weekly plan progress status labels for Dashboard scanning.
+- Added Business Report status labels for setup-needed, limited-data, and ready report states.
+- Added Content Planner status/helper labels for no ideas, drafts, planned queue, and completed ideas.
+- Hardened reminder time validation to reject impossible `HH:mm` values.
+- Tightened bottom-navigation route visibility to known main app routes only.
+- Added final QA, demo, and portfolio documentation.
 
 ## Release Truths
 

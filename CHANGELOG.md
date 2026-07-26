@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.5.0 - UN-0015
+
+- Added final release audit and portfolio checklist documentation for the portfolio-ready milestone.
+- Polished global layout spacing around Scaffold content, top safe area, and bottom navigation.
+- Finalized Compose design-system density for typography, cards, buttons, badges, and navigation surface.
+- Added bilingual copy keys for local mode, local reminders, rule-based diagnosis, local-only AI provider wording, and demo mode labels.
+- Improved Dashboard financial summary state labels so baseline preview and live local entries are clearly distinguished.
+- Replaced static financial form date defaults with an injectable current-date provider and added regression coverage.
+- Added weekly plan dashboard progress status labels for generate, not-started, in-progress, and completed states.
+- Added Business Report dashboard status labels for setup-needed, limited-data, and ready reports.
+- Added Content Planner dashboard workflow labels for no ideas, saved drafts, planned content, and completed ideas.
+- Hardened reminder time validation to reject out-of-range `HH:mm` values such as `99:99`.
+- Tightened bottom-navigation visibility so only known main app routes show the bottom bar.
+- Added final manual QA, demo script, portfolio presentation notes, and emulator QA checklist.
+
+### Known Limitations
+
+- Real authentication is not implemented.
+- No backend server.
+- No cloud sync.
+- No paid AI API and no hardcoded API keys.
+- Content generation remains deterministic/local.
+- Business recommendations are planning guidance only.
+- Not professional financial advice.
+- No guaranteed profit increase.
+- Notification alerts depend on Android runtime permission and OS scheduling behavior.
+- Screenshots require an attached emulator/device and are not claimed unless captured.
+
 ## 1.4.0 - UN-0014
 
 - Added UN-0014 screenshot QA audit and manual emulator QA checklist.

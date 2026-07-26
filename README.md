@@ -32,7 +32,9 @@ The long-term product vision includes business setup, category-specific planning
 
 ## Current Scope
 
-UN-0014 hardens the real emulator UI/UX revision. It improves safe-area spacing, bottom-navigation comfort, shared card density, bilingual copy, Dashboard hierarchy, financial validation, weekly task progress feedback, retrospective state continuity, Content Planner save/status feedback, reminder validation, demo-mode feedback, and route continuity tests.
+UN-0015 is the finalization sprint for portfolio readiness. It keeps the existing local-first feature set intact while polishing global layout spacing, shared design tokens, bilingual copy, Dashboard summaries, financial entry defaults, weekly plan progress labels, Business Report states, Content Planner workflow labels, reminder validation, navigation route contracts, and final release documentation.
+
+See [Final Release Audit](docs/FINAL_RELEASE_AUDIT.md), [Final Portfolio Checklist](docs/FINAL_PORTFOLIO_CHECKLIST.md), [Final Manual QA Guide](docs/FINAL_MANUAL_QA_GUIDE.md), and [Portfolio Presentation Notes](docs/PORTFOLIO_PRESENTATION_NOTES.md).
 
 Demo Mode sample business:
 
