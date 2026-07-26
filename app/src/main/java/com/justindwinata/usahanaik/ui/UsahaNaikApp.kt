@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -246,7 +247,10 @@ fun UsahaNaikApp() {
                 containerColor = CreamBackground,
                 bottomBar = {
                     if (showBottomBar) {
-                        NavigationBar(containerColor = SurfaceWarm) {
+                        NavigationBar(
+                            containerColor = SurfaceWarm,
+                            tonalElevation = 4.dp
+                        ) {
                             bottomTabs.forEach { tab ->
                                 val selected = backStackEntry?.destination?.hierarchy
                                     ?.any { it.route == tab.route.route } == true
