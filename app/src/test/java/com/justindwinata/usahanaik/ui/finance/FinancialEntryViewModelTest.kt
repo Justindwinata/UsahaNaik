@@ -23,6 +23,18 @@ class FinancialEntryViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
+    fun startsWithInjectedCurrentDateDefault() = runTest {
+        val repository = FakeFinancialEntryRepository()
+        val viewModel = FinancialEntryViewModel(
+            repository = repository,
+            currentDateProvider = { "2026-07-26" }
+        )
+        advanceUntilIdle()
+
+        assertEquals("2026-07-26", viewModel.uiState.value.form.date)
+    }
+
+    @Test
     fun rejectsInvalidAmount() = runTest {
         val repository = FakeFinancialEntryRepository()
         val viewModel = FinancialEntryViewModel(repository)

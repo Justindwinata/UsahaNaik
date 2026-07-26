@@ -13,12 +13,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class FinancialEntryViewModel(
     private val repository: FinancialEntryRepository,
-    private val monthPrefix: String = "2026-07"
+    private val currentDateProvider: () -> String = { LocalDate.now().toString() },
+    private val monthPrefix: String = currentDateProvider().take(7)
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(FinancialEntryUiState())
+    private val _uiState = MutableStateFlow(
+        FinancialEntryUiState(
+            form = FinancialEntryFormState(date = currentDateProvider())
+        )
+    )
     val uiState: StateFlow<FinancialEntryUiState> = _uiState.asStateFlow()
 
     init {
