@@ -1202,7 +1202,8 @@ private fun DashboardBusinessSignalsSection(dashboard: BusinessDashboard) {
 @Composable
 private fun DashboardInsightPanel(uiState: DashboardInsightsUiState) {
     val diagnosis = uiState.diagnosis
-    SectionHeader(title = "Business Diagnosis", actionLabel = "Rule-based")
+    val strings = LocalAppStrings.current
+    SectionHeader(title = strings.businessDiagnosis, actionLabel = strings.ruleBased)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     when {
         uiState.isLoading -> {
@@ -1242,6 +1243,7 @@ private fun DashboardInsightPanel(uiState: DashboardInsightsUiState) {
 
 @Composable
 private fun DiagnosisScoreCard(diagnosis: BusinessDiagnosis) {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1255,7 +1257,7 @@ private fun DiagnosisScoreCard(diagnosis: BusinessDiagnosis) {
                     contentColor = CoralPrimary
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
-                Text(text = "Rule-based business health", style = MaterialTheme.typography.titleLarge)
+                Text(text = strings.ruleBasedBusinessHealth, style = MaterialTheme.typography.titleLarge)
                 Text(
                     text = "Generated from saved profile and local financial records. Suggestions are planning guidance, not guaranteed outcomes.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -2330,12 +2332,13 @@ private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
 @Composable
 fun WeeklyRetrospectiveScreen(viewModel: WeeklyRetrospectiveViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalAppStrings.current
 
     ScreenContainer {
         ScreenHeroHeader(
             title = "Weekly Retrospective",
             subtitle = "Evaluate weekly execution from tasks, milestones, finance, content calendar, and diagnosis signals.",
-            badge = "Rule-based review"
+            badge = strings.ruleBasedReview
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
@@ -3095,7 +3098,7 @@ fun SettingsScreen(
         UsahaNaikCard(containerColor = GreenSoft) {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
                 PillBadge(text = "Auth-ready", containerColor = CreamBackground, contentColor = GreenPositive)
-                StatusBadge(text = "Local mode", tone = StatusTone.Positive)
+                StatusBadge(text = strings.localMode, tone = StatusTone.Positive)
             }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(text = "Account placeholder", style = MaterialTheme.typography.titleLarge)
@@ -3306,7 +3309,8 @@ private fun ReminderSettingsSection(
     onRequestNotificationPermission: () -> Unit
 ) {
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-        PillBadge(text = "Local reminders", containerColor = CreamBackground, contentColor = GreenPositive)
+        val strings = LocalAppStrings.current
+        PillBadge(text = strings.localReminders, containerColor = CreamBackground, contentColor = GreenPositive)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Text(text = "Business routine reminders", style = MaterialTheme.typography.titleMedium)
         Text(
@@ -3513,10 +3517,11 @@ private fun ReminderListItem(
 
 @Composable
 private fun AiProviderSettingsSection() {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-        PillBadge(text = "Local only", containerColor = CreamBackground, contentColor = CoralPrimary)
+        PillBadge(text = strings.localOnly, containerColor = CreamBackground, contentColor = CoralPrimary)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "AI content provider", style = MaterialTheme.typography.titleMedium)
+        Text(text = strings.aiContentProvider, style = MaterialTheme.typography.titleMedium)
         Text(
             text = "Content generation currently uses a deterministic local provider. Optional AI provider configuration is planned, and no API key is hardcoded in this build.",
             style = MaterialTheme.typography.bodyMedium,
@@ -3539,8 +3544,9 @@ private fun DemoDataSettingsSection(
     onRequestLoad: () -> Unit,
     onRequestClear: () -> Unit
 ) {
+    val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-        PillBadge(text = "Demo mode", containerColor = CreamBackground, contentColor = CoralPrimary)
+        PillBadge(text = strings.demoMode, containerColor = CreamBackground, contentColor = CoralPrimary)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         Text(text = "Portfolio demo data", style = MaterialTheme.typography.titleMedium)
         Text(
