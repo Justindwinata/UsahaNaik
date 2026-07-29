@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 class FinancialEntryViewModel(
     private val repository: FinancialEntryRepository,
@@ -162,6 +163,7 @@ class FinancialEntryViewModel(
         val dateError = when {
             form.date.isBlank() -> "Date is required."
             !DATE_PATTERN.matches(form.date.trim()) -> "Use date format YYYY-MM-DD."
+            !form.date.trim().isValidIsoDate() -> "Use a valid calendar date."
             else -> null
         }
         return FinancialEntryValidationResult(
@@ -187,6 +189,15 @@ class FinancialEntryViewModel(
 
     private companion object {
         val DATE_PATTERN = Regex("""\d{4}-\d{2}-\d{2}""")
+
+        fun String.isValidIsoDate(): Boolean {
+            return try {
+                LocalDate.parse(this)
+                true
+            } catch (_: DateTimeParseException) {
+                false
+            }
+        }
     }
 }
 

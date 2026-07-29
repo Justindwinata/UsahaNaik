@@ -84,6 +84,22 @@ class FinancialEntryViewModelTest {
     }
 
     @Test
+    fun rejectsInvalidCalendarDate() = runTest {
+        val repository = FakeFinancialEntryRepository()
+        val viewModel = FinancialEntryViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.updateTitle("Sales")
+        viewModel.updateAmount("100000")
+        viewModel.updateDate("2026-99-99")
+        viewModel.saveEntry()
+        advanceUntilIdle()
+
+        assertEquals(0, repository.entries.value.size)
+        assertEquals("Use a valid calendar date.", viewModel.uiState.value.visibleDateError())
+    }
+
+    @Test
     fun savesValidIncomeEntryAndRefreshesSummary() = runTest {
         val repository = FakeFinancialEntryRepository()
         val viewModel = FinancialEntryViewModel(repository)
