@@ -306,15 +306,19 @@ fun SectionHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
+            modifier = Modifier.weight(1f),
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         if (actionLabel != null) {
-            Text(
+            PillBadge(
                 text = actionLabel,
-                style = MaterialTheme.typography.labelMedium,
-                color = CoralPrimary
+                modifier = Modifier.padding(start = AppSpacing.sm),
+                containerColor = SurfacePressed,
+                contentColor = CoralPrimary
             )
         }
     }
@@ -380,10 +384,11 @@ fun DemoStateCard(
             PillBadge(text = it)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
-        Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        Text(text = title, style = MaterialTheme.typography.titleMedium, color = InkStrong)
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(text = message, style = MaterialTheme.typography.bodySmall, color = InkMuted)
         if (actionLabel != null && onActionClick != null) {
-            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
             PrimaryActionButton(
                 text = actionLabel,
                 onClick = onActionClick,
