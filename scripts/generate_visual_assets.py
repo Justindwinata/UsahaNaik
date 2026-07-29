@@ -61,8 +61,10 @@ def dashboard_panel(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, m
     text(draw, (x + 34, y + 30), "UsahaNaik", 28 if not mobile else 22, INK, True)
     text(draw, (x + 34, y + 65), "Dashboard UMKM lokal-first", 18 if not mobile else 14, MUTED)
     chip(draw, (x + w - 210, y + 28), "Rule-based", MINT, GREEN)
+    compact = mobile and h < 520
     card_w = (w - 92) // 2
-    card_h = 118 if not mobile else 92
+    card_h = 118 if not mobile else (74 if compact else 92)
+    row_gap = 14 if compact else 22
     cards = [
         ("Omzet", "Rp12,5 jt", BLUE),
         ("Profit", "Rp5,5 jt", GREEN),
@@ -73,13 +75,14 @@ def dashboard_panel(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, m
         col = index % 2
         row = index // 2
         cx = x + 34 + col * (card_w + 24)
-        cy = y + 115 + row * (card_h + 22)
+        cy = y + 115 + row * (card_h + row_gap)
         rounded(draw, (cx, cy, cx + card_w, cy + card_h), "#FFFCF8", radius=22, outline=BORDER)
         text(draw, (cx + 22, cy + 18), label, 15, MUTED, True)
         text(draw, (cx + 22, cy + 48), value, 28 if not mobile else 22, color, True)
-    chart_y = y + 115 + 2 * (card_h + 22) + 16
+    chart_y = y + 115 + 2 * (card_h + row_gap) + 16
     rounded(draw, (x + 34, chart_y, x + w - 34, y + h - 34), LAVENDER, radius=24)
-    text(draw, (x + 58, chart_y + 24), "Revenue vs Expense", 20 if not mobile else 16, INK, True)
+    if not compact:
+        text(draw, (x + 58, chart_y + 24), "Revenue vs Expense", 20 if not mobile else 16, INK, True)
     base = y + h - 60
     points = [(x + 70, base - 6), (x + 150, base - 25), (x + 230, base - 18), (x + 310, base - 38), (x + 390, base - 30)]
     if mobile:
