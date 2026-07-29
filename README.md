@@ -53,6 +53,23 @@ Screenshot files are not committed yet. See [Screenshot Plan](docs/SCREENSHOT_PL
 
 UN-0014 manual emulator QA is tracked in [UN-0014 Manual QA Checklist](docs/evidence/UN_0014_MANUAL_QA_CHECKLIST.md). Screenshot evidence should be saved under `docs/evidence/screenshots/un0014/` only when an emulator/device is actually available.
 
+## Visual Assets for Portfolio / LinkedIn
+
+This project includes final presentation assets under:
+
+- `docs/evidence/screenshots/final/`
+- `docs/visuals/mockups/`
+- `docs/visuals/linkedin_campaign/`
+
+To build the visual package:
+
+```bash
+python3 scripts/build_visual_package.py
+python3 scripts/verify_visual_package.py
+```
+
+The generated ZIP is saved locally as `dist/UsahaNaik_LinkedIn_Visual_Package.zip` and is intentionally not committed. Runtime screenshots require an attached emulator/device; source-based mockups and LinkedIn visuals are included for portfolio presentation.
+
 Implemented UN-0001 screens:
 
 - Welcome / app entry.

@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.6.0 - Visual Release Package
+
+- Added a localization and visual package audit for final portfolio packaging.
+- Improved Indonesian and English UI copy for Profile language controls and language selector accessibility.
+- Polished shared section headers and demo-state cards for cleaner deploy-ready presentation.
+- Hardened financial date validation with regression coverage for invalid calendar dates.
+- Added an Android screenshot capture workflow and documented that no runtime screenshots are claimed without an attached emulator/device.
+- Added deterministic portfolio mockups for desktop, mobile, and showcase presentation.
+- Added LinkedIn campaign visuals for cover, square post, carousel, and banner usage.
+- Added reusable visual package builder and verifier scripts.
+- Added visual asset guide and LinkedIn campaign notes.
+- Documented how to regenerate the local visual package ZIP.
+
+### Known Limitations
+
+- Runtime screenshots were not captured during packaging because no emulator/device was attached.
+- Mockups and LinkedIn visuals are source-based presentation assets, not runtime screenshots.
+- The generated visual ZIP remains local under `dist/` and is not committed.
+- No deployment was performed as part of this visual packaging task.
+- No real backend authentication, cloud sync, paid AI API, guaranteed profit increase, or professional financial advice is claimed.
+
 ## 1.5.0 - UN-0015
 
 - Added final release audit and portfolio checklist documentation for the portfolio-ready milestone.
