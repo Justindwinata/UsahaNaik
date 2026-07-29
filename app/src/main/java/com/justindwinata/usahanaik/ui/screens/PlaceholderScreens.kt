@@ -3082,14 +3082,14 @@ fun SettingsScreen(
     ScreenContainer {
         ScreenHeroHeader(
             title = strings.profile,
-            subtitle = "Manage language, local business data, demo mode, reminders, and auth-ready account settings.",
+            subtitle = strings.profileSubtitle,
             badge = strings.localFirstNote
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         UsahaNaikCard(containerColor = BlueSoft) {
             ProfessionalSectionHeader(
                 title = strings.language,
-                subtitle = "Switch static UI copy between Indonesian and English."
+                subtitle = strings.languageSelectorSubtitle
             )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             LanguageSelector(

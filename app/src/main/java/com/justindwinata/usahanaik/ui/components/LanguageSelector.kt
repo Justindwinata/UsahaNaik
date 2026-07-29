@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.justindwinata.usahanaik.domain.localization.AppLanguage
+import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
@@ -25,6 +26,7 @@ fun LanguageSelector(
     modifier: Modifier = Modifier,
     languages: List<AppLanguage> = AppLanguage.entries
 ) {
+    val strings = LocalAppStrings.current
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
@@ -35,7 +37,7 @@ fun LanguageSelector(
                 modifier = Modifier
                     .weight(1f)
                     .semantics {
-                        contentDescription = "Select ${language.displayName}"
+                        contentDescription = "${strings.selectLanguagePrefix}: ${language.nativeName}"
                     },
                 selected = selected,
                 onClick = { onLanguageSelected(language) },

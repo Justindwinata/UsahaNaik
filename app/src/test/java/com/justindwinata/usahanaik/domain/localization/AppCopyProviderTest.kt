@@ -19,6 +19,8 @@ class AppCopyProviderTest {
         assertEquals("Rencana", strings.plan)
         assertEquals("Berbasis aturan", strings.ruleBased)
         assertEquals("Lokal saja", strings.localOnly)
+        assertEquals("Pilih bahasa", strings.selectLanguagePrefix)
+        assertTrue(strings.profileSubtitle.contains("Kelola bahasa"))
         assertTrue(strings.noGuaranteedProfit.contains("tidak menjamin"))
     }
 
@@ -30,6 +32,8 @@ class AppCopyProviderTest {
         assertEquals("Plan", strings.plan)
         assertEquals("Rule-based", strings.ruleBased)
         assertEquals("Local only", strings.localOnly)
+        assertEquals("Select language", strings.selectLanguagePrefix)
+        assertTrue(strings.profileSubtitle.contains("Manage language"))
         assertTrue(strings.noGuaranteedProfit.contains("does not guarantee"))
     }
 }
