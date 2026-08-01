@@ -34,6 +34,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -159,6 +160,8 @@ import com.justindwinata.usahanaik.ui.theme.RoseSoft
 import com.justindwinata.usahanaik.ui.theme.Secondary
 import com.justindwinata.usahanaik.ui.theme.SecondaryFixed
 import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLow
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainer
 import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
 import com.justindwinata.usahanaik.ui.theme.YellowSoft
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
@@ -341,60 +344,67 @@ fun CategorySelectionScreen(onContinueClick: (String) -> Unit) {
     var selectedCategoryId by remember { mutableStateOf(categories.first().id) }
     val selectedCategory = categories.first { it.id == selectedCategoryId }
 
-    ScreenContainer {
-        SectionHeader(title = "Pilih Kategori Bisnis")
-        Text(
-            text = "Pilih kategori yang paling dekat dengan usahamu. Metadata ini nanti dipakai untuk goal, dashboard, dan rekomendasi mingguan.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = "Choose your business category",
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "Select the category that best matches your business. This metadata helps personalize your dashboard, weekly plans, and recommendations.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         categories.forEachIndexed { index, category ->
             val isSelected = category.id == selectedCategoryId
             UsahaNaikCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(22.dp))
+                    .clip(RoundedCornerShape(8.dp))
                     .border(
                         width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) CoralPrimary else OutlineVariant,
-                        shape = RoundedCornerShape(22.dp)
+                        color = if (isSelected) Secondary else OutlineVariant,
+                        shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { selectedCategoryId = category.id },
-                containerColor = listOf(BlueSoft, GreenSoft, LavenderSoft, YellowSoft)[index % 4]
+                containerColor = SurfaceContainerLowest
             ) {
                 Text(
                     text = category.displayName,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = OnSurface
                 )
                 Text(
                     text = category.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
+                    color = OnSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
                 PillBadge(
-                    text = if (isSelected) "Dipilih" else "Fokus: ${category.focusArea}",
-                    containerColor = if (isSelected) CoralSoft else CreamBackground,
-                    contentColor = if (isSelected) CoralPrimary else InkMuted
+                    text = if (isSelected) "Selected" else "Focus: ${category.focusArea}",
+                    containerColor = if (isSelected) SecondaryFixed else SurfaceContainerLow,
+                    contentColor = if (isSelected) Secondary else OnSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
-        UsahaNaikCard(containerColor = CoralSoft) {
-            Text(text = "Sample goal", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = selectedCategory.sampleRecommendedGoal,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         PrimaryActionButton(
-            text = "Lanjut ke Setup",
+            text = "Continue to Setup",
             onClick = { onContinueClick(selectedCategoryId) },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 }
 
@@ -409,56 +419,62 @@ fun BusinessSetupScreen(
     val guidance = BusinessCategorySetupHints.guidanceFor(selectedCategory)
     val strings = LocalAppStrings.current
 
-    ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.businessSetup,
-            subtitle = "Isi profil bisnis inti agar dashboard, rencana mingguan, laporan, dan pengingat terasa lebih personal.",
-            badge = "${uiState.completedSectionCount}/${uiState.totalSectionCount} sections"
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(containerColor = LavenderSoft) {
-            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
-                PillBadge(text = selectedCategory.displayName, containerColor = CreamBackground, contentColor = CoralPrimary)
-                StatusBadge(
-                    text = if (uiState.isValid) "Ready to review" else "In progress",
-                    tone = if (uiState.isValid) StatusTone.Positive else StatusTone.Info
+        Text(
+            text = strings.businessSetup,
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "Complete your business profile so your dashboard, weekly plans, reports, and reminders feel personalized.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        // Progress section
+        UsahaNaikCard(containerColor = SurfaceContainerLowest) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Setup progress",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = OnSurface
+                )
+                Text(
+                    text = "${uiState.completedSectionCount}/${uiState.totalSectionCount}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Secondary
                 )
             }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = "Category setup hints", style = MaterialTheme.typography.titleMedium)
-            Text(text = guidance.focusArea, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            guidance.setupHints.forEach { hint ->
-                Text(text = "- $hint", style = MaterialTheme.typography.bodyMedium)
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(
-                text = "Recommended focus: ${guidance.recommendedMonthlyFocus.label}",
-                style = MaterialTheme.typography.labelLarge,
-                color = CoralPrimary
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(containerColor = GreenSoft) {
-            ProfessionalSectionHeader(
-                title = "Setup progress",
-                subtitle = "Complete the required sections before saving your local business profile."
-            )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             LinearProgressIndicator(
                 progress = { uiState.setupProgress },
                 modifier = Modifier.fillMaxWidth(),
-                color = GreenPositive,
-                trackColor = CreamBackground
+                color = Secondary,
+                trackColor = SurfaceContainer
             )
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Spacer(modifier = Modifier.height(AppSpacing.md))
             SectionCompletionRow("Identity", uiState.isIdentityComplete)
             SectionCompletionRow("Financial", uiState.isFinancialComplete)
             SectionCompletionRow("Product", uiState.isProductComplete)
             SectionCompletionRow("Challenges", uiState.isChallengesComplete)
             SectionCompletionRow("Goals", uiState.isGoalsComplete)
         }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
         BusinessIdentityForm(
             uiState = uiState,
             selectedCategoryName = selectedCategory.displayName,
@@ -496,26 +512,27 @@ fun BusinessSetupScreen(
             onMainFocusChange = viewModel::updateMainFocus,
             onAvailableTimeChange = viewModel::updateAvailableTime
         )
-        Button(
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+        PrimaryActionButton(
+            text = if (uiState.isValid) "Review Setup" else "Check Setup",
             onClick = { viewModel.requestReview() },
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = if (uiState.isValid) "Review Setup" else "Check Setup")
-        }
+        )
         if (uiState.hasAttemptedReview && !uiState.isValid) {
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Text(
-                text = "Beberapa data penting masih perlu dilengkapi sebelum review.",
+                text = "Some important data still needs to be completed before review.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = CoralPrimary
+                color = Secondary
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.sm))
         OutlinedButton(
             onClick = viewModel::resetDraft,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Text(text = "Reset Draft")
+            Text("Reset Draft")
         }
         if (uiState.isReviewVisible) {
             Spacer(modifier = Modifier.height(AppSpacing.lg))
@@ -526,6 +543,7 @@ fun BusinessSetupScreen(
                 onSaveProfile = { viewModel.saveCompletedProfile(onContinueClick) }
             )
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 }
 
@@ -732,17 +750,17 @@ private fun SetupSectionCard(
     containerColor: androidx.compose.ui.graphics.Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = containerColor) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Text(text = title, style = MaterialTheme.typography.titleMedium, color = OnSurface)
             PillBadge(
                 text = if (isComplete) "Complete" else "Draft",
-                containerColor = CreamBackground,
-                contentColor = if (isComplete) GreenPositive else InkMuted
+                containerColor = if (isComplete) SecondaryFixed else SurfaceContainerLow,
+                contentColor = if (isComplete) Secondary else OnSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -758,11 +776,11 @@ private fun SectionCompletionRow(label: String, completed: Boolean) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
         PillBadge(
             text = if (completed) "Complete" else "Draft",
-            containerColor = CreamBackground,
-            contentColor = if (completed) GreenPositive else InkMuted
+            containerColor = if (completed) SecondaryFixed else SurfaceContainerLow,
+            contentColor = if (completed) Secondary else OnSurfaceVariant
         )
     }
     Spacer(modifier = Modifier.height(AppSpacing.xs))
@@ -783,7 +801,16 @@ private fun SetupTextField(
         label = { Text(label) },
         isError = error != null,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true
+        singleLine = true,
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Secondary,
+            unfocusedBorderColor = OutlineVariant,
+            focusedContainerColor = SurfaceContainerLowest,
+            unfocusedContainerColor = SurfaceContainerLowest,
+            cursorColor = Secondary
+        ),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(color = OnSurface)
     )
     FieldError(error)
     Spacer(modifier = Modifier.height(AppSpacing.sm))
@@ -884,14 +911,14 @@ private fun SetupReviewSection(
     val revenueGap = BusinessSetupCalculator.formatRupiah(BusinessSetupCalculator.revenueTargetGap(draft))
     val profitGap = BusinessSetupCalculator.formatRupiah(BusinessSetupCalculator.profitTargetGap(draft))
 
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-        PillBadge(text = "Review ready", containerColor = CreamBackground, contentColor = GreenPositive)
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        PillBadge(text = "Review ready", containerColor = SecondaryFixed, contentColor = Secondary)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Setup Review", style = MaterialTheme.typography.titleLarge)
+        Text(text = "Setup Review", style = MaterialTheme.typography.headlineMedium, color = OnSurface)
         Text(
-            text = "Dashboard akan dibuat dari draft ini. Angka adalah preview perencanaan, bukan nasihat finansial profesional.",
+            text = "Your dashboard will be created from this draft. These are planning previews, not professional financial advice.",
             style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+            color = OnSurfaceVariant
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         ReviewRow("Business", draft.businessName)
@@ -909,11 +936,11 @@ private fun SetupReviewSection(
         ReviewRow("Challenges", draft.challenges.joinToString { it.label })
         Spacer(modifier = Modifier.height(AppSpacing.md))
         uiState.saveSuccessMessage?.let { message ->
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
         uiState.saveErrorMessage?.let { message ->
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
         PrimaryActionButton(
@@ -937,13 +964,14 @@ private fun ReviewRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted,
+            style = MaterialTheme.typography.labelSmall,
+            color = OnSurfaceVariant,
             modifier = Modifier.weight(0.42f)
         )
         Text(
             text = value.ifBlank { "-" },
             style = MaterialTheme.typography.bodyMedium,
+            color = OnSurface,
             modifier = Modifier.weight(0.58f)
         )
     }
