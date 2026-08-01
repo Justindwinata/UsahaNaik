@@ -60,17 +60,20 @@ import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 fun UsahaNaikCard(
     modifier: Modifier = Modifier,
     containerColor: Color = SurfaceWarm,
+    onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+        ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         border = BorderStroke(1.dp, BorderSubtle)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
+            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
             content = content
         )
     }
@@ -241,16 +244,21 @@ fun ProfessionalActionTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    accentColor: Color = CoralPrimary
+    accentColor: Color = CoralPrimary,
+    enabled: Boolean = true
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, BorderSubtle)
+        colors = CardDefaults.cardColors(
+            containerColor = if (enabled) SurfaceElevated else SurfaceElevated.copy(alpha = 0.6f)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (enabled) 1.dp else 0.dp
+        ),
+        border = BorderStroke(1.dp, if (enabled) BorderSubtle else BorderSubtle.copy(alpha = 0.5f))
     ) {
         Row(
             modifier = Modifier.padding(AppSpacing.md),
@@ -259,22 +267,52 @@ fun ProfessionalActionTile(
         ) {
             Box(
                 modifier = Modifier
-                    .size(38.dp)
-                    .background(accentColor.copy(alpha = 0.12f), CircleShape)
-                    .border(1.dp, accentColor.copy(alpha = 0.18f), CircleShape),
+                    .size(40.dp)
+                    .background(
+                        accentColor.copy(alpha = if (enabled) 0.12f else 0.06f),
+                        CircleShape
+                    )
+                    .border(
+                        1.dp,
+                        accentColor.copy(alpha = if (enabled) 0.18f else 0.09f),
+                        CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 if (icon != null) {
-                    Icon(icon, contentDescription = null, tint = accentColor)
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        tint = accentColor.copy(alpha = if (enabled) 1f else 0.5f)
+                    )
                 } else {
-                    Box(modifier = Modifier.size(12.dp).background(accentColor, CircleShape))
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .background(
+                                accentColor.copy(alpha = if (enabled) 1f else 0.5f),
+                                CircleShape
+                            )
+                    )
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium, color = Ink)
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (enabled) Ink else Ink.copy(alpha = 0.6f)
+                )
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (enabled) InkMuted else InkMuted.copy(alpha = 0.6f)
+                )
             }
-            Text(text = actionLabel, style = MaterialTheme.typography.labelLarge, color = accentColor)
+            Text(
+                text = actionLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (enabled) accentColor else accentColor.copy(alpha = 0.5f)
+            )
         }
     }
 }
@@ -352,20 +390,38 @@ fun PrimaryActionButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isLoading: Boolean = false,
     contentDescription: String = text
 ) {
     Button(
         modifier = modifier
-            .height(46.dp)
+            .height(48.dp)
             .semantics { this.contentDescription = contentDescription },
         onClick = onClick,
+        enabled = enabled && !isLoading,
         colors = ButtonDefaults.buttonColors(
             containerColor = CoralPrimary,
-            contentColor = SurfaceWarm
+            contentColor = SurfaceWarm,
+            disabledContainerColor = CoralPrimary.copy(alpha = 0.5f),
+            disabledContentColor = SurfaceWarm.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp,
+            disabledElevation = 0.dp
+        )
     ) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge)
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = SurfaceWarm,
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 
