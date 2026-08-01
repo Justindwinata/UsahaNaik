@@ -14,10 +14,12 @@ import androidx.compose.ui.semantics.semantics
 import com.justindwinata.usahanaik.domain.localization.AppLanguage
 import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
-import com.justindwinata.usahanaik.ui.theme.CoralPrimary
-import com.justindwinata.usahanaik.ui.theme.CoralSoft
-import com.justindwinata.usahanaik.ui.theme.InkMuted
-import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
+import com.justindwinata.usahanaik.ui.theme.OnSurface
+import com.justindwinata.usahanaik.ui.theme.OnSurfaceVariant
+import com.justindwinata.usahanaik.ui.theme.Secondary
+import com.justindwinata.usahanaik.ui.theme.SecondaryFixed
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
+import androidx.compose.foundation.shape.CircleShape
 
 @Composable
 fun LanguageSelector(
@@ -44,15 +46,17 @@ fun LanguageSelector(
                 label = {
                     Text(
                         text = language.nativeName,
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (selected) OnSurface else OnSurfaceVariant
                     )
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = SurfaceWarm,
-                    labelColor = InkMuted,
-                    selectedContainerColor = CoralSoft,
-                    selectedLabelColor = CoralPrimary
-                )
+                    containerColor = if (selected) SecondaryFixed else SurfaceContainerLowest,
+                    labelColor = if (selected) OnSurface else OnSurfaceVariant,
+                    selectedContainerColor = SecondaryFixed,
+                    selectedLabelColor = OnSurface
+                ),
+                shape = CircleShape
             )
         }
     }
