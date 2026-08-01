@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -140,7 +142,7 @@ import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupUiState
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
-import com.justindwinata.usahanaik.ui.theme.BorderSubtle
+import com.justindwinata.usahanaik.ui.theme.Background
 import com.justindwinata.usahanaik.ui.theme.BlueSoft
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
@@ -149,7 +151,14 @@ import com.justindwinata.usahanaik.ui.theme.GreenPositive
 import com.justindwinata.usahanaik.ui.theme.GreenSoft
 import com.justindwinata.usahanaik.ui.theme.InkMuted
 import com.justindwinata.usahanaik.ui.theme.LavenderSoft
+import com.justindwinata.usahanaik.ui.theme.OnSurface
+import com.justindwinata.usahanaik.ui.theme.OnSurfaceVariant
+import com.justindwinata.usahanaik.ui.theme.OutlineVariant
+import com.justindwinata.usahanaik.ui.theme.Primary
 import com.justindwinata.usahanaik.ui.theme.RoseSoft
+import com.justindwinata.usahanaik.ui.theme.Secondary
+import com.justindwinata.usahanaik.ui.theme.SecondaryFixed
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
 import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
 import com.justindwinata.usahanaik.ui.theme.YellowSoft
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanUiState
@@ -178,103 +187,151 @@ fun WelcomeScreen(
     onPreviewDashboardClick: () -> Unit
 ) {
     val strings = LocalAppStrings.current
-    ScreenContainer {
-        Spacer(modifier = Modifier.height(AppSpacing.xl))
-        Box(
-            modifier = Modifier
-                .size(76.dp)
-                .clip(CircleShape)
-                .background(CoralSoft),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "UN",
-                style = MaterialTheme.typography.titleLarge,
-                color = CoralPrimary,
-                fontWeight = FontWeight.Bold
-            )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (savedProfile != null) {
+            Spacer(modifier = Modifier.height(AppSpacing.xxl))
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(SecondaryFixed)
+                    .border(1.dp, Secondary.copy(alpha = 0.3f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "UN",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Secondary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.height(AppSpacing.xxxl))
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(SecondaryFixed.copy(alpha = 0.3f))
+                    .border(1.dp, Secondary.copy(alpha = 0.3f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "UN",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Secondary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+
         Text(
-            text = "UsahaNaik",
-            style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onBackground
+            text = "Elevate Your Business Growth.",
+            style = MaterialTheme.typography.displayLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = AppSpacing.containerMargin)
         )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(
-            text = strings.appTagline,
+            text = "The AI-powered assistant for modern entrepreneurs.\nPrecision metrics and automated insights to scale your vision.",
             style = MaterialTheme.typography.bodyLarge,
-            color = InkMuted
+            color = OnSurfaceVariant,
+            modifier = Modifier.padding(horizontal = AppSpacing.containerMargin)
         )
+
         Spacer(modifier = Modifier.height(AppSpacing.md))
         LanguageSelector(
             selectedLanguage = selectedLanguage,
             onLanguageSelected = onLanguageSelected
         )
+
         Spacer(modifier = Modifier.height(AppSpacing.lg))
-        if (savedProfile != null) {
-            UsahaNaikCard(containerColor = BlueSoft) {
-                PillBadge(text = strings.localFirstNote, containerColor = CreamBackground, contentColor = CoralPrimary)
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
-                Text(
-                    text = savedProfile.draft.businessName,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Text(
-                    text = strings.localFirstNote,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
-                )
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
-                PrimaryActionButton(
-                    text = strings.dashboard,
-                    onClick = onResumeSavedProfileClick,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.lg))
-        }
-        UsahaNaikCard(containerColor = BlueSoft) {
-            PillBadge(text = "Auth-ready", containerColor = CreamBackground, contentColor = CoralPrimary)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = strings.authDemoNote, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-            Spacer(modifier = Modifier.height(AppSpacing.md))
-            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-                OutlinedButton(onClick = onLoginClick, modifier = Modifier.weight(1f)) {
-                    Text(strings.login)
-                }
-                OutlinedButton(onClick = onRegisterClick, modifier = Modifier.weight(1f)) {
-                    Text(strings.register)
-                }
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            PrimaryActionButton(
-                text = strings.continueLocalMode,
-                onClick = onContinueLocalModeClick,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
         PrimaryActionButton(
-            text = strings.completeSetup,
-            onClick = onStartClick,
-            modifier = Modifier.fillMaxWidth()
+            text = strings.continueLocalMode,
+            onClick = onContinueLocalModeClick,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpacing.containerMargin)
         )
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        PrimaryActionButton(
-            text = strings.dashboard,
-            onClick = onPreviewDashboardClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(AppSpacing.lg))
-        UsahaNaikCard(containerColor = GreenSoft) {
-            PillBadge(text = "Catatan aman", containerColor = CreamBackground, contentColor = GreenPositive)
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+
+        OutlinedButton(
+            onClick = onLoginClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppSpacing.containerMargin),
+            shape = RoundedCornerShape(8.dp)
+        ) {
             Text(
-                text = strings.noGuaranteedProfit,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                strings.login,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(vertical = 4.dp)
             )
         }
+
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        Row(
+            modifier = Modifier.padding(horizontal = AppSpacing.containerMargin),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.clickable { onLanguageSelected(AppLanguage.English) },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+            ) {
+                Text(
+                    if (selectedLanguage == AppLanguage.English) "EN" else "EN",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (selectedLanguage == AppLanguage.English) Secondary else OnSurfaceVariant,
+                    modifier = Modifier
+                        .background(
+                            if (selectedLanguage == AppLanguage.English) SecondaryFixed else Color.Transparent,
+                            RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
+                )
+                Text(
+                    "|",
+                    color = OutlineVariant
+                )
+                Text(
+                    if (selectedLanguage == AppLanguage.Indonesian) "ID" else "ID",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (selectedLanguage == AppLanguage.Indonesian) Secondary else OnSurfaceVariant,
+                    modifier = Modifier
+                        .clickable { onLanguageSelected(AppLanguage.Indonesian) }
+                        .background(
+                            if (selectedLanguage == AppLanguage.Indonesian) SecondaryFixed else Color.Transparent,
+                            RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.lg)) {
+                Text(
+                    "Privacy Policy",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = OnSurfaceVariant
+                )
+                Text(
+                    "Terms of Service",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = OnSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(AppSpacing.xl))
     }
 }
 
@@ -300,7 +357,7 @@ fun CategorySelectionScreen(onContinueClick: (String) -> Unit) {
                     .clip(RoundedCornerShape(22.dp))
                     .border(
                         width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) CoralPrimary else BorderSubtle,
+                        color = if (isSelected) CoralPrimary else OutlineVariant,
                         shape = RoundedCornerShape(22.dp)
                     )
                     .clickable { selectedCategoryId = category.id },

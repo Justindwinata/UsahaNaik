@@ -1,7 +1,9 @@
 package com.justindwinata.usahanaik.ui.screens
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,17 +16,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -51,11 +58,15 @@ import com.justindwinata.usahanaik.ui.theme.AppSpacing
 import com.justindwinata.usahanaik.ui.theme.Error
 import com.justindwinata.usahanaik.ui.theme.OnSurface
 import com.justindwinata.usahanaik.ui.theme.OnSurfaceVariant
+import com.justindwinata.usahanaik.ui.theme.OnSecondary
 import com.justindwinata.usahanaik.ui.theme.Outline
 import com.justindwinata.usahanaik.ui.theme.OutlineVariant
+import com.justindwinata.usahanaik.ui.theme.Primary
 import com.justindwinata.usahanaik.ui.theme.Secondary
+import com.justindwinata.usahanaik.ui.theme.SecondaryContainer
 import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
 import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLow
+import com.justindwinata.usahanaik.ui.theme.AppRadius
 
 @Composable
 fun LoginScreen(
@@ -78,15 +89,15 @@ fun LoginScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
     ) {
-        HeaderBrand()
-
         Spacer(modifier = Modifier.height(AppSpacing.xl))
 
         Text(
             text = "Welcome Back.",
-            style = MaterialTheme.typography.displayMedium,
-            color = OnSurface
+            style = MaterialTheme.typography.displayLarge,
+            color = OnSurface,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
         )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(
             text = "Access your business intelligence suite.",
             style = MaterialTheme.typography.bodyLarge,
@@ -126,14 +137,42 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            OutlinedButton(onClick = onContinueLocalMode, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = onContinueLocalMode,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text(strings.continueLocalMode)
             }
         }
 
         Spacer(modifier = Modifier.height(AppSpacing.md))
+
+        AuthDivider(text = "Or continue with")
+
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+        ) {
+            SsoButton(
+                text = "Google",
+                icon = "g",
+                modifier = Modifier.weight(1f),
+                onClick = { }
+            )
+            SsoButton(
+                text = "Apple",
+                icon = "apple_logo",
+                modifier = Modifier.weight(1f),
+                onClick = { }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         AuthSwitchCard(
-            message = "Belum punya akun? / New here?",
+            message = "Don't have an account?",
             action = strings.register,
             onClick = onRegisterClick
         )
@@ -164,15 +203,15 @@ fun RegisterScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
     ) {
-        HeaderBrand()
-
         Spacer(modifier = Modifier.height(AppSpacing.xl))
 
         Text(
             text = "Create Your Account.",
-            style = MaterialTheme.typography.displayMedium,
-            color = OnSurface
+            style = MaterialTheme.typography.displayLarge,
+            color = OnSurface,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
         )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(
             text = "Join thousands of entrepreneurs scaling with precision.",
             style = MaterialTheme.typography.bodyLarge,
@@ -233,14 +272,42 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            OutlinedButton(onClick = onContinueLocalMode, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = onContinueLocalMode,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text(strings.continueLocalMode)
             }
         }
 
         Spacer(modifier = Modifier.height(AppSpacing.md))
+
+        AuthDivider(text = "Or continue with")
+
+        Spacer(modifier = Modifier.height(AppSpacing.md))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+        ) {
+            SsoButton(
+                text = "Google",
+                icon = "g",
+                modifier = Modifier.weight(1f),
+                onClick = { }
+            )
+            SsoButton(
+                text = "Apple",
+                icon = "apple_logo",
+                modifier = Modifier.weight(1f),
+                onClick = { }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         AuthSwitchCard(
-            message = "Sudah punya akun? / Already registered?",
+            message = "Already registered?",
             action = strings.login,
             onClick = onLoginClick
         )
@@ -255,26 +322,24 @@ private fun HeaderBrand() {
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp)
+                .size(40.dp)
                 .clip(CircleShape)
                 .background(SurfaceContainerLow),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 "UN",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
-                color = OnSurface
-            )
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                "UsahaNaik",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color = OnSurface
             )
         }
+        Text(
+            "UsahaNaik",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            color = OnSurface
+        )
     }
 }
 
@@ -289,7 +354,7 @@ private fun StitchInputField(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             color = OnSurfaceVariant
         )
         Spacer(modifier = Modifier.height(AppSpacing.xs))
@@ -299,7 +364,7 @@ private fun StitchInputField(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
-            shape = CircleShape,
+            shape = RoundedCornerShape(8.dp),
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = OnSurface),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Secondary,
@@ -323,15 +388,15 @@ private fun StitchPasswordField(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             color = OnSurfaceVariant
         )
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(SurfaceContainerLowest, CircleShape)
-                .border(1.dp, OutlineVariant, CircleShape)
+                .background(SurfaceContainerLowest, RoundedCornerShape(8.dp))
+                .border(1.dp, OutlineVariant, RoundedCornerShape(8.dp))
         ) {
             OutlinedTextField(
                 value = value,
@@ -342,7 +407,7 @@ private fun StitchPasswordField(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 singleLine = true,
-                shape = CircleShape,
+                shape = RoundedCornerShape(8.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = OnSurface),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Secondary,
@@ -363,6 +428,54 @@ private fun StitchPasswordField(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun AuthDivider(text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(OutlineVariant)
+        )
+        Spacer(modifier = Modifier.padding(horizontal = AppSpacing.md))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.padding(horizontal = AppSpacing.md))
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(OutlineVariant)
+        )
+    }
+}
+
+@Composable
+private fun SsoButton(
+    text: String,
+    icon: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(start = AppSpacing.xs)
+        )
     }
 }
 
