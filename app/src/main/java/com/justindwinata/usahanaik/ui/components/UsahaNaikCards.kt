@@ -433,13 +433,16 @@ fun DemoStateCard(
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null,
     containerColor: Color = SurfaceWarm,
-    badgeLabel: String? = null
+    badgeLabel: String? = null,
+    illustration: @Composable () -> Unit = { }
 ) {
     UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = containerColor) {
         badgeLabel?.let {
             PillBadge(text = it)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
+        illustration()
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(text = title, style = MaterialTheme.typography.titleMedium, color = InkStrong)
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(text = message, style = MaterialTheme.typography.bodySmall, color = InkMuted)
@@ -460,7 +463,8 @@ fun EmptyStateCard(
     message: String,
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
-    onActionClick: (() -> Unit)? = null
+    onActionClick: (() -> Unit)? = null,
+    illustration: @Composable () -> Unit = { EmptyIllustration() }
 ) {
     val strings = LocalAppStrings.current
     DemoStateCard(
@@ -470,7 +474,8 @@ fun EmptyStateCard(
         actionLabel = actionLabel,
         onActionClick = onActionClick,
         containerColor = SurfaceElevated,
-        badgeLabel = strings.emptyState
+        badgeLabel = strings.emptyState,
+        illustration = illustration
     )
 }
 
@@ -691,5 +696,23 @@ fun TrendLineChart(
 
         drawSeries(expensePoints, CoralPrimary.copy(alpha = 0.7f))
         drawSeries(revenuePoints, GreenPositive)
+    }
+}
+
+@Composable
+private fun EmptyIllustration() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .background(BorderSubtle.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(SurfaceWarm, CircleShape)
+                .border(2.dp, BorderSubtle, CircleShape)
+        )
     }
 }
