@@ -41,25 +41,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.justindwinata.usahanaik.ui.theme.AppSpacing
-import com.justindwinata.usahanaik.ui.theme.BlueSoft
-import com.justindwinata.usahanaik.ui.theme.BorderSubtle
-import com.justindwinata.usahanaik.ui.theme.CoralPrimary
-import com.justindwinata.usahanaik.ui.theme.CoralSoft
-import com.justindwinata.usahanaik.ui.theme.GreenPositive
-import com.justindwinata.usahanaik.ui.theme.GreenSoft
-import com.justindwinata.usahanaik.ui.theme.Ink
-import com.justindwinata.usahanaik.ui.theme.InkMuted
-import com.justindwinata.usahanaik.ui.theme.InkStrong
-import com.justindwinata.usahanaik.ui.theme.InkSubtle
-import com.justindwinata.usahanaik.ui.theme.SurfaceElevated
-import com.justindwinata.usahanaik.ui.theme.SurfacePressed
+import com.justindwinata.usahanaik.ui.theme.AppRadius
+import com.justindwinata.usahanaik.ui.theme.Primary
+import com.justindwinata.usahanaik.ui.theme.OnPrimary
+import com.justindwinata.usahanaik.ui.theme.OnSurface
+import com.justindwinata.usahanaik.ui.theme.OnSurfaceVariant
+import com.justindwinata.usahanaik.ui.theme.Outline
+import com.justindwinata.usahanaik.ui.theme.OutlineVariant
+import com.justindwinata.usahanaik.ui.theme.Secondary
+import com.justindwinata.usahanaik.ui.theme.SecondaryFixed
+import com.justindwinata.usahanaik.ui.theme.Error
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLow
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainer
 import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
 import com.justindwinata.usahanaik.ui.localization.LocalAppStrings
 
 @Composable
 fun UsahaNaikCard(
     modifier: Modifier = Modifier,
-    containerColor: Color = SurfaceWarm,
+    containerColor: Color = SurfaceContainerLowest,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -67,13 +68,13 @@ fun UsahaNaikCard(
         modifier = modifier.then(
             if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
         ),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(AppRadius.md),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = BorderStroke(1.dp, BorderSubtle)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, OutlineVariant)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
+            modifier = Modifier.padding(horizontal = AppSpacing.lg, vertical = AppSpacing.lg),
             content = content
         )
     }
@@ -107,19 +108,19 @@ fun ScreenHeroHeader(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         badge?.let {
-            PillBadge(text = it, containerColor = BlueSoft, contentColor = CoralPrimary)
+            PillBadge(text = it, containerColor = SecondaryFixed, contentColor = Secondary)
             Spacer(modifier = Modifier.height(AppSpacing.sm))
         }
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge,
-            color = InkStrong
+            color = OnSurface
         )
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+            color = OnSurfaceVariant
         )
     }
 }
@@ -138,9 +139,9 @@ fun ProfessionalSectionHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge, color = InkStrong)
+            Text(text = title, style = MaterialTheme.typography.titleLarge, color = OnSurface)
             subtitle?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(text = it, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
             }
         }
         if (actionLabel != null && onActionClick != null) {
@@ -148,7 +149,7 @@ fun ProfessionalSectionHeader(
                 modifier = Modifier.clickable(onClick = onActionClick),
                 text = actionLabel,
                 style = MaterialTheme.typography.labelLarge,
-                color = CoralPrimary
+                color = Secondary
             )
         }
     }
@@ -161,11 +162,11 @@ fun StatusBadge(
     tone: StatusTone = StatusTone.Neutral
 ) {
     val colors = when (tone) {
-        StatusTone.Positive -> GreenSoft to GreenPositive
+        StatusTone.Positive -> SecondaryFixed to Secondary
         StatusTone.Warning -> com.justindwinata.usahanaik.ui.theme.YellowSoft to com.justindwinata.usahanaik.ui.theme.YellowDeep
         StatusTone.Danger -> com.justindwinata.usahanaik.ui.theme.RoseSoft to com.justindwinata.usahanaik.ui.theme.RoseDeep
-        StatusTone.Info -> BlueSoft to com.justindwinata.usahanaik.ui.theme.BlueDeep
-        StatusTone.Neutral -> SurfacePressed to InkMuted
+        StatusTone.Info -> SecondaryFixed to Secondary
+        StatusTone.Neutral -> SurfaceContainerLow to OnSurfaceVariant
     }
     PillBadge(
         text = text,
@@ -189,17 +190,17 @@ fun ProfessionalKpiCard(
     value: String,
     helper: String,
     modifier: Modifier = Modifier,
-    accentColor: Color = CoralPrimary,
+    accentColor: Color = Primary,
     badge: String? = null
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceElevated),
+        shape = RoundedCornerShape(AppRadius.md),
+        colors = CardDefaults.cardColors(containerColor = SurfaceContainerLowest),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, BorderSubtle)
+        border = BorderStroke(1.dp, OutlineVariant)
     ) {
-        Column(modifier = Modifier.padding(AppSpacing.md)) {
+        Column(modifier = Modifier.padding(AppSpacing.lg)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -211,7 +212,7 @@ fun ProfessionalKpiCard(
                     modifier = Modifier.weight(1f),
                     text = title,
                     style = MaterialTheme.typography.labelMedium,
-                    color = InkMuted,
+                    color = OnSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -221,14 +222,14 @@ fun ProfessionalKpiCard(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
-                color = InkStrong,
+                color = OnSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = helper,
                 style = MaterialTheme.typography.bodyMedium,
-                color = InkSubtle,
+                color = Outline,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -244,24 +245,22 @@ fun ProfessionalActionTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    accentColor: Color = CoralPrimary,
+    accentColor: Color = Secondary,
     enabled: Boolean = true
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = enabled, onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(AppRadius.md),
         colors = CardDefaults.cardColors(
-            containerColor = if (enabled) SurfaceElevated else SurfaceElevated.copy(alpha = 0.6f)
+            containerColor = if (enabled) SurfaceContainerLowest else SurfaceContainerLowest.copy(alpha = 0.6f)
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (enabled) 1.dp else 0.dp
-        ),
-        border = BorderStroke(1.dp, if (enabled) BorderSubtle else BorderSubtle.copy(alpha = 0.5f))
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, if (enabled) OutlineVariant else OutlineVariant.copy(alpha = 0.5f))
     ) {
         Row(
-            modifier = Modifier.padding(AppSpacing.md),
+            modifier = Modifier.padding(AppSpacing.lg),
             horizontalArrangement = Arrangement.spacedBy(AppSpacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -300,12 +299,12 @@ fun ProfessionalActionTile(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (enabled) Ink else Ink.copy(alpha = 0.6f)
+                    color = if (enabled) OnSurface else OnSurface.copy(alpha = 0.6f)
                 )
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (enabled) InkMuted else InkMuted.copy(alpha = 0.6f)
+                    color = if (enabled) OnSurfaceVariant else OnSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
             Text(
@@ -324,9 +323,9 @@ fun FormSectionCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceElevated) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge, color = InkStrong)
-        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceContainerLow) {
+        Text(text = title, style = MaterialTheme.typography.titleLarge, color = OnSurface)
+        Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
         Spacer(modifier = Modifier.height(AppSpacing.md))
         content()
     }
@@ -355,8 +354,8 @@ fun SectionHeader(
             PillBadge(
                 text = actionLabel,
                 modifier = Modifier.padding(start = AppSpacing.sm),
-                containerColor = SurfacePressed,
-                contentColor = CoralPrimary
+                containerColor = SurfaceContainerLow,
+                contentColor = Secondary
             )
         }
     }
@@ -366,8 +365,8 @@ fun SectionHeader(
 fun PillBadge(
     text: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = CoralSoft,
-    contentColor: Color = CoralPrimary
+    containerColor: Color = SecondaryFixed,
+    contentColor: Color = Secondary
 ) {
     Surface(
         modifier = modifier,
@@ -401,22 +400,22 @@ fun PrimaryActionButton(
         onClick = onClick,
         enabled = enabled && !isLoading,
         colors = ButtonDefaults.buttonColors(
-            containerColor = CoralPrimary,
-            contentColor = SurfaceWarm,
-            disabledContainerColor = CoralPrimary.copy(alpha = 0.5f),
-            disabledContentColor = SurfaceWarm.copy(alpha = 0.7f)
+            containerColor = Primary,
+            contentColor = OnPrimary,
+            disabledContainerColor = Primary.copy(alpha = 0.5f),
+            disabledContentColor = OnPrimary.copy(alpha = 0.7f)
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(AppRadius.sm),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 2.dp,
-            pressedElevation = 4.dp,
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
             disabledElevation = 0.dp
         )
     ) {
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(20.dp),
-                color = SurfaceWarm,
+                color = OnPrimary,
                 strokeWidth = 2.dp
             )
         } else {
@@ -432,7 +431,7 @@ fun DemoStateCard(
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null,
-    containerColor: Color = SurfaceWarm,
+    containerColor: Color = SurfaceContainerLowest,
     badgeLabel: String? = null,
     illustration: @Composable () -> Unit = { }
 ) {
@@ -443,9 +442,9 @@ fun DemoStateCard(
         }
         illustration()
         Spacer(modifier = Modifier.height(AppSpacing.xs))
-        Text(text = title, style = MaterialTheme.typography.titleMedium, color = InkStrong)
+        Text(text = title, style = MaterialTheme.typography.titleMedium, color = OnSurface)
         Spacer(modifier = Modifier.height(AppSpacing.xs))
-        Text(text = message, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        Text(text = message, style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
         if (actionLabel != null && onActionClick != null) {
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             PrimaryActionButton(
@@ -473,7 +472,7 @@ fun EmptyStateCard(
         modifier = modifier,
         actionLabel = actionLabel,
         onActionClick = onActionClick,
-        containerColor = SurfaceElevated,
+        containerColor = SurfaceContainerLow,
         badgeLabel = strings.emptyState,
         illustration = illustration
     )
@@ -485,16 +484,16 @@ fun LoadingStateCard(
     message: String,
     modifier: Modifier = Modifier
 ) {
-    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceWarm) {
+    UsahaNaikCard(modifier = modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
             CircularProgressIndicator(
                 modifier = Modifier.size(28.dp),
-                color = CoralPrimary,
+                color = Secondary,
                 strokeWidth = 3.dp
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
             }
         }
     }
@@ -515,7 +514,7 @@ fun ErrorStateCard(
         modifier = modifier,
         actionLabel = actionLabel,
         onActionClick = onActionClick,
-        containerColor = SurfaceElevated,
+        containerColor = SurfaceContainerLow,
         badgeLabel = strings.needsAttention
     )
 }
@@ -547,8 +546,8 @@ fun MetricCard(
     value: String,
     helper: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = SurfaceWarm,
-    accentColor: Color = CoralPrimary
+    containerColor: Color = SurfaceContainerLowest,
+    accentColor: Color = Secondary
 ) {
     val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = modifier, containerColor = containerColor) {
@@ -569,21 +568,21 @@ fun MetricCard(
         Text(
             text = title,
             style = MaterialTheme.typography.labelMedium,
-            color = InkMuted,
+            color = OnSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = value,
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = OnSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = helper,
             style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted,
+            color = OnSurfaceVariant,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -596,7 +595,7 @@ fun ProgressScoreCard(
     score: Int,
     helper: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = SurfaceWarm
+    containerColor: Color = SurfaceContainerLowest
 ) {
     val strings = LocalAppStrings.current
     UsahaNaikCard(modifier = modifier, containerColor = containerColor) {
@@ -610,12 +609,12 @@ fun ProgressScoreCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = OnSurface
                 )
                 Text(
                     text = helper,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
+                    color = OnSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.width(AppSpacing.md))
@@ -623,8 +622,8 @@ fun ProgressScoreCard(
                 CircularProgressIndicator(
                     progress = { score.coerceIn(0, 100) / 100f },
                     modifier = Modifier.size(86.dp),
-                    color = GreenPositive,
-                    trackColor = BorderSubtle,
+                    color = Secondary,
+                    trackColor = OutlineVariant,
                     strokeWidth = 8.dp,
                     strokeCap = StrokeCap.Round
                 )
@@ -637,7 +636,7 @@ fun ProgressScoreCard(
                     Text(
                         text = "/100",
                         style = MaterialTheme.typography.labelMedium,
-                        color = InkMuted
+                        color = OnSurfaceVariant
                     )
                 }
             }
@@ -667,7 +666,7 @@ fun TrendLineChart(
         repeat(4) { index ->
             val y = size.height * index / 3f
             drawLine(
-                color = BorderSubtle,
+                color = OutlineVariant,
                 start = Offset(0f, y),
                 end = Offset(size.width, y),
                 strokeWidth = 1.dp.toPx()
@@ -680,7 +679,7 @@ fun TrendLineChart(
                     color = color,
                     start = mapPoint(index, points[index], points.size),
                     end = mapPoint(index + 1, points[index + 1], points.size),
-                    strokeWidth = 4.dp.toPx(),
+                    strokeWidth = 2.dp.toPx(),
                     cap = StrokeCap.Round
                 )
             }
@@ -694,8 +693,8 @@ fun TrendLineChart(
             }
         }
 
-        drawSeries(expensePoints, CoralPrimary.copy(alpha = 0.7f))
-        drawSeries(revenuePoints, GreenPositive)
+        drawSeries(expensePoints, Error.copy(alpha = 0.7f))
+        drawSeries(revenuePoints, Secondary)
     }
 }
 
@@ -705,14 +704,14 @@ private fun EmptyIllustration() {
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .background(BorderSubtle.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+            .background(OutlineVariant.copy(alpha = 0.3f), RoundedCornerShape(AppRadius.md)),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .background(SurfaceWarm, CircleShape)
-                .border(2.dp, BorderSubtle, CircleShape)
+                .background(SurfaceContainerLowest, CircleShape)
+                .border(2.dp, OutlineVariant, CircleShape)
         )
     }
 }
