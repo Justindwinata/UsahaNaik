@@ -12,26 +12,33 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = CoralPrimary,
-    onPrimary = SurfaceWarm,
-    primaryContainer = CoralSoft,
-    onPrimaryContainer = CoralDeep,
-    secondary = GreenPositive,
-    onSecondary = SurfaceWarm,
-    secondaryContainer = GreenSoft,
-    onSecondaryContainer = GreenDeep,
-    tertiary = BlueDeep,
-    tertiaryContainer = BlueSoft,
-    background = CanvasSoft,
-    onBackground = Ink,
-    surface = SurfaceWarm,
-    onSurface = Ink,
-    surfaceVariant = SurfaceElevated,
-    onSurfaceVariant = InkMuted,
-    outline = BorderSubtle,
-    outlineVariant = BorderStrong,
-    error = RoseDeep,
-    errorContainer = RoseSoft
+    primary = Primary,
+    onPrimary = OnPrimary,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = OnPrimaryContainer,
+    secondary = Secondary,
+    onSecondary = OnSecondary,
+    secondaryContainer = SecondaryContainer,
+    onSecondaryContainer = OnSecondaryContainer,
+    tertiary = Tertiary,
+    onTertiary = OnTertiary,
+    tertiaryContainer = TertiaryContainer,
+    onTertiaryContainer = OnTertiaryContainer,
+    background = Background,
+    onBackground = OnBackground,
+    surface = Surface,
+    onSurface = OnSurface,
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = OnSurfaceVariant,
+    surfaceTint = SurfaceTint,
+    inverseSurface = InverseSurface,
+    inverseOnSurface = InverseOnSurface,
+    outline = Outline,
+    outlineVariant = OutlineVariant,
+    error = Error,
+    onError = OnError,
+    errorContainer = ErrorContainer,
+    onErrorContainer = OnErrorContainer
 )
 
 @Composable
@@ -43,8 +50,8 @@ fun UsahaNaikTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = CanvasSoft.toArgb()
-            window.navigationBarColor = SurfaceWarm.toArgb()
+            window.statusBarColor = Background.toArgb()
+            window.navigationBarColor = SurfaceContainerLowest.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
