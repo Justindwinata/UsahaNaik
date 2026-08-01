@@ -1,12 +1,19 @@
 package com.justindwinata.usahanaik.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -14,8 +21,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -77,10 +88,14 @@ import com.justindwinata.usahanaik.ui.screens.WeeklyPlanScreen
 import com.justindwinata.usahanaik.ui.screens.WelcomeScreen
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModel
 import com.justindwinata.usahanaik.ui.setup.BusinessSetupViewModelFactory
-import com.justindwinata.usahanaik.ui.theme.CoralPrimary
-import com.justindwinata.usahanaik.ui.theme.CreamBackground
-import com.justindwinata.usahanaik.ui.theme.InkMuted
-import com.justindwinata.usahanaik.ui.theme.SurfaceWarm
+import com.justindwinata.usahanaik.ui.theme.Background
+import com.justindwinata.usahanaik.ui.theme.OnSurfaceVariant
+import com.justindwinata.usahanaik.ui.theme.OutlineVariant
+import com.justindwinata.usahanaik.ui.theme.Primary
+import com.justindwinata.usahanaik.ui.theme.Secondary
+import com.justindwinata.usahanaik.ui.theme.SecondaryFixed
+import com.justindwinata.usahanaik.ui.theme.Surface
+import com.justindwinata.usahanaik.ui.theme.SurfaceContainerLowest
 import com.justindwinata.usahanaik.ui.theme.UsahaNaikTheme
 import com.justindwinata.usahanaik.domain.localization.AppCopyProvider
 import com.justindwinata.usahanaik.ui.weekly.WeeklyPlanViewModel
@@ -244,38 +259,56 @@ fun UsahaNaikApp() {
             LocalAppStrings provides appStrings
         ) {
             Scaffold(
-                containerColor = CreamBackground,
+                containerColor = Background,
                 bottomBar = {
                     if (showBottomBar) {
-                        NavigationBar(
-                            containerColor = SurfaceWarm,
-                            tonalElevation = 4.dp
+                        Surface(
+                            color = SurfaceContainerLowest,
+                            border = BorderStroke(1.dp, OutlineVariant)
                         ) {
-                            bottomTabs.forEach { tab ->
-                                val selected = backStackEntry?.destination?.hierarchy
-                                    ?.any { it.route == tab.route.route } == true
-                                val label = localizedBottomTabLabel(tab.route, appStrings)
-                                NavigationBarItem(
-                                    selected = selected,
-                                    onClick = {
-                                        navController.navigate(tab.route.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
+                            NavigationBar(
+                                containerColor = SurfaceContainerLowest,
+                                tonalElevation = 0.dp,
+                                modifier = Modifier.navigationBarsPadding()
+                            ) {
+                                bottomTabs.forEach { tab ->
+                                    val selected = backStackEntry?.destination?.hierarchy
+                                        ?.any { it.route == tab.route.route } == true
+                                    val label = localizedBottomTabLabel(tab.route, appStrings)
+                                    NavigationBarItem(
+                                        selected = selected,
+                                        onClick = {
+                                            navController.navigate(tab.route.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
                                             }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    },
-                                    icon = { Icon(tab.icon, contentDescription = "Open $label") },
-                                    label = { Text(label) },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = SurfaceWarm,
-                                        selectedTextColor = CoralPrimary,
-                                        indicatorColor = CoralPrimary,
-                                        unselectedIconColor = InkMuted,
-                                        unselectedTextColor = InkMuted
+                                        },
+                                        icon = {
+                                            Icon(
+                                                tab.icon,
+                                                contentDescription = "Open $label",
+                                                tint = if (selected) Primary else OnSurfaceVariant
+                                            )
+                                        },
+                                        label = {
+                                            Text(
+                                                label,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                                            )
+                                        },
+                                        colors = NavigationBarItemDefaults.colors(
+                                            selectedIconColor = Primary,
+                                            selectedTextColor = Primary,
+                                            indicatorColor = Color.Transparent,
+                                            unselectedIconColor = OnSurfaceVariant,
+                                            unselectedTextColor = OnSurfaceVariant
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
