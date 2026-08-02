@@ -2817,13 +2817,27 @@ fun ContentIdeasScreen(
     val calendarState by calendarViewModel.uiState.collectAsState()
     val strings = LocalAppStrings.current
 
-    ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.contentPlanner,
-            subtitle = "Generate, save, schedule, and track content ideas from your local business profile.",
-            badge = uiState.generationSource.label
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = strings.contentPlanner,
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "Generate, save, schedule, and track content ideas from your local business profile.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         if (!uiState.hasProfile) {
             EmptyStateCard(
                 title = uiState.emptyStateMessage ?: "Complete business setup first.",
@@ -2875,14 +2889,15 @@ fun ContentIdeasScreen(
         }
         uiState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SecondaryFixed) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             }
         }
         uiState.errorMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
             ErrorStateCard(title = "Content planner needs attention", message = message)
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 }
 
@@ -2908,79 +2923,79 @@ private fun ContentGenerationControls(
     onGenerate: () -> Unit
 ) {
     val strings = LocalAppStrings.current
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            PillBadge(text = strings.localGeneration, containerColor = CreamBackground, contentColor = CoralPrimary)
-            if (uiState.usedFallback) {
-                PillBadge(text = strings.fallbackUsed, containerColor = CreamBackground, contentColor = GreenPositive)
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Column(modifier = Modifier.padding(AppSpacing.lg)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                PillBadge(text = strings.localGeneration, containerColor = SecondaryFixed, contentColor = Secondary)
+                if (uiState.usedFallback) {
+                    PillBadge(text = strings.fallbackUsed, containerColor = SurfaceContainerLow, contentColor = Secondary)
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Generation controls", style = MaterialTheme.typography.titleLarge)
-        Text(
-            text = "Choose a platform and content goal. Remote AI is optional; local generation works offline.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        Text(text = "Platform", style = MaterialTheme.typography.labelLarge)
-        Spacer(modifier = Modifier.height(AppSpacing.xs))
-        ChipFlow {
-            ContentPlatform.entries.forEach { platform ->
-                FilterChip(
-                    selected = uiState.form.platform == platform,
-                    onClick = { onPlatformChange(platform) },
-                    label = { Text(platform.label) }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Content goal", style = MaterialTheme.typography.labelLarge)
-        Spacer(modifier = Modifier.height(AppSpacing.xs))
-        ChipFlow {
-            ContentGoal.entries.forEach { goal ->
-                FilterChip(
-                    selected = uiState.form.goal == goal,
-                    onClick = { onGoalChange(goal) },
-                    label = { Text(goal.label) }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Content type", style = MaterialTheme.typography.labelLarge)
-        Spacer(modifier = Modifier.height(AppSpacing.xs))
-        ChipFlow {
-            FilterChip(
-                selected = uiState.form.type == null,
-                onClick = { onTypeChange(null) },
-                label = { Text("Any") }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(text = "Generation controls", style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+            Text(
+                text = "Choose a platform and content goal. Remote AI is optional; local generation works offline.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
             )
-            ContentIdeaType.entries.forEach { type ->
-                FilterChip(
-                    selected = uiState.form.type == type,
-                    onClick = { onTypeChange(type) },
-                    label = { Text(type.label) }
-                )
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(text = "Platform", style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            ChipFlow {
+                ContentPlatform.entries.forEach { platform ->
+                    FilterChip(
+                        selected = uiState.form.platform == platform,
+                        onClick = { onPlatformChange(platform) },
+                        label = { Text(platform.label) }
+                    )
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Idea count", style = MaterialTheme.typography.labelLarge)
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            listOf(5, 6, 8, 10).forEach { count ->
-                FilterChip(
-                    selected = uiState.form.ideaCount == count,
-                    onClick = { onIdeaCountChange(count) },
-                    label = { Text(count.toString()) }
-                )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Content goal", style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            ChipFlow {
+                ContentGoal.entries.forEach { goal ->
+                    FilterChip(
+                        selected = uiState.form.goal == goal,
+                        onClick = { onGoalChange(goal) },
+                        label = { Text(goal.label) }
+                    )
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        Button(
-            onClick = onGenerate,
-            enabled = !uiState.isGenerating,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (uiState.isGenerating) "Generating Ideas..." else "Generate Content Ideas")
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Content type", style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            ChipFlow {
+                FilterChip(
+                    selected = uiState.form.type == null,
+                    onClick = { onTypeChange(null) },
+                    label = { Text("Any") }
+                )
+                ContentIdeaType.entries.forEach { type ->
+                    FilterChip(
+                        selected = uiState.form.type == type,
+                        onClick = { onTypeChange(type) },
+                        label = { Text(type.label) }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Text(text = "Idea count", style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                listOf(5, 6, 8, 10).forEach { count ->
+                    FilterChip(
+                        selected = uiState.form.ideaCount == count,
+                        onClick = { onIdeaCountChange(count) },
+                        label = { Text(count.toString()) }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            PrimaryActionButton(
+                text = if (uiState.isGenerating) "Generating Ideas..." else "Generate Content Ideas",
+                onClick = onGenerate,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
