@@ -3379,41 +3379,50 @@ fun SettingsScreen(
         }
     }
 
-    ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.profile,
-            subtitle = strings.profileSubtitle,
-            badge = strings.localFirstNote
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(containerColor = BlueSoft) {
-            ProfessionalSectionHeader(
-                title = strings.language,
-                subtitle = strings.languageSelectorSubtitle
-            )
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(
+            text = strings.profile,
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = strings.profileSubtitle,
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        UsahaNaikCard(containerColor = SurfaceContainerLowest) {
+            Text(text = strings.language, style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Text(text = strings.languageSelectorSubtitle, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
             LanguageSelector(
                 selectedLanguage = selectedLanguage,
                 onLanguageSelected = onLanguageSelected
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(containerColor = GreenSoft) {
-            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
-                PillBadge(text = "Auth-ready", containerColor = CreamBackground, contentColor = GreenPositive)
-                StatusBadge(text = strings.localMode, tone = StatusTone.Positive)
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(text = "Account placeholder", style = MaterialTheme.typography.titleLarge)
+        UsahaNaikCard(containerColor = SurfaceContainerLowest) {
+            Text(text = "Account placeholder", style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
             Text(
                 text = strings.authDemoNote,
                 style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
+                color = OnSurfaceVariant
             )
             Text(
                 text = "No password is saved. No backend, cloud sync, or real authentication is enabled yet.",
                 style = MaterialTheme.typography.bodySmall,
-                color = InkMuted
+                color = OnSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -3455,8 +3464,8 @@ fun SettingsScreen(
         )
         demoState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.sm))
-            UsahaNaikCard(containerColor = GreenSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            UsahaNaikCard(containerColor = SecondaryFixed) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             }
         }
         demoState.errorMessage?.let { message ->
@@ -3465,20 +3474,17 @@ fun SettingsScreen(
         }
         Spacer(modifier = Modifier.height(AppSpacing.md))
         if (uiState.savedProfile == null) {
-            UsahaNaikCard(containerColor = YellowSoft) {
-                Text(text = "No saved profile", style = MaterialTheme.typography.titleLarge)
-                Text(
-                    text = "Complete setup and save your business profile to show it here.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
-                )
-            }
+            EmptyStateCard(
+                title = "No saved profile",
+                message = "Complete setup and save your business profile to show it here."
+            )
         } else {
             val profile = checkNotNull(uiState.savedProfile)
-            UsahaNaikCard(containerColor = GreenSoft) {
-                PillBadge(text = "Saved locally", containerColor = CreamBackground, contentColor = GreenPositive)
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
-                Text(text = profile.draft.businessName, style = MaterialTheme.typography.titleLarge)
+            UsahaNaikCard(containerColor = SurfaceContainerLowest) {
+                PillBadge(text = "Saved locally", containerColor = SecondaryFixed, contentColor = Secondary)
+                Spacer(modifier = Modifier.height(AppSpacing.md))
+                Text(text = profile.draft.businessName, style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+                Spacer(modifier = Modifier.height(AppSpacing.md))
                 ReviewRow("Category ID", profile.draft.categoryId.orEmpty())
                 ReviewRow("Monthly revenue", profile.draft.monthlyRevenue)
                 ReviewRow("Monthly expenses", profile.draft.monthlyExpenses)
@@ -3487,34 +3493,34 @@ fun SettingsScreen(
                 ReviewRow("Updated at", profile.updatedAt.toString())
             }
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(containerColor = RoseSoft) {
-                Text(text = "Delete local profile", style = MaterialTheme.typography.titleMedium)
+            UsahaNaikCard(containerColor = SurfaceContainerLowest) {
+                Text(text = "Delete local profile", style = MaterialTheme.typography.headlineMedium, color = OnSurface)
                 Text(
                     text = "Deleting local profile removes the saved setup from this device.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
+                    color = OnSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
+                Spacer(modifier = Modifier.height(AppSpacing.md))
                 if (showDeleteConfirmation) {
                     Text(
                         text = "Confirm delete? This only removes local data on this device.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = CoralPrimary
+                        color = com.justindwinata.usahanaik.ui.theme.Error
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.sm))
                     Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-                        Button(
+                        PrimaryActionButton(
+                            text = if (uiState.isDeletingProfile) "Deleting..." else "Delete",
                             onClick = {
                                 viewModel.deleteSavedProfile()
                                 showDeleteConfirmation = false
                             },
                             modifier = Modifier.weight(1f)
-                        ) {
-                            Text(if (uiState.isDeletingProfile) "Deleting..." else "Delete")
-                        }
+                        )
                         OutlinedButton(
                             onClick = { showDeleteConfirmation = false },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
                             Text("Cancel")
                         }
@@ -3522,7 +3528,8 @@ fun SettingsScreen(
                 } else {
                     OutlinedButton(
                         onClick = { showDeleteConfirmation = true },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(text = "Delete Local Profile")
                     }
@@ -3531,7 +3538,7 @@ fun SettingsScreen(
         }
         uiState.deleteSuccessMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(containerColor = GreenSoft) {
+            UsahaNaikCard(containerColor = SecondaryFixed) {
                 Text(text = message, style = MaterialTheme.typography.bodyMedium)
             }
         }
@@ -3539,9 +3546,10 @@ fun SettingsScreen(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = CoralPrimary
+                color = Secondary
             )
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 
     if (showLoadDemoConfirmation) {
