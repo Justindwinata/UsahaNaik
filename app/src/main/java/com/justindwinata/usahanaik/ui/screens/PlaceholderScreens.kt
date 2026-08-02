@@ -1917,18 +1917,22 @@ private fun ReminderDashboardSection(uiState: ReminderUiState) {
 
 @Composable
 private fun FinancialDashboardMetricsSection(metrics: FinancialDashboardMetrics) {
-    SectionHeader(title = "Financial Metrics")
-    Spacer(modifier = Modifier.height(AppSpacing.sm))
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = if (metrics.hasEntries) BlueSoft else YellowSoft
+        containerColor = SurfaceContainerLowest
     ) {
+        Text(
+            text = "Financial Metrics",
+            style = MaterialTheme.typography.headlineMedium,
+            color = OnSurface
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         PillBadge(
             text = metrics.sourceLabel,
-            containerColor = CreamBackground,
-            contentColor = if (metrics.hasEntries) GreenPositive else CoralPrimary
+            containerColor = SecondaryFixed,
+            contentColor = Secondary
         )
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
             TargetProgressBlock(
                 title = "Revenue Target",
@@ -1949,7 +1953,7 @@ private fun FinancialDashboardMetricsSection(metrics: FinancialDashboardMetrics)
         Text(
             text = metrics.actionHint,
             style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+            color = OnSurfaceVariant
         )
     }
 }
@@ -1961,19 +1965,19 @@ private fun TargetProgressBlock(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(text = title, style = MaterialTheme.typography.labelLarge)
+        Text(text = title, style = MaterialTheme.typography.labelSmall, color = OnSurfaceVariant)
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         LinearProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier.fillMaxWidth(),
-            color = GreenPositive,
-            trackColor = CreamBackground
+            color = Secondary,
+            trackColor = SurfaceContainer
         )
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         Text(
             text = "${(progress.coerceIn(0f, 1f) * 100).toInt()}%",
             style = MaterialTheme.typography.titleMedium,
-            color = CoralPrimary,
+            color = Secondary,
             fontWeight = FontWeight.Bold
         )
     }
@@ -1995,12 +1999,12 @@ private fun FinancialTrackingSection(
 ) {
     SectionHeader(title = "Financial Tracking", actionLabel = "Local")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-        Text(text = "Record income or expenses", style = MaterialTheme.typography.titleMedium)
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Text(text = "Record income or expenses", style = MaterialTheme.typography.titleMedium, color = OnSurface)
         Text(
             text = "Saved locally on this device. These entries help make dashboard metrics more accurate.",
             style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+            color = OnSurfaceVariant
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
@@ -2045,8 +2049,8 @@ private fun FinancialTrackingSection(
         FieldError(uiState.visibleDateError())
         Text(
             text = "Category",
-            style = MaterialTheme.typography.labelLarge,
-            color = InkMuted
+            style = MaterialTheme.typography.labelSmall,
+            color = OnSurfaceVariant
         )
         Spacer(modifier = Modifier.height(AppSpacing.xs))
         FinancialCategoryChips(
@@ -2059,21 +2063,27 @@ private fun FinancialTrackingSection(
             value = uiState.form.note,
             onValueChange = onNoteChange,
             label = { Text("Note optional") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Secondary,
+                unfocusedBorderColor = OutlineVariant,
+                focusedContainerColor = SurfaceContainerLowest,
+                unfocusedContainerColor = SurfaceContainerLowest,
+                cursorColor = Secondary
+            )
         )
         Spacer(modifier = Modifier.height(AppSpacing.md))
-        Button(
+        PrimaryActionButton(
+            text = if (uiState.isSaving) "Saving..." else "Save Financial Entry",
             onClick = onSave,
-            enabled = !uiState.isSaving,
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (uiState.isSaving) "Saving..." else "Save Financial Entry")
-        }
+        )
         uiState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.sm))
-            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-                Text(text = "Saved", style = MaterialTheme.typography.labelLarge, color = GreenPositive)
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SecondaryFixed) {
+                Text(text = "Saved", style = MaterialTheme.typography.labelLarge, color = Secondary)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
             }
         }
         uiState.errorMessage?.let { message ->
@@ -2085,14 +2095,11 @@ private fun FinancialTrackingSection(
     SectionHeader(title = "Recent Financial Activity")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     if (uiState.entries.isEmpty()) {
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-            Text(text = "No financial entries yet", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Start recording income and expenses to make your dashboard more accurate.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
-            )
-        }
+        EmptyStateCard(
+            title = "No financial entries yet",
+            message = "Start recording income and expenses to make your dashboard more accurate.",
+            actionLabel = "Add your first entry"
+        )
     } else {
         uiState.entries.take(5).forEach { entry ->
             RecentFinancialEntryRow(
@@ -2161,7 +2168,7 @@ private fun RecentFinancialEntryRow(
     }
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = if (isIncome) GreenSoft else CoralSoft
+        containerColor = SurfaceContainerLowest
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -2171,28 +2178,28 @@ private fun RecentFinancialEntryRow(
             Column(modifier = Modifier.weight(1f)) {
                 PillBadge(
                     text = entry.type.label,
-                    containerColor = CreamBackground,
-                    contentColor = if (isIncome) GreenPositive else CoralPrimary
+                    containerColor = if (isIncome) SecondaryFixed else SurfaceContainerLow,
+                    contentColor = if (isIncome) Secondary else Error
                 )
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
-                Text(text = entry.title, style = MaterialTheme.typography.titleMedium)
+                Text(text = entry.title, style = MaterialTheme.typography.titleMedium, color = OnSurface)
                 Text(
                     text = "${entry.category} - ${entry.date}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = InkMuted
+                    color = OnSurfaceVariant
                 )
                 if (entry.note.isNotBlank()) {
                     Text(
                         text = entry.note,
                         style = MaterialTheme.typography.bodySmall,
-                        color = InkMuted
+                        color = OnSurfaceVariant
                     )
                 }
             }
             Text(
                 text = amountLabel,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isIncome) GreenPositive else CoralPrimary,
+                color = if (isIncome) Secondary else Error,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -2201,20 +2208,19 @@ private fun RecentFinancialEntryRow(
             Text(
                 text = "Delete this local financial entry?",
                 style = MaterialTheme.typography.bodyMedium,
-                color = CoralPrimary
+                color = Secondary
             )
             Spacer(modifier = Modifier.height(AppSpacing.xs))
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-                Button(
+                PrimaryActionButton(
+                    text = if (isDeleting) "Deleting..." else "Delete",
                     onClick = onConfirmDelete,
-                    enabled = !isDeleting,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text(if (isDeleting) "Deleting..." else "Delete")
-                }
+                )
                 OutlinedButton(
                     onClick = onCancelDelete,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("Cancel")
                 }
@@ -2222,7 +2228,8 @@ private fun RecentFinancialEntryRow(
         } else {
             OutlinedButton(
                 onClick = { onRequestDelete(entry.id) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text("Delete Entry")
             }
