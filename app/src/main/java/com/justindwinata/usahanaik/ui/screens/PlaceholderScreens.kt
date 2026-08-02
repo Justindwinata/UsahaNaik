@@ -32,6 +32,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -148,6 +149,7 @@ import com.justindwinata.usahanaik.ui.theme.BlueSoft
 import com.justindwinata.usahanaik.ui.theme.CoralPrimary
 import com.justindwinata.usahanaik.ui.theme.CoralSoft
 import com.justindwinata.usahanaik.ui.theme.CreamBackground
+import com.justindwinata.usahanaik.ui.theme.Error
 import com.justindwinata.usahanaik.ui.theme.GreenPositive
 import com.justindwinata.usahanaik.ui.theme.GreenSoft
 import com.justindwinata.usahanaik.ui.theme.InkMuted
@@ -1054,79 +1056,28 @@ fun DashboardScreen(
     }
 
     ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.dashboard,
+        // Hero Section with business context
+        HeroSection(
+            businessName = if (setupDraft == null) "" else dashboard.summary.businessName,
+            categoryName = if (setupDraft == null) "" else dashboard.summary.categoryName,
+            weekLabel = dashboard.summary.weekLabel,
             subtitle = if (setupDraft == null) {
                 strings.dashboardNoProfileSubtitle
             } else {
-                "${dashboard.summary.businessName} - ${dashboard.summary.categoryName}"
+                strings.dashboardReadyMessage
             },
             badge = dashboard.summary.weekLabel
         )
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = BlueSoft) {
-            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm), verticalAlignment = Alignment.CenterVertically) {
-                PillBadge(text = strings.businessCommandCenter, containerColor = CreamBackground, contentColor = CoralPrimary)
-                StatusBadge(
-                    text = if (setupDraft == null) strings.completeSetup else strings.localDataActive,
-                    tone = if (setupDraft == null) StatusTone.Warning else StatusTone.Positive
-                )
-            }
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-            Text(
-                text = strings.dashboardHeroTitle,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = if (setupDraft == null) {
-                    strings.dashboardNoProfileMessage
-                } else {
-                    strings.dashboardReadyMessage
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        ProfessionalSectionHeader(
-            title = strings.financialSummary,
-            subtitle = strings.financialSummarySubtitle
-        )
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            ProfessionalKpiCard(
-                title = strings.monthlyRevenue,
-                value = financialMetrics.monthlyRevenue,
-                helper = strings.recordedThisMonth,
-                modifier = Modifier.weight(1f),
-                accentColor = GreenPositive
-            )
-            ProfessionalKpiCard(
-                title = strings.monthlyExpenses,
-                value = financialMetrics.monthlyExpenses,
-                helper = strings.recordedThisMonth,
-                modifier = Modifier.weight(1f),
-                accentColor = CoralPrimary
-            )
-        }
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            ProfessionalKpiCard(
-                title = strings.estimatedProfit,
-                value = financialMetrics.estimatedProfit,
-                helper = strings.incomeMinusExpenses,
-                modifier = Modifier.weight(1f),
-                accentColor = CoralPrimary
-            )
-            ProfessionalKpiCard(
-                title = strings.profitMargin,
-                value = financialMetrics.profitMargin,
-                helper = strings.estimatedMargin,
-                modifier = Modifier.weight(1f),
-                accentColor = GreenPositive
-            )
-        }
         Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        // KPI Cards in a grid
+        KpiRow(
+            financialMetrics = financialMetrics,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        // Business Health Score
         ProgressScoreCard(
             title = strings.businessHealth,
             score = insightsState.diagnosis?.healthScore?.score ?: dashboard.healthScore.score,
@@ -1136,6 +1087,16 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(AppSpacing.md))
         DashboardInsightPanel(uiState = insightsState)
         Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        // Chart Section with Export
+        ChartSection(
+            revenuePoints = financialMetrics.revenueTrendPoints,
+            expensePoints = financialMetrics.expenseTrendPoints,
+            reportSummary = financialMetrics.reportSummary
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+
+        // Quick Actions
         ProfessionalSectionHeader(
             title = strings.quickActions,
             subtitle = strings.quickActionsSubtitle
@@ -1281,6 +1242,151 @@ private fun DashboardBusinessSignalsSection(dashboard: BusinessDashboard) {
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted
         )
+    }
+}
+
+@Composable
+private fun HeroSection(
+    businessName: String,
+    categoryName: String,
+    weekLabel: String,
+    subtitle: String,
+    badge: String
+) {
+    val strings = LocalAppStrings.current
+    if (businessName.isNotEmpty()) {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = businessName,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = OnSurface
+                    )
+                    Text(
+                        text = "$categoryName · $weekLabel",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = OnSurfaceVariant
+                    )
+                }
+                PillBadge(text = badge, containerColor = SecondaryFixed, contentColor = Secondary)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
+            )
+        }
+    } else {
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+            Text(
+                text = strings.dashboard,
+                style = MaterialTheme.typography.headlineLarge,
+                color = OnSurface
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyLarge,
+                color = OnSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            PillBadge(text = badge, containerColor = SecondaryFixed, contentColor = Secondary)
+        }
+    }
+}
+
+@Composable
+private fun KpiRow(
+    financialMetrics: FinancialDashboardMetrics,
+    modifier: Modifier = Modifier
+) {
+    val strings = LocalAppStrings.current
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
+        ProfessionalKpiCard(
+            title = strings.monthlyRevenue,
+            value = financialMetrics.monthlyRevenue,
+            helper = strings.recordedThisMonth,
+            modifier = Modifier.weight(1f),
+            accentColor = Secondary
+        )
+        ProfessionalKpiCard(
+            title = strings.monthlyExpenses,
+            value = financialMetrics.monthlyExpenses,
+            helper = strings.recordedThisMonth,
+            modifier = Modifier.weight(1f),
+            accentColor = Error
+        )
+    }
+    Spacer(modifier = Modifier.height(AppSpacing.sm))
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)) {
+        ProfessionalKpiCard(
+            title = strings.estimatedProfit,
+            value = financialMetrics.estimatedProfit,
+            helper = strings.incomeMinusExpenses,
+            modifier = Modifier.weight(1f),
+            accentColor = Secondary
+        )
+        ProfessionalKpiCard(
+            title = strings.profitMargin,
+            value = financialMetrics.profitMargin,
+            helper = strings.estimatedMargin,
+            modifier = Modifier.weight(1f),
+            accentColor = Secondary
+        )
+    }
+}
+
+@Composable
+private fun ChartSection(
+    revenuePoints: List<Float>,
+    expensePoints: List<Float>,
+    reportSummary: String
+) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.lg)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Profit & Loss Trend",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = OnSurface
+                )
+                TextButton(onClick = { }) {
+                    Text("Export Report", color = Secondary, style = MaterialTheme.typography.labelMedium)
+                }
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            TrendLineChart(
+                revenuePoints = revenuePoints,
+                expensePoints = expensePoints,
+                modifier = Modifier.height(200.dp)
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.sm))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+            ) {
+                PillBadge("Revenue", containerColor = SecondaryFixed, contentColor = Secondary)
+                PillBadge("Expense", containerColor = SurfaceContainerLow, contentColor = Error)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(
+                text = reportSummary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
+            )
+        }
     }
 }
 
