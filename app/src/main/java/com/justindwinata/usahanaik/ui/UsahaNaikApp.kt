@@ -290,20 +290,20 @@ fun UsahaNaikApp() {
                                             Icon(
                                                 tab.icon,
                                                 contentDescription = "Open $label",
-                                                tint = if (selected) Primary else OnSurfaceVariant
+                                                tint = if (selected) Secondary else OnSurfaceVariant
                                             )
                                         },
                                         label = {
                                             Text(
                                                 label,
-                                                style = MaterialTheme.typography.labelMedium,
+                                                style = MaterialTheme.typography.labelSmall,
                                                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
                                             )
                                         },
                                         colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Primary,
-                                            selectedTextColor = Primary,
-                                            indicatorColor = Color.Transparent,
+                                            selectedIconColor = Secondary,
+                                            selectedTextColor = Secondary,
+                                            indicatorColor = SecondaryFixed,
                                             unselectedIconColor = OnSurfaceVariant,
                                             unselectedTextColor = OnSurfaceVariant
                                         )
