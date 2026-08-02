@@ -3999,13 +3999,27 @@ fun BusinessReportScreen(viewModel: BusinessReportViewModel) {
         viewModel.refresh()
     }
 
-    ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.businessReport,
-            subtitle = "Ringkasan KPI, keuangan, eksekusi mingguan, konten, retrospective, dan teks laporan siap ekspor.",
-            badge = "Local report"
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = strings.businessReport,
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "Summary of KPIs, finance, weekly execution, content, retrospective, and export-ready report text.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         BusinessReportPeriodSelector(
             selectedPeriod = uiState.selectedPeriod,
             onPeriodSelected = viewModel::selectPeriod
@@ -4019,6 +4033,7 @@ fun BusinessReportScreen(viewModel: BusinessReportViewModel) {
                 onSaveSnapshot = viewModel::saveCurrentSnapshot
             )
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 }
 
@@ -4108,20 +4123,27 @@ private fun BusinessReportContent(
 
 @Composable
 private fun BusinessReportHeader(report: BusinessReport) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-        PillBadge(text = report.period.label, containerColor = CreamBackground, contentColor = CoralPrimary)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = report.businessName, style = MaterialTheme.typography.headlineMedium)
-        Text(
-            text = "${report.categoryName} - generated ${report.generatedAt}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = report.businessName, style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+                Text(
+                    text = "${report.categoryName} - generated ${report.generatedAt}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
+            }
+            PillBadge(text = report.period.label, containerColor = SecondaryFixed, contentColor = Secondary)
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.md))
         Text(
             text = "This report is generated from local app data and is not an official accounting or tax document.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
+            style = MaterialTheme.typography.bodySmall,
+            color = OnSurfaceVariant
         )
     }
 }
@@ -4152,27 +4174,28 @@ private fun BusinessReportKpiGrid(kpis: List<BusinessReportKpi>) {
 
 @Composable
 private fun FinancialReportSection(report: BusinessReport) {
-    SectionHeader(title = "Financial Summary", actionLabel = "Estimated")
-    Spacer(modifier = Modifier.height(AppSpacing.sm))
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-        Text(text = "Revenue vs expenses", style = MaterialTheme.typography.titleMedium)
-        Text(text = report.financialSummary.cautionMessage, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        ReportRevenueExpenseBars(chartData = report.revenueExpenseChart)
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        Text(
-            text = "Largest expense: ${report.financialSummary.largestExpenseCategory}",
-            style = MaterialTheme.typography.labelLarge,
-            color = CoralPrimary
-        )
-        Text(
-            text = "Profit margin: ${report.financialSummary.profitMarginPercent}%",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Column(modifier = Modifier.padding(AppSpacing.lg)) {
+            Text(text = "Financial Summary", style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+            Text(text = report.financialSummary.cautionMessage, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            ReportRevenueExpenseBars(chartData = report.revenueExpenseChart)
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+                Text(
+                text = "Largest expense: ${report.financialSummary.largestExpenseCategory}",
+                style = MaterialTheme.typography.labelSmall,
+                color = Secondary
+            )
+            Text(
+                text = "Profit margin: ${report.financialSummary.profitMarginPercent}%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        ExpenseBreakdownBars(items = report.expenseBreakdown)
     }
-    Spacer(modifier = Modifier.height(AppSpacing.sm))
-    ExpenseBreakdownBars(items = report.expenseBreakdown)
 }
 
 @Composable
