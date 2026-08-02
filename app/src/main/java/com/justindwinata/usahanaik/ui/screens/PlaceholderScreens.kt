@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -2245,13 +2246,27 @@ fun WeeklyPlanScreen(
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalAppStrings.current
 
-    ScreenContainer {
-        ScreenHeroHeader(
-            title = strings.plan,
-            subtitle = "Rencana mingguan berbasis profil, diagnosis, dan catatan lokal agar aksi bisnis lebih fokus.",
-            badge = "Local weekly coach"
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.containerMargin, vertical = AppSpacing.xl)
+    ) {
         Spacer(modifier = Modifier.height(AppSpacing.md))
+        Text(
+            text = strings.plan,
+            style = MaterialTheme.typography.headlineLarge,
+            color = OnSurface,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.xs))
+        Text(
+            text = "Weekly plan based on profile, diagnosis, and local notes for focused business actions.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = OnSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
         when {
             uiState.isLoading -> WeeklyPlanLoadingCard()
             uiState.activePlan == null -> WeeklyPlanEmptyState(
@@ -2267,34 +2282,39 @@ fun WeeklyPlanScreen(
                 onCancelRegenerate = viewModel::cancelRegeneratePlan
             )
         }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-            ProfessionalSectionHeader(
-                title = "Weekly Retrospective",
-                subtitle = "Review task, finance, milestone, and content progress before planning next week."
-            )
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
+        UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
             Text(
-                text = "Review this week's task, finance, milestone, and content progress. Evaluation is deterministic and saved locally.",
+                text = "Weekly Retrospective",
+                style = MaterialTheme.typography.headlineMedium,
+                color = OnSurface
+            )
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Text(
+                text = "Review task, finance, milestone, and content progress before planning next week.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = InkMuted
+                color = OnSurfaceVariant
             )
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            Button(onClick = onOpenRetrospective, modifier = Modifier.fillMaxWidth()) {
-                Text("Open Retrospective")
-            }
+            PrimaryActionButton(
+                text = "Open Retrospective",
+                onClick = onOpenRetrospective,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         uiState.successMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(containerColor = GreenSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = GreenPositive)
+            UsahaNaikCard(containerColor = SecondaryFixed) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             }
         }
         uiState.errorMessage?.let { message ->
             Spacer(modifier = Modifier.height(AppSpacing.md))
-            UsahaNaikCard(containerColor = RoseSoft) {
-                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = CoralPrimary)
+            UsahaNaikCard(containerColor = SurfaceContainerLow) {
+                Text(text = message, style = MaterialTheme.typography.bodyMedium, color = Secondary)
             }
         }
+        Spacer(modifier = Modifier.height(AppSpacing.lg))
     }
 }
 
@@ -2337,8 +2357,6 @@ private fun WeeklyPlanContent(
 ) {
     WeeklyPlanHeader(plan = plan)
     Spacer(modifier = Modifier.height(AppSpacing.md))
-    WeeklyFocusCard(plan = plan)
-    Spacer(modifier = Modifier.height(AppSpacing.md))
     WeeklyProgressCard(plan = plan)
     Spacer(modifier = Modifier.height(AppSpacing.lg))
     SectionHeader(title = "Task List", actionLabel = "${plan.progressSummary.completedTasks}/${plan.progressSummary.totalTasks}")
@@ -2347,6 +2365,7 @@ private fun WeeklyPlanContent(
         WeeklyTaskCard(task = task, onToggleTask = onToggleTask)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
     }
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
     SectionHeader(title = "Weekly Challenge")
     Spacer(modifier = Modifier.height(AppSpacing.sm))
     WeeklyChallengeCard(plan = plan)
@@ -2357,31 +2376,30 @@ private fun WeeklyPlanContent(
         WeeklyMilestoneCard(milestone = milestone)
         Spacer(modifier = Modifier.height(AppSpacing.sm))
     }
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
-        Text(text = "Plan note", style = MaterialTheme.typography.titleMedium)
-        Text(text = plan.limitationsNote, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+    Spacer(modifier = Modifier.height(AppSpacing.lg))
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Text(text = "Plan note", style = MaterialTheme.typography.titleMedium, color = OnSurface)
+        Text(text = plan.limitationsNote, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
         Spacer(modifier = Modifier.height(AppSpacing.md))
         if (uiState.showRegenerateConfirmation) {
             Text(
                 text = "Replace the active weekly plan with a new plan from the latest data?",
                 style = MaterialTheme.typography.bodyMedium,
-                color = CoralPrimary
+                color = Secondary
             )
             Spacer(modifier = Modifier.height(AppSpacing.sm))
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-                Button(
+                PrimaryActionButton(
+                    text = if (uiState.isGenerating) "Generating..." else "Replace",
                     onClick = onConfirmRegenerate,
-                    enabled = !uiState.isGenerating,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text(if (uiState.isGenerating) "Generating..." else "Replace")
-                }
-                OutlinedButton(onClick = onCancelRegenerate, modifier = Modifier.weight(1f)) {
+                )
+                OutlinedButton(onClick = onCancelRegenerate, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)) {
                     Text("Cancel")
                 }
             }
         } else {
-            OutlinedButton(onClick = onRequestRegenerate, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onRequestRegenerate, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
                 Text("Regenerate Plan")
             }
         }
@@ -2390,60 +2408,99 @@ private fun WeeklyPlanContent(
 
 @Composable
 private fun WeeklyPlanHeader(plan: WeeklyGrowthPlan) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
-        PillBadge(text = plan.status.label, containerColor = CreamBackground, contentColor = CoralPrimary)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = plan.businessName, style = MaterialTheme.typography.titleLarge)
-        Text(text = "${plan.businessCategoryName} - Week of ${plan.generatedDate}", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-    }
-}
-
-@Composable
-private fun WeeklyFocusCard(plan: WeeklyGrowthPlan) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = YellowSoft) {
-        PillBadge(text = plan.focus.category.label, containerColor = CreamBackground, contentColor = CoralPrimary)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = plan.focus.title, style = MaterialTheme.typography.titleLarge)
-        Text(text = plan.priorityReason, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Target: ${plan.target}", style = MaterialTheme.typography.bodyMedium)
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Column(modifier = Modifier.padding(AppSpacing.lg)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Active Sprint",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = OnSurfaceVariant
+                )
+                PillBadge(text = plan.status.label, containerColor = SecondaryFixed, contentColor = Secondary)
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(text = plan.businessName, style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+            Text(
+                text = "${plan.businessCategoryName} - Week of ${plan.generatedDate}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun WeeklyProgressCard(plan: WeeklyGrowthPlan) {
     val summary = plan.progressSummary
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = GreenSoft) {
-        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
-            MetricCard(
-                title = "Tasks",
-                value = "${summary.completedTasks}/${summary.totalTasks}",
-                helper = "Completed",
-                modifier = Modifier.weight(1f),
-                containerColor = CreamBackground,
-                accentColor = GreenPositive
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Column(modifier = Modifier.padding(AppSpacing.lg)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Weekly Progress", style = MaterialTheme.typography.titleMedium, color = OnSurface)
+                Text(
+                    text = "${(summary.taskProgress * 100).toInt()}%",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Secondary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.xs))
+            Text(
+                text = "Weekly Goal Progress",
+                style = MaterialTheme.typography.labelSmall,
+                color = OnSurfaceVariant
             )
-            MetricCard(
-                title = "Milestones",
-                value = "${summary.completedMilestones}/${summary.totalMilestones}",
-                helper = "Reached",
-                modifier = Modifier.weight(1f),
-                containerColor = CreamBackground,
-                accentColor = CoralPrimary
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(SurfaceContainer, RoundedCornerShape(4.dp))
+                    .border(1.dp, OutlineVariant, RoundedCornerShape(4.dp))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(summary.taskProgress.coerceIn(0f, 1f))
+                        .background(Secondary, RoundedCornerShape(4.dp))
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            ) {
+                MetricCard(
+                    title = "Tasks",
+                    value = "${summary.completedTasks}/${summary.totalTasks}",
+                    helper = "Completed",
+                    modifier = Modifier.weight(1f),
+                    containerColor = SurfaceContainerLowest,
+                    accentColor = Secondary
+                )
+                MetricCard(
+                    title = "Milestones",
+                    value = "${summary.completedMilestones}/${summary.totalMilestones}",
+                    helper = "Reached",
+                    modifier = Modifier.weight(1f),
+                    containerColor = SurfaceContainerLowest,
+                    accentColor = Secondary
+                )
+            }
+            Spacer(modifier = Modifier.height(AppSpacing.md))
+            Text(
+                text = "Next task: ${summary.nextTask?.title ?: "All tasks completed"}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = OnSurfaceVariant
             )
         }
-        Spacer(modifier = Modifier.height(AppSpacing.md))
-        LinearProgressIndicator(
-            progress = { summary.taskProgress },
-            modifier = Modifier.fillMaxWidth(),
-            color = GreenPositive,
-            trackColor = CreamBackground
-        )
-        Text(
-            text = "Next task: ${summary.nextTask?.title ?: "All tasks completed"}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = InkMuted
-        )
     }
 }
 
@@ -2455,28 +2512,45 @@ private fun WeeklyTaskCard(
     val completed = task.status == WeeklyTaskStatus.Completed
     UsahaNaikCard(
         modifier = Modifier.fillMaxWidth(),
-        containerColor = if (completed) GreenSoft else BlueSoft
+        containerColor = SurfaceContainerLowest
     ) {
-        Row(verticalAlignment = Alignment.Top) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+        ) {
             Checkbox(
                 checked = completed,
-                onCheckedChange = { onToggleTask(task.id) }
+                onCheckedChange = { onToggleTask(task.id) },
+                modifier = Modifier.padding(top = AppSpacing.xs)
             )
             Column(modifier = Modifier.weight(1f)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)) {
                     PillBadge(
                         text = if (completed) "Done" else "To do",
-                        containerColor = CreamBackground,
-                        contentColor = if (completed) GreenPositive else CoralPrimary
+                        containerColor = if (completed) SecondaryFixed else SurfaceContainerLow,
+                        contentColor = if (completed) Secondary else OnSurfaceVariant
                     )
-                    PillBadge(text = task.difficulty.label, containerColor = CreamBackground, contentColor = CoralPrimary)
-                    PillBadge(text = task.estimatedTime.label, containerColor = CreamBackground, contentColor = GreenPositive)
+                    PillBadge(text = task.difficulty.label, containerColor = SurfaceContainerLow, contentColor = OnSurfaceVariant)
+                    PillBadge(text = task.estimatedTime.label, containerColor = SurfaceContainerLow, contentColor = Secondary)
                 }
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
-                Text(text = task.title, style = MaterialTheme.typography.titleMedium)
-                Text(text = task.description, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = task.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (completed) OnSurfaceVariant else OnSurface
+                )
+                Text(
+                    text = task.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(AppSpacing.xs))
-                Text(text = "Reason: ${task.reason}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+                Text(
+                    text = "Reason: ${task.reason}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceVariant
+                )
             }
         }
     }
@@ -2484,39 +2558,52 @@ private fun WeeklyTaskCard(
 
 @Composable
 private fun WeeklyChallengeCard(plan: WeeklyGrowthPlan) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = CoralSoft) {
-        PillBadge(text = "Challenge", containerColor = CreamBackground, contentColor = CoralPrimary)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = plan.challenge.title, style = MaterialTheme.typography.titleLarge)
-        Text(text = plan.challenge.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
-        Spacer(modifier = Modifier.height(AppSpacing.sm))
-        plan.challenge.checklistItems.forEach { item ->
-            Text(text = "- $item", style = MaterialTheme.typography.bodyMedium)
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Challenge", style = MaterialTheme.typography.titleMedium, color = OnSurface)
+            PillBadge(text = plan.challenge.completionTarget, containerColor = SecondaryFixed, contentColor = Secondary)
         }
         Spacer(modifier = Modifier.height(AppSpacing.sm))
-        Text(text = "Target: ${plan.challenge.completionTarget}", style = MaterialTheme.typography.bodyMedium)
-        Text(text = plan.challenge.motivationalCopy, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        Text(text = plan.challenge.title, style = MaterialTheme.typography.headlineMedium, color = OnSurface)
+        Text(text = plan.challenge.description, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        plan.challenge.checklistItems.forEach { item ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(Secondary, CircleShape)
+                )
+                Text(text = item, style = MaterialTheme.typography.bodyMedium, color = OnSurface)
+            }
+        }
+        Spacer(modifier = Modifier.height(AppSpacing.sm))
+        Text(text = plan.challenge.motivationalCopy, style = MaterialTheme.typography.bodySmall, color = OnSurfaceVariant)
     }
 }
 
 @Composable
 private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
-    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = LavenderSoft) {
+    UsahaNaikCard(modifier = Modifier.fillMaxWidth(), containerColor = SurfaceContainerLowest) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                PillBadge(text = milestone.status.label, containerColor = CreamBackground, contentColor = CoralPrimary)
+                PillBadge(text = milestone.status.label, containerColor = SecondaryFixed, contentColor = Secondary)
                 Spacer(modifier = Modifier.height(AppSpacing.sm))
-                Text(text = milestone.title, style = MaterialTheme.typography.titleMedium)
-                Text(text = milestone.description, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                Text(text = milestone.title, style = MaterialTheme.typography.titleMedium, color = OnSurface)
+                Text(text = milestone.description, style = MaterialTheme.typography.bodyMedium, color = OnSurfaceVariant)
             }
             Text(
                 text = "${milestone.progressPercentage}%",
                 style = MaterialTheme.typography.titleMedium,
-                color = CoralPrimary,
+                color = Secondary,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -2524,8 +2611,8 @@ private fun WeeklyMilestoneCard(milestone: BusinessMilestone) {
         LinearProgressIndicator(
             progress = { milestone.progressPercentage / 100f },
             modifier = Modifier.fillMaxWidth(),
-            color = GreenPositive,
-            trackColor = CreamBackground
+            color = Secondary,
+            trackColor = SurfaceContainer
         )
     }
 }
