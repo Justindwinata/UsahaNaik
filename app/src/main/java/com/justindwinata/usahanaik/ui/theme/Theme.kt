@@ -52,9 +52,9 @@ fun UsahaNaikTheme(
             val window = (view.context as Activity).window
             window.statusBarColor = Background.toArgb()
             window.navigationBarColor = SurfaceContainerLowest.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
             }
         }
     }
